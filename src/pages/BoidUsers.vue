@@ -46,13 +46,14 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, Ref } from "vue"
-import { mainStore, AccountRowData } from "../stores/mainStore"
+import { userStore } from "../stores/usersStore"
+import { AccountRowData } from "../lib/types"
 import { storeToRefs } from "pinia"
 
 export default defineComponent({
   name: "IndexPage",
   setup() {
-    const store = mainStore()
+    const store = userStore()
     const { isLoading, organizedData: organizedDataRaw } = storeToRefs(store)
     const organizedData = organizedDataRaw as Ref<AccountRowData[]>
     const search = ref("")

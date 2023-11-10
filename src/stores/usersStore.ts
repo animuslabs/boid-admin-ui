@@ -1,53 +1,11 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { getTableData } from "./contracts"
+import { getTableData } from "../lib/contracts"
 import { Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { contractName, tables } from "./config"
+import { contractName, tables } from "../lib/config"
 import { Bytes } from "@wharfkit/antelope"
-
-export class ParsedAccountMeta {
-  text:{
-    tagline:string
-    info:string
-    eosAccount:string
-    telosAccount:string
-  } = {
-      tagline: "",
-      info: "",
-      eosAccount: "",
-      telosAccount: ""
-    }
-
-  media:{
-    profile:string
-    banner:string
-  } = {
-      profile: "",
-      banner: ""
-    }
-}
-
-export type AccountRowData = {
-  boid_id:string;
-  owners:string;
-  auth_keys:string;
-  meta:ParsedAccountMeta;
-};
-
-export class TeamMeta {
-  links:[string, string][] = []
-  media:[string, string][] = []
-  text:[string, string][] = []
-  extra?:[string, string][] = []
-}
-
-class AccountMeta {
-  links:[string, string][] = []
-  media:[string, string][] = []
-  text:[string, string][] = []
-  extra?:[string, string][] = []
-}
+import { ParsedAccountMeta, AccountRowData, TeamMeta, AccountMeta } from "../lib/types"
 
 export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
@@ -88,8 +46,8 @@ function parseAccountMeta(meta:AccountMeta | undefined):ParsedAccountMeta {
 }
 
 // Defining the store
-export const mainStore = defineStore({
-  id: "mainStore",
+export const userStore = defineStore({
+  id: "usersStore",
 
   // Reactive state of the store
   state: () => ({
