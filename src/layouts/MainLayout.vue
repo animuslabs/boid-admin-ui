@@ -3,13 +3,12 @@
     <q-header elevated>
       <q-toolbar>
         <q-toolbar-title>
-          Boid Admin
+          Boid Admin Portal
         </q-toolbar-title>
         <div class="q-gutter-md">
           <q-btn
             flat
             dense
-            round
             @click="$router.push('/')"
           >
             Home
@@ -17,7 +16,6 @@
           <q-btn
             flat
             dense
-            round
             @click="$router.push('/boid-users')"
           >
             Users
@@ -25,7 +23,6 @@
           <q-btn
             flat
             dense
-            round
             @click="$router.push('/teams')"
           >
             Teams
@@ -33,7 +30,13 @@
           <q-btn
             flat
             dense
-            round
+            @click="$router.push('/')"
+          >
+            DAO
+          </q-btn>
+          <q-btn
+            flat
+            dense
             @click="isLoggedIn ? logout() : login()"
           >
             {{ isLoggedIn ? 'Logout' : 'Login' }}

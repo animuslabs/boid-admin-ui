@@ -10,7 +10,8 @@ export const useSessionStore = defineStore({
   }),
   // Getters
   getters: {
-    isLoggedIn: (state) => state.session !== undefined
+    isLoggedIn: (state) => state.session !== undefined,
+    username: (state) => state.session?.actor.toString() || ""
   },
 
   // Actions

@@ -3,6 +3,7 @@
     <q-card>
       <q-card-section>
         <q-table
+          title="Boid Teams"
           :rows="teamData"
           :columns="columns"
           row-key="team_id"
