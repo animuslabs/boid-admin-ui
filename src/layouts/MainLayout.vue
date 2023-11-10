@@ -10,6 +10,14 @@
             flat
             dense
             round
+            @click="$router.push('/')"
+          >
+            Home
+          </q-btn>
+          <q-btn
+            flat
+            dense
+            round
             @click="$router.push('/boid-users')"
           >
             Users
@@ -26,9 +34,9 @@
             flat
             dense
             round
-            @click="$router.push('/')"
+            @click="isLoggedIn ? logout() : login()"
           >
-            Home
+            {{ isLoggedIn ? 'Logout' : 'Login' }}
           </q-btn>
         </div>
       </q-toolbar>
@@ -48,7 +56,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue"
+import { defineComponent, computed, onMounted } from "vue"
+import { useSessionStore } from "../stores/sessionStore"
 
 export default defineComponent({
   name: "MainLayout",
@@ -58,10 +67,21 @@ export default defineComponent({
   },
 
   setup() {
-    const leftDrawerOpen = ref(false)
-
+    const sessionStore = useSessionStore()
+    const isLoggedIn = computed(() => sessionStore.isLoggedIn)
+    const login = async() => {
+      await sessionStore.login()
+    }
+    const logout = async() => {
+      await sessionStore.logout()
+    }
+    onMounted(async() => {
+      await sessionStore.renew()
+    })
     return {
-
+      isLoggedIn,
+      login,
+      logout
     }
   }
 })

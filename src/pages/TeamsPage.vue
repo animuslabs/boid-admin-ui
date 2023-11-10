@@ -18,7 +18,6 @@ export default defineComponent({
     const store = useTeamStore()
 
     onMounted(async() => {
-      // Call the function from the store
       await store.fetchAccTableData()
     })
 

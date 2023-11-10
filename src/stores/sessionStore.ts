@@ -1,30 +1,43 @@
 import { defineStore } from "pinia"
+import { LocalStorage } from "quasar"
 import { sessionLogin, sessionLogout, sessionRestore } from "../lib/session"
+import { Session } from "@wharfkit/session"
 
 export const useSessionStore = defineStore({
   id: "sessionStore",
   state: () => ({
-    session: null as SessionKit | null
+    session: undefined as Session | undefined
   }),
-
   // Getters
   getters: {
-    isLoggedIn: (state) => state.session !== null // Check if logged in
+    isLoggedIn: (state) => state.session !== undefined
   },
 
   // Actions
   actions: {
     async login() {
-      this.session = await sessionLogin()
+      const sessionData = await sessionLogin()
+      if (sessionData) {
+        const serializedSession = sessionData.serialize()
+        LocalStorage.set("session", serializedSession)
+      }
+      this.session = sessionData
     },
 
     async logout() {
-      sessionLogout()
-      this.session = null
+      await sessionLogout()
+      LocalStorage.remove("session")
+      this.session = undefined
     },
 
-    async renewSession() {
-      this.session = await sessionRestore()
+    async renew() {
+      const serializedSession = LocalStorage.getItem("session")
+      if (serializedSession) {
+        this.session = await sessionRestore()
+        if (this.session) {
+          LocalStorage.set("session", this.session.serialize())
+        }
+      }
     }
   }
 })

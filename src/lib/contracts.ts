@@ -1,7 +1,6 @@
 import { ContractKit, Table } from "@wharfkit/contract"
 import { endpoints } from "./config"
 import { APIClient, APIClientOptions } from "@wharfkit/antelope"
-import { Types } from "./boid-contract-structure"
 
 const apiClientOptions:APIClientOptions = {
   url: endpoints[2]![1]!
