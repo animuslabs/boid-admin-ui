@@ -40,3 +40,29 @@ export class AccountMeta {
   text:[string, string][] = []
   extra?:[string, string][] = []
 }
+
+interface TeamTokenUnstake {
+  redeemable_after_round:number
+  quantity:number
+}
+
+interface TeamAccountStake {
+  unstaking:TeamTokenUnstake[]
+  self_staked:number
+  received_delegated_stake:number
+}
+
+export interface DeserializedTeam {
+  team_id:number;
+  balance:number;
+  stake:TeamAccountStake;
+  owner:string;
+  managers:string[];
+  min_pwr_tax_mult:number;
+  owner_cut_mult:number;
+  url_safe_name:string;
+  power:number;
+  members:number;
+  last_edit_round:number;
+  meta:TeamMeta | null;
+}
