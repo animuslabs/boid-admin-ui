@@ -17,7 +17,6 @@ module.exports = configure(function(/* ctx */) {
       warnings: false,
       errors: true
     },
-
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
 
@@ -25,6 +24,7 @@ module.exports = configure(function(/* ctx */) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
+      "buffer-polyfill"
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css

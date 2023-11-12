@@ -222,8 +222,12 @@
           </div>
           <q-input
             v-model="newTeamData.url_safe_name"
+            :color="urlSafeNameValid ? 'green' : 'red'"
             label="Team Name"
+            hint="Lowercase, numbers, hyphens only. Max 20 characters."
+            :dense="true"
           />
+
           <q-input
             v-model="newTeamData.min_pwr_tax_mult"
             type="number"
@@ -266,7 +270,10 @@ export default defineComponent({
     const store = useTeamStore()
     const card = ref(false)
     const selectedTeam = ref<DeserializedTeam | undefined>(undefined)
-
+    const urlSafeNameValid = computed(() => {
+      const regex = /^[a-z0-9-]{1,20}$/
+      return regex.test(newTeamData.url_safe_name)
+    })
     const editDialog = ref(false)
     const ipfsEndpoint = endpoints[3]?.[1] || "https://ipfs.pintastic.link/ipfs/"
     const editFormData = reactive({
@@ -311,15 +318,6 @@ export default defineComponent({
         console.error("Error caught in createNewTeam:", error)
       }
     }
-    // const transferTokens = async() => {
-    //   try {
-    //     console.log("Initiating transfer creation")
-    //     const result = await store.createTransferAction()
-    //     return result
-    //   } catch (error) {
-    //     console.error("Error caught in createTransferAction:", error)
-    //   }
-    // }
     const addLink = () => {
       editFormData.links.push("")
     }
@@ -387,7 +385,8 @@ export default defineComponent({
       removeMedia,
       addTeamDialog,
       newTeamData,
-      createNewTeam
+      createNewTeam,
+      urlSafeNameValid
     }
   }
 })
