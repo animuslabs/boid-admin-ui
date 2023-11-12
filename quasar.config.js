@@ -52,10 +52,6 @@ module.exports = configure(function(/* ctx */) {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node16"
       },
-      chainWebpack(chain) {
-        const nodePolyfillWebpackPlugin = require("node-polyfill-webpack-plugin")
-        chain.plugin("node-polyfill").use(nodePolyfillWebpackPlugin)
-      },
       vueRouterMode: "history", // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
