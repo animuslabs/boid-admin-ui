@@ -1,29 +1,50 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { getTableData } from "../lib/contracts"
-import { Types } from "../lib/boid-contract-structure"
+import { getTableData, createAction } from "../lib/contracts"
+import { ActionParams, Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { contractName, tables } from "../lib/config"
 import { Bytes } from "@wharfkit/antelope"
-import { DeserializedTeam } from "../lib/types"
+import { TransactResult } from "@wharfkit/session"
+import { DeserializedTeam, TeamMeta } from "../lib/types"
+import { useSessionStore } from "../stores/sessionStore"
+
+const sessionStore = useSessionStore()
 
 async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
-    // Step 1: Decode bytes to string
+    // Check if bytes are empty
+    if (bytes.length === 0) {
+      console.warn("Empty bytes, returning default value.")
+      return {} as T // Return an empty object (or a more appropriate default value)
+    }
+
+    // Decode bytes to string
     const decoder = new TextDecoder() // Assumes UTF-8 encoding
     const jsonString = decoder.decode(bytes.array)
 
-    // Step 2: Parse string to JSON
+    // Parse string to JSON
     const data = JSON.parse(jsonString)
 
     return data
-  } catch (error) {
+  } catch (error:any) {
     console.error("Error converting bytes to JSON:", error)
-    throw new Error("Error converting bytes to JSON" + error)
+    throw new Error("Error converting bytes to JSON: " + error.message)
   }
 }
 
 async function deserializeTeam(team:Types.Team):Promise<DeserializedTeam> {
+  let deserializedMeta:TeamMeta = new TeamMeta()
+
+  // Additional logging and handling for 'meta'
+  if (team.meta) {
+    try {
+      deserializedMeta = await bytesToJson(team.meta) as TeamMeta
+    } catch (error) {
+      console.error("Error deserializing 'meta':", error)
+      // Handle error or set a default value for 'deserializedMeta' if necessary
+    }
+  }
   return {
     team_id: team.team_id.toNumber(),
     balance: team.balance.toNumber(),
@@ -43,7 +64,7 @@ async function deserializeTeam(team:Types.Team):Promise<DeserializedTeam> {
     power: team.power.toNumber(),
     members: team.members.toNumber(),
     last_edit_round: team.last_edit_round.toNumber(),
-    meta: team.meta ? await bytesToJson(team.meta) : null
+    meta: deserializedMeta
   }
 }
 
@@ -66,7 +87,7 @@ export const useTeamStore = defineStore({
     isLoading(state) {
       return state.loading
     },
-    error(state) {
+    stateError(state) {
       return state.error
     }
   },
@@ -86,8 +107,67 @@ export const useTeamStore = defineStore({
       } finally {
         this.$patch({ loading: false })
       }
-    }
+    },
+    async createTeamAction(min_pwr_tax_mult:number, owner_cut_mult:number, url_safe_name:string):Promise<TransactResult | undefined> {
+      console.log("createTeamAction called with", { min_pwr_tax_mult, owner_cut_mult, url_safe_name })
 
+      try {
+        const actionName = "team.create"
+        console.log(`Preparing to create team with actionName: ${actionName}`)
+        console.log("Session Data Username:", sessionStore.username)
+        const action_data:ActionParams.TeamCreate = {
+          owner: sessionStore.username.toString() || "",
+          min_pwr_tax_mult,
+          owner_cut_mult,
+          url_safe_name
+        }
+        console.log("Action data prepared:", action_data)
+
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+
+        console.log("Calling createAction...")
+        const result = await createAction(contractName, actionName, action_data)
+        console.log("Team created successfully:", result)
+
+        return result
+      } catch (error:any) {
+        console.error("Error creating team:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
+    },
+    async createTransferAction():Promise<TransactResult | undefined> {
+      try {
+        const actionName = "transfer"
+        console.log(`Preparing to create team with actionName: ${actionName}`)
+        console.log("Session Data Username:", sessionStore.username)
+        const action_data = {
+          from: sessionStore.username.toString() || "",
+          to: "3boidanimus3",
+          quantity: "100.0000 BOID",
+          memo: "test"
+        }
+        console.log("Action data prepared:", action_data)
+
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+
+        console.log("Calling createAction...")
+        const result = await createAction("token.boid", actionName, action_data)
+        console.log("Transfer successfull:", result)
+
+        return result
+      } catch (error:any) {
+        console.error("Error creating team:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
+    }
   }
 
 })

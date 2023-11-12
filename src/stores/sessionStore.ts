@@ -11,7 +11,8 @@ export const useSessionStore = defineStore({
   // Getters
   getters: {
     isLoggedIn: (state) => state.session !== undefined,
-    username: (state) => state.session?.actor.toString() || ""
+    username: (state) => state.session?.actor.toString() || "",
+    sessionState: (state) => state
   },
 
   // Actions
