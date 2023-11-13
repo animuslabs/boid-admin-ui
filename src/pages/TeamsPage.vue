@@ -3,9 +3,17 @@
     <q-card>
       <q-card-section>
         <q-btn
-          label="Add Team"
+          label="Add"
           color="primary"
           @click="addTeamDialog = true"
+          class="q-mb-md q-mr-sm"
+        />
+        <q-btn
+          label="Remove"
+          color="primary"
+          @click="addTeamDialog = true"
+          class="q-mb-md"
+          disabled
         />
         <q-table
           title="Boid Teams"
@@ -67,11 +75,14 @@
         </q-table>
       </q-card-section>
     </q-card>
-    <!-- Dialog for displaying team details -->
+  </q-page>
+  <template>
     <q-dialog
       v-model="card"
       persistent
+      class="team-details-dialog"
     >
+      <!-- Dialog for displaying team details -->
       <q-card>
         <q-card-section>
           <div class="text-h6">
@@ -130,6 +141,16 @@
                   >{{ ipfsEndpoint + mediaItem[1] }}</a>
                 </li>
               </ul>
+              <ul v-if="selectedTeam.meta.text && selectedTeam.meta.text.length">
+                <!-- Text section -->
+                <li
+                  v-for="(textItem, index) in selectedTeam.meta.text"
+                  :key="`text-${index}`"
+                >
+                  <strong>Text {{ index + 1 }} - |{{ textItem[0] }}| </strong>
+                  {{ textItem[1] }}
+                </li>
+              </ul>
             </div>
           </div>
         </q-card-section>
@@ -148,73 +169,123 @@
             @click="card = false"
           />
         </q-card-section>
-        <!-- Edit Dialog -->
-        <q-dialog
-          v-model="editDialog"
-          persistent
-          full-width
-        >
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">
-                Edit Team
-              </div>
-            </q-card-section>
+      </q-card>
+    </q-dialog>
+    <!-- Edit Dialog -->
+    <q-dialog
+      v-model="editDialog"
+      persistent
+      class="team-details-edit-dialog"
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">
+            Edit Team
+          </div>
+        </q-card-section>
 
-            <q-card-section>
-              <q-input
-                v-model="editFormData.name"
-                label="Team Name"
-                class="q-my-md"
-              />
-              <q-input
-                v-model="editFormData.owner"
-                label="Owner"
-                class="q-my-md"
-              />
+        <q-card-section>
+          <q-input
+            v-model="editFormData.name"
+            label="Team Name"
+            class="q-my-md"
+          />
+          <q-input
+            v-model="editFormData.owner"
+            label="Owner"
+            class="q-my-md"
+          />
 
-              <div
-                v-for="(link, index) in editFormData.links"
-                :key="'link-' + index"
-              >
-                <q-input
-                  v-model="editFormData.links[index]"
-                  label="Link"
-                  class="q-my-md"
-                />
-              </div>
+          <!-- Dynamic fields for links -->
+          <div
+            v-for="(link, index) in editFormData.links"
+            :key="'link-' + index"
+            class="q-mb-md"
+          >
+            <q-input
+              v-model="link[0]"
+              label="Link Name"
+            />
+            <q-input
+              v-model="link[1]"
+              label="Link URL"
+            />
+            <q-btn
+              icon="delete"
+              @click="removeLink(index)"
+            />
+          </div>
+          <q-btn
+            label="Add Link"
+            @click="addLink"
+          />
 
-              <div
-                v-for="(media, index) in editFormData.media"
-                :key="'media-' + index"
-              >
-                <q-input
-                  v-model="editFormData.media[index]"
-                  label="Media"
-                  class="q-my-md"
-                />
-              </div>
-            </q-card-section>
+          <div
+            v-for="(media, index) in editFormData.media"
+            :key="'media-' + index"
+          >
+            <q-input
+              v-model="media[0]"
+              label="Media Link Name"
+            />
+            <q-input
+              v-model="media[1]"
+              label="Media Link URL"
+              autogrow
+            />
+            <q-btn
+              icon="delete"
+              @click="removeLink(index)"
+            />
+          </div>
+          <q-btn
+            label="Add Media"
+            @click="addMedia"
+          />
+          <!-- Dynamic fields for text -->
+          <div
+            v-for="(textItem, index) in editFormData.text"
+            :key="'text-' + index"
+            class="q-mb-md"
+          >
+            <q-input
+              v-model="textItem[0]"
+              label="Text Name"
+            />
+            <q-input
+              v-model="textItem[1]"
+              label="Text Value"
+              autogrow
+            />
+            <q-btn
+              icon="delete"
+              @click="removeText(index)"
+            />
+          </div>
+          <q-btn
+            label="Add Text"
+            @click="addText"
+          />
+        </q-card-section>
 
-            <q-card-section align="right">
-              <q-btn
-                flat
-                label="Save"
-                color="primary"
-                @click="saveEdit"
-              />
-              <q-btn
-                flat
-                label="Cancel"
-                color="primary"
-                @click="editDialog = false"
-              />
-            </q-card-section>
-          </q-card>
-        </q-dialog>
+        <q-card-section align="right">
+          <q-btn
+            flat
+            label="Save"
+            color="primary"
+            @click="saveEdit"
+          />
+          <q-btn
+            flat
+            label="Cancel"
+            color="primary"
+            @click="editDialog = false"
+          />
+        </q-card-section>
       </q-card>
     </q-dialog>
     <q-dialog v-model="addTeamDialog">
+      <!-- adding a team dialog -->
       <q-card>
         <q-card-section>
           <div class="text-h6">
@@ -226,6 +297,7 @@
             label="Team Name"
             hint="Lowercase, numbers, hyphens only. Max 20 characters."
             :dense="true"
+            class="q-mb-md"
           />
 
           <q-input
@@ -244,6 +316,7 @@
             label="Create"
             color="primary"
             @click="createNewTeam"
+            class="q-mr-sm"
           />
 
           <q-btn
@@ -254,7 +327,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-  </q-page>
+  </template>
 </template>
 
 <script lang="ts">
@@ -282,8 +355,9 @@ export default defineComponent({
       managers: [] as string[],
       min_pwr_tax_mult: 0,
       owner_cut_mult: 0,
-      links: [] as string[],
-      media: [] as string[]
+      links: [] as [string, string][],
+      media: [] as [string, string][],
+      text: [] as [string, string][]
     })
 
     const addTeamDialog = ref(false)
@@ -319,7 +393,7 @@ export default defineComponent({
       }
     }
     const addLink = () => {
-      editFormData.links.push("")
+      editFormData.links.push(["", ""])
     }
 
     const removeLink = (index:number) => {
@@ -327,11 +401,18 @@ export default defineComponent({
     }
 
     const addMedia = () => {
-      editFormData.media.push("")
+      editFormData.media.push(["", ""])
     }
 
     const removeMedia = (index:number) => {
       editFormData.media.splice(index, 1)
+    }
+    const addText = () => {
+      editFormData.text.push(["", ""])
+    }
+
+    const removeText = (index:number) => {
+      editFormData.text.splice(index, 1)
     }
 
     function openTeamDetails(team:DeserializedTeam) {
@@ -342,11 +423,12 @@ export default defineComponent({
       // Initialize edit form data
       editFormData.name = team.url_safe_name
       editFormData.owner = team.owner
-      editFormData.managers = team.managers
+      editFormData.managers = [...team.managers]
       editFormData.min_pwr_tax_mult = team.min_pwr_tax_mult
       editFormData.owner_cut_mult = team.owner_cut_mult
-      editFormData.links = team.meta?.links.map(link => link[1]) || []
-      editFormData.media = team.meta?.media.map(media => media[1]) || []
+      editFormData.links = team.meta && team.meta.links ? [...team.meta.links] : []
+      editFormData.media = team.meta && team.meta.media ? [...team.meta.media] : []
+      editFormData.text = team.meta && team.meta.text ? [...team.meta.text] : []
       editDialog.value = true
     }
     onMounted(async() => {
@@ -386,15 +468,25 @@ export default defineComponent({
       addTeamDialog,
       newTeamData,
       createNewTeam,
-      urlSafeNameValid
+      urlSafeNameValid,
+      addText,
+      removeText
     }
   }
 })
 </script>
 
 <style scoped>
-.q-card {
+.team-details-dialog .q-card {
   max-width: 800px;
+  max-height: 800px;
+  overflow-wrap: break-word; /* Break lines within words if necessary */
+}
 
+.team-details-edit-dialog .q-card {
+  min-width: 400px ;
+  max-height: 800px;
+  overflow-y: auto; /* Enables scrolling for overflowing content */
+  overflow-wrap: break-word; /* Break lines within words if necessary */
 }
 </style>

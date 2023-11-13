@@ -139,6 +139,7 @@ export const useTeamStore = defineStore({
         return undefined
       }
     },
+    // Transfer action NOT USED atm (just an example)
     async createTransferAction():Promise<TransactResult | undefined> {
       try {
         const actionName = "transfer"
