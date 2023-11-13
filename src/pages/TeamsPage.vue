@@ -332,10 +332,10 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, computed, ref, reactive } from "vue"
-import { useTeamStore } from "../stores/teamsStore"
+import { useTeamStore, stringToBytes } from "../stores/teamsStore"
 import { endpoints } from "../lib/config"
 import { QTableColumn } from "quasar"
-import { DeserializedTeam } from "../lib/types"
+import { DeserializedTeam, TeamMeta } from "../lib/types"
 
 export default defineComponent({
   name: "TeamsPage",
@@ -444,10 +444,55 @@ export default defineComponent({
       { name: "power", label: "Power", field: "power", align: "left" }
     ]
 
-    const saveEdit = () => {
+    const saveEdit = async() => {
       console.log("Saving edits:", editFormData)
-      // Implement saving logic here
-      editDialog.value = false // Close edit dialog after saving
+
+      // Create an instance of TeamMeta
+      const meta = new TeamMeta()
+      meta.links = editFormData.links
+      meta.media = editFormData.media
+      meta.text = editFormData.text
+
+      // Serialize meta data to JSON string
+      const metaString = JSON.stringify(meta)
+
+      // Convert JSON string to BytesType
+      const metaBytes = stringToBytes(metaString)
+
+      // Prepare data for editTeamAction
+      const teamEditData = {
+        team_id: selectedTeam.value?.team_id ?? 0,
+        owner: editFormData.owner,
+        managers: editFormData.managers,
+        min_pwr_tax_mult: editFormData.min_pwr_tax_mult,
+        owner_cut_mult: editFormData.owner_cut_mult,
+        url_safe_name: editFormData.name,
+        meta: metaBytes
+      }
+
+      // Call editTeamAction
+      try {
+        const result = await store.editTeamAction(
+          teamEditData.team_id,
+          teamEditData.owner,
+          teamEditData.managers,
+          teamEditData.min_pwr_tax_mult,
+          teamEditData.owner_cut_mult,
+          teamEditData.url_safe_name,
+          teamEditData.meta
+        )
+
+        if (result) {
+          console.log("Team edited successfully:", result)
+          // Handle success (e.g., close dialog, refresh data)
+        } else {
+          console.log("No result returned from editTeamAction, possibly due to an error")
+        }
+      } catch (error) {
+        console.error("Error editing team:", error)
+      }
+
+      editDialog.value = false // Close edit dialog after attempting to save
     }
 
     return {

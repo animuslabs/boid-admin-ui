@@ -32,6 +32,9 @@ async function bytesToJson<T>(bytes:Bytes):Promise<T> {
     throw new Error("Error converting bytes to JSON: " + error.message)
   }
 }
+export function stringToBytes(str:string):Bytes {
+  return Bytes.fromString(str, "utf8")
+}
 
 async function deserializeTeam(team:Types.Team):Promise<DeserializedTeam> {
   let deserializedMeta:TeamMeta = new TeamMeta()
@@ -135,6 +138,38 @@ export const useTeamStore = defineStore({
         return result
       } catch (error:any) {
         console.error("Error creating team:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
+    },
+    async editTeamAction(team_id:number, owner:string, managers:string[], min_pwr_tax_mult:number, owner_cut_mult:number, url_safe_name:string, meta:Bytes):Promise<TransactResult | undefined> {
+      console.log("editTeamAction called with", { team_id, owner, managers, min_pwr_tax_mult, owner_cut_mult, url_safe_name })
+      try {
+        const actionName = "team.edit"
+        console.log("Session Data Username:", sessionStore.username)
+        const action_data:ActionParams.TeamEdit = {
+          team_id,
+          owner,
+          managers,
+          min_pwr_tax_mult,
+          owner_cut_mult,
+          url_safe_name,
+          meta
+        }
+        console.log("Action data prepared:", action_data)
+
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+
+        console.log("Calling createAction...")
+        const result = await createAction(contractName, actionName, action_data)
+        console.log("Team edited successfully:", result)
+
+        return result
+      } catch (error:any) {
+        console.error("Error editing team:", error)
         this.$patch({ error: error.message })
         return undefined
       }
