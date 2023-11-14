@@ -174,6 +174,34 @@ export const useTeamStore = defineStore({
         return undefined
       }
     },
+    async removeTeamAction(team_id:number):Promise<TransactResult | undefined> {
+      console.log("createTeamAction called with", { team_id })
+
+      try {
+        const actionName = "team.rm"
+        console.log(`Preparing to remove team with actionName: ${actionName}`)
+        console.log("Session Data Username:", sessionStore.username)
+        const action_data:ActionParams.TeamRm = {
+          team_id
+        }
+        console.log("Action data prepared:", action_data)
+
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+
+        console.log("Calling createAction...")
+        const result = await createAction(contractName, actionName, action_data)
+        console.log("Team created successfully:", result)
+
+        return result
+      } catch (error:any) {
+        console.error("Error creating team:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
+    },
     // Transfer action NOT USED atm (just an example)
     async createTransferAction():Promise<TransactResult | undefined> {
       try {

@@ -8,13 +8,14 @@
           @click="addTeamDialog = true"
           class="q-mb-md q-mr-sm"
         />
+
         <q-btn
           label="Remove"
-          color="primary"
-          @click="addTeamDialog = true"
+          color="negative"
+          @click="removeTeamDialog = true"
           class="q-mb-md"
-          disabled
         />
+
         <q-table
           title="Boid Teams"
           :rows="teamData"
@@ -26,6 +27,12 @@
               :props="props"
               @click="openTeamDetails(props.row)"
             >
+              <q-td
+                key="team_id"
+                :props="props"
+              >
+                {{ props.row.team_id }}
+              </q-td>
               <q-td
                 key="logo"
                 :props="props"
@@ -45,7 +52,6 @@
                   No Logo
                 </div>
               </q-td>
-
               <q-td
                 key="name"
                 :props="props"
@@ -77,6 +83,35 @@
     </q-card>
   </q-page>
   <template>
+    <q-dialog v-model="removeTeamDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">
+            Remove Team
+          </div>
+          <q-input
+            v-model="teamIdToRemove"
+            label="Enter Team ID to Remove"
+            type="number"
+            class="q-mb-md"
+          />
+        </q-card-section>
+        <q-card-section align="right">
+          <q-btn
+            label="Remove"
+            color="negative"
+            @click="handleRemoveTeam"
+            class="q-mr-sm"
+          />
+          <q-btn
+            label="Cancel"
+            color="primary"
+            @click="removeTeamDialog = false"
+          />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
     <q-dialog
       v-model="card"
       persistent
@@ -119,7 +154,7 @@
                 <!-- Links section -->
                 <li
                   v-for="(link, index) in selectedTeam.meta.links"
-                  :key="index"
+                  :key="`link-${index}`"
                 >
                   <strong>Link {{ index + 1 }}: </strong>
                   <a
@@ -202,13 +237,14 @@
             :key="'link-' + index"
             class="q-mb-md"
           >
-            <q-input
+            <q-select
               v-model="link[0]"
+              :options="linkOptions"
               label="Link Name"
             />
             <q-input
               v-model="link[1]"
-              label="Link URL"
+              label="Full link URL"
             />
             <q-btn
               icon="delete"
@@ -224,13 +260,14 @@
             v-for="(media, index) in editFormData.media"
             :key="'media-' + index"
           >
-            <q-input
+            <q-select
               v-model="media[0]"
+              :options="mediaOptions"
               label="Media Link Name"
             />
             <q-input
               v-model="media[1]"
-              label="Media Link URL"
+              label="Media image IPFS Hash"
               autogrow
             />
             <q-btn
@@ -248,8 +285,9 @@
             :key="'text-' + index"
             class="q-mb-md"
           >
-            <q-input
+            <q-select
               v-model="textItem[0]"
+              :options="textOptions"
               label="Text Name"
             />
             <q-input
@@ -343,12 +381,20 @@ export default defineComponent({
     const store = useTeamStore()
     const card = ref(false)
     const selectedTeam = ref<DeserializedTeam | undefined>(undefined)
+    const teamIdToRemove = ref(0)
+    const removeTeamDialog = ref(false)
+
     const urlSafeNameValid = computed(() => {
       const regex = /^[a-z0-9-]{1,20}$/
       return regex.test(newTeamData.url_safe_name)
     })
     const editDialog = ref(false)
     const ipfsEndpoint = endpoints[3]?.[1] || "https://ipfs.pintastic.link/ipfs/"
+    const linkOptions = [
+      "twitter", "medium", "discord", "telegram", "facebook", "linkedIn"
+    ]
+    const mediaOptions = ["icon", "logo", "banner"]
+    const textOptions = ["summary"]
     const editFormData = reactive({
       name: "",
       owner: "",
@@ -426,10 +472,39 @@ export default defineComponent({
       editFormData.managers = [...team.managers]
       editFormData.min_pwr_tax_mult = team.min_pwr_tax_mult
       editFormData.owner_cut_mult = team.owner_cut_mult
-      editFormData.links = team.meta && team.meta.links ? [...team.meta.links] : []
-      editFormData.media = team.meta && team.meta.media ? [...team.meta.media] : []
+
+      // Ensure links and media are formatted as arrays of arrays
+      editFormData.links = team.meta && team.meta.links ? team.meta.links.map(link => [link[0], link[1]]) : []
+      editFormData.media = team.meta && team.meta.media ? team.meta.media.map(media => [media[0], media[1]]) : []
       editFormData.text = team.meta && team.meta.text ? [...team.meta.text] : []
       editDialog.value = true
+    }
+
+    const rmTeam = async(teamIdToRemove:number) => {
+      if (!teamIdToRemove) {
+        console.error("No team ID provided for removal.")
+        return
+      }
+
+      try {
+        const result = await store.removeTeamAction(teamIdToRemove)
+        if (result) {
+          console.log("Team removed successfully:", result)
+        // Refresh the team list or perform other updates as needed
+        } else {
+          console.log("Failed to remove the team.")
+        }
+      } catch (error) {
+        console.error("Error removing team:", error)
+      }
+    }
+    const handleRemoveTeam = () => {
+      if (teamIdToRemove.value) {
+        rmTeam(teamIdToRemove.value) // Call rmTeam with the provided team ID
+        removeTeamDialog.value = false // Close the dialog
+      } else {
+        console.error("Please enter a valid team ID.")
+      }
     }
     onMounted(async() => {
       await store.fetchAccTableData()
@@ -437,6 +512,7 @@ export default defineComponent({
 
     const teamData = computed(() => store.organizedData)
     const columns:QTableColumn[] = [
+      { name: "team_id", label: "Team ID", field: "team_id", align: "left" },
       { name: "logo", label: "Logo", field: "logo", align: "left" },
       { name: "name", label: "Name", field: "url_safe_name", align: "left" },
       { name: "owner", label: "Owner", field: "owner", align: "left" },
@@ -484,7 +560,11 @@ export default defineComponent({
 
         if (result) {
           console.log("Team edited successfully:", result)
-          // Handle success (e.g., close dialog, refresh data)
+          await store.fetchAccTableData()
+          const updatedTeam = teamData.value.find(team => team.team_id === selectedTeam.value?.team_id)
+          if (updatedTeam) {
+            selectedTeam.value = updatedTeam
+          }
         } else {
           console.log("No result returned from editTeamAction, possibly due to an error")
         }
@@ -515,7 +595,13 @@ export default defineComponent({
       createNewTeam,
       urlSafeNameValid,
       addText,
-      removeText
+      removeText,
+      linkOptions,
+      mediaOptions,
+      textOptions,
+      teamIdToRemove,
+      handleRemoveTeam,
+      removeTeamDialog
     }
   }
 })
