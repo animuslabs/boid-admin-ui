@@ -4,7 +4,7 @@
       <q-card-section class="text-center">
         <div
           v-if="username"
-          class="text-h5 q-mb-md"
+          class="text-weight-bold q-mb-md"
         >
           Captain {{ username }}, welcome back to the command deck! 🚀
           <p class="q-mb-md">
@@ -13,7 +13,7 @@
         </div>
         <div
           v-else
-          class="text-h5 q-mb-md"
+          class="text-weight-bold q-mb-md"
         >
           Oh, It's you...
           <p class="q-mb-md">
