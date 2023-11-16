@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
-import { boid, createAction } from "src/lib/contracts"
-import { ActionParams, Types, TableMap } from "src/lib/boid-contract-structure"
+import { createAction, fetchDataFromTable } from "src/lib/contracts"
+import { ActionParams, Types } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { contractName } from "src/lib/config"
 import { TransactResult } from "@wharfkit/session"
@@ -34,20 +34,19 @@ export const useGlobalStore = defineStore({
   },
 
   actions: {
-    async fetchDataFromTable<T extends keyof typeof TableMap>(tableName:T):Promise<typeof TableMap[T][] | undefined> {
+    async fetchConfig() {
       this.$patch({ loading: true, error: null })
       try {
-        const tableData:typeof TableMap[T][] = await boid.table(tableName).query().all()
-        console.log(`Data fetched from ${tableName}:`, tableData)
-        return tableData
+        const configData = await fetchDataFromTable("config")
+        console.log("Config data fetched:", configData)
+        return configData
       } catch (error:any) {
-        console.error(`Error fetching data from ${tableName}:`, error)
+        console.error("Error fetching config data:", error)
         this.$patch({ error: error.message })
       } finally {
         this.$patch({ loading: false })
       }
     },
-    // const fetchedConfig = await store.fetchDataFromTable("config")
     async createConfigSetAction(config:Types.Config
     ):Promise<TransactResult | undefined> {
       try {

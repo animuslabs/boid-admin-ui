@@ -1,9 +1,9 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { boid, createAction } from "../lib/contracts"
+import { createAction, fetchDataFromTable } from "../lib/contracts"
 import { ActionParams, Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { contractName, tables } from "../lib/config"
+import { contractName } from "../lib/config"
 import { Bytes } from "@wharfkit/antelope"
 import { TransactResult } from "@wharfkit/session"
 import { DeserializedTeam, TeamMeta } from "../lib/types"
@@ -75,7 +75,15 @@ export const useTeamStore = defineStore({
     async fetchAccTableData():Promise<DeserializedTeam[] | undefined> {
       this.$patch({ loading: true, error: null })
       try {
-        const dataTeams:Types.Team[] = await boid.table("teams").query().all()
+        const dataTeamsResult = await fetchDataFromTable("teams")
+        if (!dataTeamsResult) {
+          console.error("Failed to fetch data")
+          this.$patch({ error: "Failed to fetch data" })
+          return
+        }
+
+        // Cast the result to the specific array type
+        const dataTeams:Types.Team[] = dataTeamsResult as unknown as Types.Team[]
         const deserializedTeams = await Promise.all(dataTeams.map(deserializeTeam))
         console.log("Deserialized Teams:", deserializedTeams)
         this.organizedDataRaw = deserializedTeams // Store deserialized data
@@ -177,37 +185,37 @@ export const useTeamStore = defineStore({
         this.$patch({ error: error.message })
         return undefined
       }
-    },
-    // Transfer action NOT USED atm (just an example)
-    async createTransferAction():Promise<TransactResult | undefined> {
-      try {
-        const actionName = "transfer"
-        console.log(`Preparing to create team with actionName: ${actionName}`)
-        console.log("Session Data Username:", sessionStore.username)
-        const action_data = {
-          from: sessionStore.username.toString() || "",
-          to: "3boidanimus3",
-          quantity: "100.0000 BOID",
-          memo: "test"
-        }
-        console.log("Action data prepared:", action_data)
-
-        if (!sessionStore || !sessionStore.username) {
-          console.error("Session or session actor is not defined")
-          throw new Error("Session or session actor is not defined")
-        }
-
-        console.log("Calling createAction...")
-        const result = await createAction("token.boid", actionName, action_data)
-        console.log("Transfer successfull:", result)
-
-        return result
-      } catch (error:any) {
-        console.error("Error creating team:", error)
-        this.$patch({ error: error.message })
-        return undefined
-      }
     }
+    // Transfer action NOT USED atm (just an example)
+    // async createTransferAction():Promise<TransactResult | undefined> {
+    //   try {
+    //     const actionName = "transfer"
+    //     console.log(`Preparing to create team with actionName: ${actionName}`)
+    //     console.log("Session Data Username:", sessionStore.username)
+    //     const action_data = {
+    //       from: sessionStore.username.toString() || "",
+    //       to: "3boidanimus3",
+    //       quantity: "100.0000 BOID",
+    //       memo: "test"
+    //     }
+    //     console.log("Action data prepared:", action_data)
+
+    //     if (!sessionStore || !sessionStore.username) {
+    //       console.error("Session or session actor is not defined")
+    //       throw new Error("Session or session actor is not defined")
+    //     }
+
+    //     console.log("Calling createAction...")
+    //     const result = await createAction("token.boid", actionName, action_data)
+    //     console.log("Transfer successfull:", result)
+
+    //     return result
+    //   } catch (error:any) {
+    //     console.error("Error creating team:", error)
+    //     this.$patch({ error: error.message })
+    //     return undefined
+    //   }
+    // }
   }
 
 })

@@ -595,7 +595,7 @@ export default defineComponent({
     })
 
     onMounted(async() => {
-      const fetchedConfig = await store.fetchDataFromTable("config")
+      const fetchedConfig = await store.fetchConfig()
       if (fetchedConfig) {
         const fetchedConfigData = fetchedConfig[0]
         if (fetchedConfigData) {

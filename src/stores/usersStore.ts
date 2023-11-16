@@ -1,11 +1,10 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { boid } from "../lib/contracts"
+import { fetchDataFromTable } from "../lib/contracts"
 import { Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { contractName, tables } from "../lib/config"
 import { Bytes } from "@wharfkit/antelope"
-import { ParsedAccountMeta, AccountRowData, TeamMeta, AccountMeta } from "../lib/types"
+import { ParsedAccountMeta, AccountRowData, AccountMeta } from "../lib/types"
 
 export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
@@ -74,12 +73,17 @@ export const userStore = defineStore({
       console.log("fetchAccTableData called")
       this.$patch({ loading: true, error: null })
       try {
-        const dataAcc:Types.Account[] = await boid.table("accounts").query().all()
+        const dataAccResult = await fetchDataFromTable("accounts")
+        const dataAccMetaResult = await fetchDataFromTable("acctmeta")
+        if (!dataAccResult || !dataAccMetaResult) {
+          // Handle the case when one of the fetches returns undefined
+          console.error("Failed to fetch data")
+          this.$patch({ error: "Failed to fetch data" })
+          return
+        }
 
-        console.log("dataAcc:", dataAcc)
-        const dataAccMeta:Types.AcctMeta[] = await boid.table("acctmeta").query().all()
-        console.log("dataAccMeta:", dataAccMeta)
-
+        const dataAcc:Types.Account[] = dataAccResult as unknown as Types.Account[]
+        const dataAccMeta:Types.AcctMeta[] = dataAccMetaResult as unknown as Types.AcctMeta[]
         // Create a map to link boid_id with its meta data
         const metaMap = new Map<string, Types.AcctMeta>()
         dataAccMeta.forEach(acctMeta => {
