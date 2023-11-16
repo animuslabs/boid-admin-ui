@@ -1,6 +1,6 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { getTableData, createAction } from "../lib/contracts"
+import { boid, createAction } from "../lib/contracts"
 import { ActionParams, Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { contractName, tables } from "../lib/config"
@@ -8,33 +8,9 @@ import { Bytes } from "@wharfkit/antelope"
 import { TransactResult } from "@wharfkit/session"
 import { DeserializedTeam, TeamMeta } from "../lib/types"
 import { useSessionStore } from "../stores/sessionStore"
+import { bytesToJson } from "../lib/reuseFunctions"
 
 const sessionStore = useSessionStore()
-
-async function bytesToJson<T>(bytes:Bytes):Promise<T> {
-  try {
-    // Check if bytes are empty
-    if (bytes.length === 0) {
-      console.warn("Empty bytes, returning default value.")
-      return {} as T // Return an empty object (or a more appropriate default value)
-    }
-
-    // Decode bytes to string
-    const decoder = new TextDecoder() // Assumes UTF-8 encoding
-    const jsonString = decoder.decode(bytes.array)
-
-    // Parse string to JSON
-    const data = JSON.parse(jsonString)
-
-    return data
-  } catch (error:any) {
-    console.error("Error converting bytes to JSON:", error)
-    throw new Error("Error converting bytes to JSON: " + error.message)
-  }
-}
-export function stringToBytes(str:string):Bytes {
-  return Bytes.fromString(str, "utf8")
-}
 
 async function deserializeTeam(team:Types.Team):Promise<DeserializedTeam> {
   let deserializedMeta:TeamMeta = new TeamMeta()
@@ -99,7 +75,7 @@ export const useTeamStore = defineStore({
     async fetchAccTableData():Promise<DeserializedTeam[] | undefined> {
       this.$patch({ loading: true, error: null })
       try {
-        const dataTeams:Types.Team[] = await getTableData(contractName, tables[2] as string, contractName)
+        const dataTeams:Types.Team[] = await boid.table("teams").query().all()
         const deserializedTeams = await Promise.all(dataTeams.map(deserializeTeam))
         console.log("Deserialized Teams:", deserializedTeams)
         this.organizedDataRaw = deserializedTeams // Store deserialized data

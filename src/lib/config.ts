@@ -1,5 +1,4 @@
 export const contractName = "boid"
-export const tables:string[] = ["accounts", "acctmeta", "teams"]
 export interface NetworkConfig {
   name:string
   chainId:string

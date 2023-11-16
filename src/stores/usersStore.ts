@@ -1,6 +1,6 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { getTableData } from "../lib/contracts"
+import { boid } from "../lib/contracts"
 import { Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { contractName, tables } from "../lib/config"
@@ -64,7 +64,7 @@ export const userStore = defineStore({
     isLoading(state) {
       return state.loading
     },
-    error(state) {
+    errors(state) {
       return state.error
     }
   },
@@ -74,9 +74,10 @@ export const userStore = defineStore({
       console.log("fetchAccTableData called")
       this.$patch({ loading: true, error: null })
       try {
-        const dataAcc:Types.Account[] = await getTableData(contractName, tables[0] as string, contractName)
+        const dataAcc:Types.Account[] = await boid.table("accounts").query().all()
+
         console.log("dataAcc:", dataAcc)
-        const dataAccMeta:Types.AcctMeta[] = await getTableData(contractName, tables[1] as string, contractName)
+        const dataAccMeta:Types.AcctMeta[] = await boid.table("acctmeta").query().all()
         console.log("dataAccMeta:", dataAccMeta)
 
         // Create a map to link boid_id with its meta data

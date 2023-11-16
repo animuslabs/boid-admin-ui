@@ -1,7 +1,8 @@
 import { ContractKit, ActionDataType } from "@wharfkit/contract"
 import { endpoints } from "./config"
-import { APIClient, APIClientOptions, Action } from "@wharfkit/antelope"
+import { APIClient, APIClientOptions } from "@wharfkit/antelope"
 import { useSessionStore } from "../stores/sessionStore"
+import { Contract } from "src/lib/boid-contract-structure"
 
 const apiClientOptions:APIClientOptions = {
   url: endpoints[2]![1]!
@@ -12,21 +13,7 @@ const contractKit = new ContractKit({
 })
 
 const sessionStore = useSessionStore()
-
-export async function getTableData(
-  contractName:string,
-  table:string,
-  scope:string
-) {
-  try {
-    const contract = await contractKit.load(contractName)
-    const tableData = await contract.table(table, scope).query().all()
-    return tableData
-  } catch (error) {
-    console.error("Error in getTableData:", error)
-    throw error
-  }
-}
+export const boid = new Contract(contractKit) // boid contract instance
 
 export async function createAction(
   contractName:string,

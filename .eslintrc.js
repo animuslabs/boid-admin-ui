@@ -45,6 +45,7 @@ module.exports = {
     "import/named": "off",
     "prefer-promise-reject-errors": "off",
     "no-unused-vars": "off",
+    "no-use-before-define": "off",
     "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
     "space-in-parens": ["error", "never"],
     "no-return-assign": "off",
@@ -71,7 +72,9 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/ban-types":"off",
+    "@typescript-eslint/no-namespace":"off",
+    "@typescript-eslint/no-empty-interface":"off",
     // VUE
     "vue/multi-word-component-names": "off"
-  }
+  },
 };

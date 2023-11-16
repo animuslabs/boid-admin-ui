@@ -370,7 +370,8 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, computed, ref, reactive } from "vue"
-import { useTeamStore, stringToBytes } from "../stores/teamsStore"
+import { useTeamStore } from "../stores/teamsStore"
+import { stringToBytes } from "../lib/reuseFunctions"
 import { endpoints } from "../lib/config"
 import { QTableColumn } from "quasar"
 import { DeserializedTeam, TeamMeta } from "../lib/types"

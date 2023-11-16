@@ -30,9 +30,9 @@
           <q-btn
             flat
             dense
-            @click="$router.push('/')"
+            @click="$router.push('/global')"
           >
-            DAO
+            Global
           </q-btn>
           <q-btn
             flat
