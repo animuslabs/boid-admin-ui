@@ -2,7 +2,8 @@ import { ContractKit, ActionDataType } from "@wharfkit/contract"
 import { endpoints } from "./config"
 import { APIClient, APIClientOptions } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
-import { Contract, TableMap } from "src/lib/boid-contract-structure"
+import { ActionNameParams, Contract, TableMap } from "src/lib/boid-contract-structure"
+import { TransactResult } from "@wharfkit/session"
 
 const apiClientOptions:APIClientOptions = {
   url: endpoints[2]![1]!
@@ -26,20 +27,15 @@ export async function fetchDataFromTable<T extends keyof typeof TableMap>(tableN
   }
 }
 
-export async function createAction(
-  contractName:string,
-  actionName:string,
-  action_data:ActionDataType
-) {
-  console.log("createAction called with", { contractName, actionName, action_data })
+export async function createAction<T extends keyof ActionNameParams>(
+  actionName:T,
+  action_data:ActionNameParams[T]
+):Promise<TransactResult | undefined> {
+  console.log("createAction called with", { actionName, action_data })
 
   try {
-    console.log(`Loading contract: ${contractName}`)
-    const contract = await contractKit.load(contractName)
-    console.log("Contract loaded:", contract)
-
     console.log(`Creating action: ${actionName} with data:`, action_data)
-    const action = contract.action(actionName, action_data)
+    const action = boid.action(actionName, action_data)
     console.log("Action created:", action)
 
     if (!sessionStore.session) {

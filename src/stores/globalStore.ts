@@ -2,7 +2,6 @@ import { defineStore } from "pinia"
 import { createAction, fetchDataFromTable } from "src/lib/contracts"
 import { ActionParams, Types } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { contractName } from "src/lib/config"
 import { TransactResult } from "@wharfkit/session"
 import { DeserializedTeam } from "src/lib/types"
 import { useSessionStore } from "src/stores/sessionStore"
@@ -53,7 +52,7 @@ export const useGlobalStore = defineStore({
         const actionName = "config.set"
         console.log(`Preparing to create team with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.ConfigSet = { config }
+        const action_data = { config } as ActionParams.ConfigSet
 
         console.log("Action data prepared:", action_data)
 
@@ -63,7 +62,7 @@ export const useGlobalStore = defineStore({
         }
 
         console.log("Calling Action...")
-        const result = await createAction(contractName, actionName, action_data)
+        const result = await createAction(actionName, action_data)
         console.log("Transfer successful:", result)
 
         return result

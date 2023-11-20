@@ -6,7 +6,9 @@
           flat
           label="SAVE"
           color="secondary"
+          @click="handleSave"
         />
+
         <div class="fit row wrap justify-center">
           <!-- Foldable Section -->
           <div
@@ -325,6 +327,12 @@
                 v-model="allowWithdrawalsComputed"
                 label="Allow Withdrawals"
               />
+              <q-input
+                filled
+                v-model="recoveryaccountComputed"
+                label="Recovery Account"
+                type="text"
+              />
             </q-expansion-item>
           </div>
         </div>
@@ -337,238 +345,308 @@
 import { defineComponent, onMounted, reactive, computed } from "vue"
 import { useGlobalStore } from "../stores/globalStore"
 import { Types } from "src/lib/boid-contract-structure"
-import { Name, UInt8, UInt32, Float32, UInt16 } from "@wharfkit/antelope"
+import { Name } from "@wharfkit/antelope"
 
 export default defineComponent({
   name: "GlobalPage",
   setup() {
     const store = useGlobalStore()
     const config = reactive({
-      account: {} as Types.ConfigAccount,
-      power: {} as Types.ConfigPower,
-      mint: {} as Types.ConfigMint,
-      team: {} as Types.ConfigTeam,
-      stake: {} as Types.ConfigStake,
-      time: {} as Types.ConfigTime,
-      auth: {} as Types.ConfigAuth,
-      nft: {} as Types.ConfigNft,
+      account: {
+        invite_price: 0,
+        premium_purchase_price: 0,
+        max_premium_prefix: 0,
+        max_owners: 0,
+        max_boosters: 0,
+        suffix_whitelist: [""],
+        remove_sponsor_price: 0,
+        sponsor_max_invite_codes: 0,
+        invite_code_expire_rounds: 0
+      },
+      power: {
+        sponsor_tax_mult: 0,
+        powered_stake_mult: 0,
+        claim_maximum_elapsed_rounds: 0,
+        soft_max_pwr_add: 0,
+        history_slots_length: 0
+      },
+      mint: {
+        round_powered_stake_mult: 0,
+        round_power_mult: 0
+      },
+      team: {
+        change_min_rounds: 0,
+        edit_team_min_rounds: 0,
+        team_edit_max_pct_change: 0,
+        buy_team_cost: 0,
+        owner_stake_required: 0,
+        owner_future_stake_lock_rounds_required: 0
+      },
+      stake: {
+        unstake_rounds: 0,
+        extra_stake_min_locked_rounds: 0
+      },
+      time: {
+        rounds_start_sec_since_epoch: 0,
+        round_length_sec: 0
+      },
+      auth: {
+        key_actions_whitelist: [""],
+        key_account_max_stake: 0,
+        key_account_max_balance: 0,
+        account_max_keys: 0,
+        worker_max_bill_per_action: 0
+      },
+      nft: {
+        boid_id_maximum_nfts: 0,
+        whitelist_collections: [""]
+      },
       paused: false,
       allow_deposits: false,
       allow_withdrawals: false,
-      recoveryaccount: {} as Name
+      recoveryaccount: ""
     })
 
     // Config Account
     const invitePowerPrefixComputed = computed({
-      get: () => config.account.invite_price?.value || 0,
+      get: () => config.account.invite_price,
       set: (newValue) => {
-        config.account.invite_price = new UInt32(newValue)
+        config.account.invite_price = newValue
       }
     })
     const premiumPurchasePriceComputed = computed({
-      get: () => config.account.premium_purchase_price?.value || 0,
+      get: () => config.account.premium_purchase_price,
       set: (newValue) => {
-        config.account.premium_purchase_price = new UInt32(newValue)
+        config.account.premium_purchase_price = newValue
       }
     })
     const maxPremiumPrefixComputed = computed({
-      get: () => config.account.max_premium_prefix?.value || 0,
+      get: () => config.account.max_premium_prefix,
       set: (newValue) => {
-        config.account.max_premium_prefix = new UInt8(newValue)
+        config.account.max_premium_prefix = newValue
       }
     })
     const maxOwnersComputed = computed({
-      get: () => config.account.max_owners?.value || 0,
+      get: () => config.account.max_owners,
       set: (newValue) => {
-        config.account.max_owners = new UInt8(newValue)
+        config.account.max_owners = newValue
       }
     })
     const maxBoostersComputed = computed({
-      get: () => config.account.max_boosters?.value || 0,
+      get: () => config.account.max_boosters,
       set: (newValue) => {
-        config.account.max_boosters = new UInt8(newValue)
+        config.account.max_boosters = newValue
       }
     })
     const suffixWhitelistComputed = computed({
-      get: () => config.account.suffix_whitelist?.map(name => name.toString()).join(", ") || "",
+      get: () => {
+        // Joins the array elements into a comma-separated string for display
+        return config.account.suffix_whitelist.join(", ")
+      },
       set: (newValue) => {
-        config.account.suffix_whitelist = newValue.split(",").map(Name.from)
+        // Splits the string by commas and trims whitespace for each element
+        config.account.suffix_whitelist = newValue.split(",").map(str => str.trim())
       }
     })
+
     const removeSponsorPriceComputed = computed({
-      get: () => config.account.remove_sponsor_price?.value || 0,
+      get: () => config.account.remove_sponsor_price,
       set: (newValue) => {
-        config.account.remove_sponsor_price = new UInt32(newValue)
+        config.account.remove_sponsor_price = newValue
       }
     })
     const sponsorMaxInviteCodesComputed = computed({
-      get: () => config.account.sponsor_max_invite_codes?.value || 0,
+      get: () => config.account.sponsor_max_invite_codes,
       set: (newValue) => {
-        config.account.sponsor_max_invite_codes = new UInt8(newValue)
+        config.account.sponsor_max_invite_codes = newValue
       }
     })
     const inviteCodeExpireRoundsComputed = computed({
-      get: () => config.account.invite_code_expire_rounds?.value || 0,
+      get: () => config.account.invite_code_expire_rounds,
       set: (newValue) => {
-        config.account.invite_code_expire_rounds = new UInt16(newValue)
+        config.account.invite_code_expire_rounds = newValue
       }
     })
 
     // Config Power
     const sponsorTaxMultComputed = computed({
-      get: () => config.power.sponsor_tax_mult?.value || 0,
+      get: () => {
+        let value:any = config.power.sponsor_tax_mult
+        value = value && typeof value === "object" && "value" in value ? value.value : value
+        return value
+      },
       set: (newValue) => {
-        config.power.sponsor_tax_mult = new Float32(newValue)
+        config.power.sponsor_tax_mult = newValue
       }
     })
+
     const poweredStakeMultComputed = computed({
-      get: () => config.power.powered_stake_mult?.value || 0,
+      get: () => {
+        let value:any = config.power.powered_stake_mult
+        value = value && typeof value === "object" && "value" in value ? value.value : value
+        return value
+      },
       set: (newValue) => {
-        config.power.powered_stake_mult = new Float32(newValue)
+        config.power.powered_stake_mult = newValue
       }
     })
+
     const claimMaxElapsedRoundsComputed = computed({
-      get: () => config.power.claim_maximum_elapsed_rounds?.value || 0,
+      get: () => config.power.claim_maximum_elapsed_rounds,
       set: (newValue) => {
-        config.power.claim_maximum_elapsed_rounds = new UInt16(newValue)
+        config.power.claim_maximum_elapsed_rounds = newValue
       }
     })
     const softMaxPwrAdd = computed({
-      get: () => config.power.soft_max_pwr_add?.value || 0,
+      get: () => config.power.soft_max_pwr_add,
       set: (newValue) => {
-        config.power.soft_max_pwr_add = new UInt16(newValue)
+        config.power.soft_max_pwr_add = newValue
       }
     })
     const historySlotsLengthComputed = computed({
-      get: () => config.power.history_slots_length?.value || 0,
+      get: () => config.power.history_slots_length,
       set: (newValue) => {
-        config.power.history_slots_length = new UInt8(newValue)
+        config.power.history_slots_length = newValue
       }
     })
 
     // Config Mint
     const roundPoweredStakeMultComputed = computed({
-      get: () => config.mint.round_powered_stake_mult?.value || 0,
+      get: () => {
+        let value:any = config.mint.round_powered_stake_mult
+        value = value && typeof value === "object" && "value" in value ? value.value : value
+        return value
+      },
       set: (newValue) => {
-        config.mint.round_powered_stake_mult = new Float32(newValue)
+        config.mint.round_powered_stake_mult = parseFloat(newValue)
       }
     })
+
     const roundPowerMultComputed = computed({
-      get: () => config.mint.round_power_mult?.value || 0,
+      get: () => {
+        let value:any = config.mint.round_power_mult
+        value = value && typeof value === "object" && "value" in value ? value.value : value
+        return value
+      },
       set: (newValue) => {
-        config.mint.round_power_mult = new Float32(newValue)
+        config.mint.round_power_mult = parseFloat(newValue)
       }
     })
 
     // Config Team
     const changeMinRoundsComputed = computed({
-      get: () => config.team.change_min_rounds?.value || 0,
+      get: () => config.team.change_min_rounds,
       set: (newValue) => {
-        config.team.change_min_rounds = new UInt16(newValue)
+        config.team.change_min_rounds = newValue
       }
     })
     const editTeamMinRoundsComputed = computed({
-      get: () => config.team.edit_team_min_rounds?.value || 0,
+      get: () => config.team.edit_team_min_rounds,
       set: (newValue) => {
-        config.team.edit_team_min_rounds = new UInt16(newValue)
+        config.team.edit_team_min_rounds = newValue
       }
     })
     const teamEditMaxPctChangeComputed = computed({
-      get: () => config.team.team_edit_max_pct_change?.value || 0,
+      get: () => config.team.team_edit_max_pct_change,
       set: (newValue) => {
-        config.team.team_edit_max_pct_change = new UInt16(newValue)
+        config.team.team_edit_max_pct_change = newValue
       }
     })
     const buyTeamCostComputed = computed({
-      get: () => config.team.buy_team_cost?.value || 0,
+      get: () => config.team.buy_team_cost,
       set: (newValue) => {
-        config.team.buy_team_cost = new UInt32(newValue)
+        config.team.buy_team_cost = newValue
       }
     })
     const ownerStakeRequiredComputed = computed({
-      get: () => config.team.owner_stake_required?.value || 0,
+      get: () => config.team.owner_stake_required,
       set: (newValue) => {
-        config.team.owner_stake_required = new UInt32(newValue)
+        config.team.owner_stake_required = newValue
       }
     })
     const ownerFutureStakeLockRoundsRequiredComputed = computed({
-      get: () => config.team.owner_future_stake_lock_rounds_required?.value || 0,
+      get: () => config.team.owner_future_stake_lock_rounds_required,
       set: (newValue) => {
-        config.team.owner_future_stake_lock_rounds_required = new UInt16(newValue)
+        config.team.owner_future_stake_lock_rounds_required = newValue
       }
     })
 
     // Config Stake
     const unstakeRoundsComputed = computed({
-      get: () => config.stake.unstake_rounds?.value || 0,
+      get: () => config.stake.unstake_rounds,
       set: (newValue) => {
-        config.stake.unstake_rounds = new UInt8(newValue)
+        config.stake.unstake_rounds = newValue
       }
     })
     const extraStakeMinLockedRoundsComputed = computed({
-      get: () => config.stake.extra_stake_min_locked_rounds?.value || 0,
+      get: () => config.stake.extra_stake_min_locked_rounds,
       set: (newValue) => {
-        config.stake.extra_stake_min_locked_rounds = new UInt8(newValue)
+        config.stake.extra_stake_min_locked_rounds = newValue
       }
     })
 
     // Config Time
     const roundsStartSecSinceEpochComputed = computed({
-      get: () => config.time.rounds_start_sec_since_epoch?.value || 0,
+      get: () => config.time.rounds_start_sec_since_epoch,
       set: (newValue) => {
-        config.time.rounds_start_sec_since_epoch = new UInt32(newValue)
+        config.time.rounds_start_sec_since_epoch = newValue
       }
     })
     const roundLengthSecComputed = computed({
-      get: () => config.time.round_length_sec?.value || 0,
+      get: () => config.time.round_length_sec,
       set: (newValue) => {
-        config.time.round_length_sec = new UInt32(newValue)
+        config.time.round_length_sec = newValue
       }
     })
 
     // Config Auth
     const keyActionsWhitelistComputed = computed({
-      get: () => config.auth.key_actions_whitelist?.map(name => name.toString()).join(", ") || "",
+      get: () => {
+        return config.auth.key_actions_whitelist.join(", ")
+      },
       set: (newValue) => {
-        config.auth.key_actions_whitelist = newValue.split(",").map(Name.from)
+        config.auth.key_actions_whitelist = newValue.split(",").map(str => str.trim())
       }
     })
+
     const keyAccountMaxStakeComputed = computed({
-      get: () => config.auth.key_account_max_stake?.value || 0,
+      get: () => config.auth.key_account_max_stake,
       set: (newValue) => {
-        config.auth.key_account_max_stake = new UInt32(newValue)
+        config.auth.key_account_max_stake = newValue
       }
     })
     const keyAccountMaxBalanceComputed = computed({
-      get: () => config.auth.key_account_max_balance?.value || 0,
+      get: () => config.auth.key_account_max_balance,
       set: (newValue) => {
-        config.auth.key_account_max_balance = new UInt32(newValue)
+        config.auth.key_account_max_balance = newValue
       }
     })
     const accountMaxKeysComputed = computed({
-      get: () => config.auth.account_max_keys?.value || 0,
+      get: () => config.auth.account_max_keys,
       set: (newValue) => {
-        config.auth.account_max_keys = new UInt8(newValue)
+        config.auth.account_max_keys = newValue
       }
     })
     const workerMaxBillPerActionComputed = computed({
-      get: () => config.auth.worker_max_bill_per_action?.value || 0,
+      get: () => config.auth.worker_max_bill_per_action,
       set: (newValue) => {
-        config.auth.worker_max_bill_per_action = new UInt32(newValue)
+        config.auth.worker_max_bill_per_action = newValue
       }
     })
 
     // Config NFT
     const boidIdMaxNFTsComputed = computed({
-      get: () => config.nft.boid_id_maximum_nfts?.value || 0,
+      get: () => config.nft.boid_id_maximum_nfts,
       set: (newValue) => {
-        config.nft.boid_id_maximum_nfts = new UInt16(newValue)
+        config.nft.boid_id_maximum_nfts = newValue
       }
     })
     const whitelistCollectionsComputed = computed({
-      get: () => config.nft.whitelist_collections?.map(name => name.toString()).join(", ") || "",
+      get: () => {
+        return config.nft.whitelist_collections.join(", ")
+      },
       set: (newValue) => {
-        config.nft.whitelist_collections = newValue.split(",").map(Name.from)
+        config.nft.whitelist_collections = newValue.split(",").map(str => str.trim())
       }
     })
 
@@ -593,6 +671,12 @@ export default defineComponent({
         config.allow_withdrawals = newValue
       }
     })
+    const recoveryaccountComputed = computed({
+      get: () => config.recoveryaccount,
+      set: (newValue) => {
+        config.recoveryaccount = newValue
+      }
+    })
 
     onMounted(async() => {
       const fetchedConfig = await store.fetchConfig()
@@ -603,6 +687,35 @@ export default defineComponent({
         }
       }
     })
+    const configInstance = computed(() => {
+      return Types.Config.from({
+        account: Types.ConfigAccount.from(config.account),
+        power: Types.ConfigPower.from(config.power),
+        mint: Types.ConfigMint.from(config.mint),
+        team: Types.ConfigTeam.from(config.team),
+        stake: Types.ConfigStake.from(config.stake),
+        time: Types.ConfigTime.from(config.time),
+        auth: Types.ConfigAuth.from(config.auth),
+        nft: Types.ConfigNft.from(config.nft),
+        paused: Boolean(config.paused),
+        allow_deposits: Boolean(config.allow_deposits),
+        allow_withdrawals: Boolean(config.allow_withdrawals),
+        recoveryaccount: Name.from(config.recoveryaccount)
+      })
+    })
+
+    const handleSave = async() => {
+      try {
+        // Convert reactive config to Types.Config type
+        console.log("Saving configuration config:", config)
+        console.log("Saving configuration configInstance:", configInstance.value)
+        // Call store action
+        await store.createConfigSetAction(configInstance.value)
+        console.log("Configuration saved successfully")
+      } catch (error) {
+        console.error("Error saving configuration:", error)
+      }
+    }
 
     return {
       maxPremiumPrefixComputed,
@@ -640,7 +753,9 @@ export default defineComponent({
       whitelistCollectionsComputed,
       pausedComputed,
       allowDepositsComputed,
-      allowWithdrawalsComputed
+      allowWithdrawalsComputed,
+      handleSave,
+      recoveryaccountComputed
     }
   }
 })

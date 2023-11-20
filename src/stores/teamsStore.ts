@@ -116,7 +116,7 @@ export const useTeamStore = defineStore({
         }
 
         console.log("Calling createAction...")
-        const result = await createAction(contractName, actionName, action_data)
+        const result = await createAction(actionName, action_data)
         console.log("Team created successfully:", result)
 
         return result
@@ -148,7 +148,7 @@ export const useTeamStore = defineStore({
         }
 
         console.log("Calling createAction...")
-        const result = await createAction(contractName, actionName, action_data)
+        const result = await createAction(actionName, action_data)
         console.log("Team edited successfully:", result)
 
         return result
@@ -176,7 +176,7 @@ export const useTeamStore = defineStore({
         }
 
         console.log("Calling createAction...")
-        const result = await createAction(contractName, actionName, action_data)
+        const result = await createAction(actionName, action_data)
         console.log("Team created successfully:", result)
 
         return result
