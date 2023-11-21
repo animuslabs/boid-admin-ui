@@ -5,21 +5,48 @@
     "strictNullChecks": true,
     "useDefineForClassFields": false,
     "target": "ES2022",
+    // "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "types": [
       "vite/client",
       "node"
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "lib/*": ["./lib/*"]
-    },
-    "baseUrl": "."
+      "src/*": [
+        "src/*"
+      ],
+      "lib/*": [
+        "src/lib/*"
+      ],
+      "app/*": [
+        "*"
+      ],
+      "components/*": [
+        "src/components/*"
+      ],
+      "layouts/*": [
+        "src/layouts/*"
+      ],
+      "pages/*": [
+        "src/pages/*"
+      ],
+      "assets/*": [
+        "src/assets/*"
+      ],
+      "boot/*": [
+        "src/boot/*"
+      ],
+      "stores/*": [
+        "src/stores/*"
+      ],
+    }
   },
   "vueCompilerOptions": {
     "plugins": [
-      "@volar/vue-language-plugin-pug"
+      "@volar/vue-language-plugin-pug",
+      "@vue/language-plugin-pug"
     ]
   }
 }

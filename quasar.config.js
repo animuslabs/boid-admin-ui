@@ -8,7 +8,10 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
+
 const { configure } = require("quasar/wrappers")
+// const rewriteAll = require("vite-plugin-rewrite-all").default
+const tsConfigPaths = require("vite-tsconfig-paths").default()
 
 module.exports = configure(function(/* ctx */) {
   return {
@@ -48,6 +51,12 @@ module.exports = configure(function(/* ctx */) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
+      extendViteConf(viteConf, { isClient, isServer }) {
+        viteConf.plugins.push(
+          // rewriteAll,
+          tsConfigPaths
+        )
+      },
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node16"

@@ -740,38 +740,38 @@ export namespace Types {
     }
     @Struct.type("Config")
     export class Config extends Struct {
-        @Struct.field(ConfigAccount)
-          account!:ConfigAccount
+      @Struct.field(ConfigAccount)
+        account!:ConfigAccount
 
-        @Struct.field(ConfigPower)
-          power!:ConfigPower
+      @Struct.field(ConfigPower)
+        power!:ConfigPower
 
-        @Struct.field(ConfigMint)
-          mint!:ConfigMint
+      @Struct.field(ConfigMint)
+        mint!:ConfigMint
 
-        @Struct.field(ConfigTeam)
-          team!:ConfigTeam
+      @Struct.field(ConfigTeam)
+        team!:ConfigTeam
 
-        @Struct.field(ConfigStake)
-          stake!:ConfigStake
+      @Struct.field(ConfigStake)
+        stake!:ConfigStake
 
-        @Struct.field(ConfigTime)
-          time!:ConfigTime
+      @Struct.field(ConfigTime)
+        time!:ConfigTime
 
-        @Struct.field(ConfigAuth)
-          auth!:ConfigAuth
+      @Struct.field(ConfigAuth)
+        auth!:ConfigAuth
 
-        @Struct.field(ConfigNft)
-          nft!:ConfigNft
+      @Struct.field(ConfigNft)
+        nft!:ConfigNft
 
-        @Struct.field("bool")
-          paused!:boolean
+      @Struct.field("bool")
+        paused!:boolean
 
-        @Struct.field("bool")
-          allow_deposits!:boolean
+      @Struct.field("bool")
+        allow_deposits!:boolean
 
-        @Struct.field("bool")
-          allow_withdrawals!:boolean
+      @Struct.field("bool")
+        allow_withdrawals!:boolean
 
         @Struct.field(Name)
           recoveryaccount!:Name

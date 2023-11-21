@@ -1,8 +1,9 @@
-import { defineStore } from "pinia"
-import { createAction, fetchDataFromTable } from "src/lib/contracts"
-import { ActionParams, Types } from "src/lib/boid-contract-structure"
+
+import { acceptHMRUpdate, defineStore } from "pinia"
+import { boid, createAction, fetchDataFromTable } from "src/lib/contracts"
+import { ActionParams, Contract, Types } from "lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { TransactResult } from "@wharfkit/session"
+import { Action, TransactResult } from "@wharfkit/session"
 import { DeserializedTeam } from "src/lib/types"
 import { useSessionStore } from "src/stores/sessionStore"
 
@@ -46,28 +47,17 @@ export const useGlobalStore = defineStore({
         this.$patch({ loading: false })
       }
     },
-    async createConfigSetAction(config:Types.Config
-    ):Promise<TransactResult | undefined> {
+    async createConfigSetAction(config:Types.Config):Promise<TransactResult | undefined> {
       try {
-        const actionName = "config.set"
-        console.log(`Preparing to create team with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data = { config } as ActionParams.ConfigSet
-
-        console.log("Action data prepared:", action_data)
-
         if (!sessionStore || !sessionStore.username) {
           console.error("Session or session actor is not defined")
           throw new Error("Session or session actor is not defined")
         }
-
-        console.log("Calling Action...")
-        const result = await createAction(actionName, action_data)
-        console.log("Transfer successful:", result)
-
-        return result
+        const result = await createAction("config.set", Types.ConfigSet.from({ config }))
+        console.log("Action Sent:", result)
       } catch (error:any) {
-        console.error("Error creating team:", error)
+        console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
         return undefined
       }
@@ -76,3 +66,7 @@ export const useGlobalStore = defineStore({
   }
 }
 )
+// this will make the store hot reload during development
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useGlobalStore, import.meta.hot))
+}

@@ -3,7 +3,7 @@ import { endpoints } from "./config"
 import { APIClient, APIClientOptions } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract, TableMap } from "src/lib/boid-contract-structure"
-import { TransactResult } from "@wharfkit/session"
+import { Action, TransactResult } from "@wharfkit/session"
 
 const apiClientOptions:APIClientOptions = {
   url: endpoints[2]![1]!
@@ -35,7 +35,11 @@ export async function createAction<T extends keyof ActionNameParams>(
 
   try {
     console.log(`Creating action: ${actionName} with data:`, action_data)
-    const action = boid.action(actionName, action_data)
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+    const authorization = [sessionStore.authorization]
+    const action = Action.from({ account: "boid", data: action_data, authorization, name: actionName })
+    // const action = boid.action(actionName, action_data)
     console.log("Action created:", action)
 
     if (!sessionStore.session) {

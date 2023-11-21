@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 import { LocalStorage } from "quasar"
 import { sessionLogin, sessionLogout, sessionRestore } from "../lib/session"
-import { Session } from "@wharfkit/session"
+import { PermissionLevel, Session } from "@wharfkit/session"
 
 export const useSessionStore = defineStore({
   id: "sessionStore",
@@ -12,6 +12,7 @@ export const useSessionStore = defineStore({
   getters: {
     isLoggedIn: (state) => state.session !== undefined,
     username: (state) => state.session?.actor.toString() || "",
+    authorization: (state) => PermissionLevel.from(state.session?.permissionLevel as PermissionLevel || { actor: "boid", permission: "active" }),
     sessionState: (state) => state
   },
 
