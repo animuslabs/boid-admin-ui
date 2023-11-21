@@ -38,6 +38,7 @@
               v-model="config.account.invite_price"
               label="Invite price"
               type="number"
+              suffix="BOID"
               :hint="configHints.account.invite_price"
               hide-bottom-space
             />
@@ -87,6 +88,7 @@
               v-model="config.account.remove_sponsor_price"
               label="Remove Sponsor Price"
               type="number"
+              suffix="BOID"
               hide-bottom-space
               :hint="configHints.account.remove_sponsor_price"
             />
