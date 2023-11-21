@@ -38,8 +38,8 @@ export async function createAction<T extends keyof ActionNameParams>(
     const session = sessionStore.session
     if (!session) throw new Error("Session not loaded")
     const authorization = [sessionStore.authorization]
-    const action = Action.from({ account: "boid", data: action_data, authorization, name: actionName })
-    // const action = boid.action(actionName, action_data)
+    // const action = Action.from({ account: "boid", data: action_data, authorization, name: actionName })
+    const action = boid.action(actionName, action_data)
     console.log("Action created:", action)
 
     if (!sessionStore.session) {

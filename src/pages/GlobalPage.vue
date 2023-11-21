@@ -117,31 +117,41 @@
               filled
               v-model="config.power.sponsor_tax_mult"
               label="Sponsor Tax Multiplier"
+              :hint="configHints.power.sponsor_tax_mult"
               type="number"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.power.powered_stake_mult"
               label="Powered Stake Multiplier"
+              :hint="configHints.power.powered_stake_mult"
               type="number"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.power.claim_maximum_elapsed_rounds"
               label="Claim Max Elapsed Rounds"
+              :hint="configHints.power.claim_maximum_elapsed_rounds"
               type="number"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.power.soft_max_pwr_add"
               label="Soft Max Power Add"
+              :hint="configHints.power.soft_max_pwr_add"
               type="number"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.power.history_slots_length"
               label="History Slots Length"
+              :hint="configHints.power.history_slots_length"
               type="number"
+              hide-bottom-space
             />
           </q-expansion-item>
 
@@ -156,12 +166,16 @@
               v-model="config.mint.round_powered_stake_mult"
               label="Round Powered Stake Multiplier"
               type="number"
+              :hint="configHints.mint.round_powered_stake_mult"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.mint.round_power_mult"
               label="Round Power Multiplier"
               type="number"
+              :hint="configHints.mint.round_power_mult"
+              hide-bottom-space
             />
           </q-expansion-item>
           <!-- Team Settings Section -->
@@ -174,36 +188,48 @@
               v-model="config.team.change_min_rounds"
               label="Change Min Rounds"
               type="number"
+              :hint="configHints.team.change_min_rounds"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.team.edit_team_min_rounds"
               label="Edit Team Min Rounds"
               type="number"
+              :hint="configHints.team.edit_team_min_rounds"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.team.team_edit_max_pct_change"
               label="Team Edit Max Percent Change"
               type="number"
+              :hint="configHints.team.team_edit_max_pct_change"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.team.buy_team_cost"
               label="Buy Team Cost"
               type="number"
+              :hint="configHints.team.buy_team_cost"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.team.owner_stake_required"
               label="Owner Stake Required"
               type="number"
+              :hint="configHints.team.owner_stake_required"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.team.owner_future_stake_lock_rounds_required"
               label="Owner Future Stake Lock Rounds Required"
               type="number"
+              :hint="configHints.team.owner_future_stake_lock_rounds_required"
+              hide-bottom-space
             />
           </q-expansion-item>
 
@@ -218,12 +244,16 @@
               v-model="config.stake.unstake_rounds"
               label="Unstake Rounds"
               type="number"
+              :hint="configHints.stake.unstake_rounds"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.stake.extra_stake_min_locked_rounds"
               label="Extra Stake Min Locked Rounds"
               type="number"
+              :hint="configHints.stake.extra_stake_min_locked_rounds"
+              hide-bottom-space
             />
           </q-expansion-item>
           <q-expansion-item label="Auth" icon="key">
@@ -232,30 +262,40 @@
               v-model="keyActionsWhitelistComputed"
               label="Key Actions Whitelist"
               type="text"
+              :hint="configHints.auth.key_actions_whitelist"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.auth.key_account_max_stake"
               label="Key Account Max Stake"
               type="number"
+              :hint="configHints.auth.key_account_max_stake"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.auth.key_account_max_balance"
               label="Key Account Max Balance"
               type="number"
+              :hint="configHints.auth.key_account_max_balance"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.auth.account_max_keys"
               label="Account Max Keys"
               type="number"
+              :hint="configHints.auth.account_max_keys"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.auth.worker_max_bill_per_action"
               label="Worker Max Bill Per Action"
               type="number"
+              :hint="configHints.auth.worker_max_bill_per_action"
+              hide-bottom-space
             />
           </q-expansion-item>
 
@@ -269,12 +309,16 @@
               v-model="config.time.rounds_start_sec_since_epoch"
               label="Rounds Start Seconds Since Epoch"
               type="number"
+              :hint="configHints.time.rounds_start"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="config.time.round_length_sec"
               label="Round Length Seconds"
               type="number"
+              :hint="configHints.time.round_length_sec"
+              hide-bottom-space
             />
           </q-expansion-item>
 
@@ -288,12 +332,16 @@
               v-model="config.nft.boid_id_maximum_nfts"
               label="Boid ID Maximum NFTs"
               type="number"
+              :hint="configHints.nft.boid_id_maximum_nfts"
+              hide-bottom-space
             />
             <q-input
               filled
               v-model="whitelistCollectionsComputed"
               label="Whitelist Collections"
               type="text"
+              :hint="configHints.nft.boid_id_maximum_nfts"
+              hide-bottom-space
             />
           </q-expansion-item>
           <q-expansion-item
@@ -303,20 +351,37 @@
             <q-toggle
               v-model="config.paused"
               label="Paused"
-            />
+              :hint="configHints.paused"
+            >
+              <q-tooltip>
+                {{ configHints.paused }}
+              </q-tooltip>
+            </q-toggle>
             <q-toggle
               v-model="config.allow_deposits"
               label="Allow Deposits"
-            />
+              :hint="configHints.allow_deposits"
+            >
+              <q-tooltip>
+                {{ configHints.allow_deposits }}
+              </q-tooltip>
+            </q-toggle>
             <q-toggle
               v-model="config.allow_withdrawals"
               label="Allow Withdrawals"
-            />
+            >
+              <q-tooltip>
+                {{ configHints.allow_withdrawals }}
+              </q-tooltip>
+            </q-toggle>
+
             <q-input
               filled
               v-model="config.recoveryaccount"
               label="Recovery Account"
               type="text"
+              :hint="configHints.recoveryaccount"
+              hide-bottom-space
             />
           </q-expansion-item>
         </div>

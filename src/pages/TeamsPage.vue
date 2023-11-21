@@ -466,8 +466,12 @@ export default defineComponent({
       selectedTeam.value = team
       card.value = true
     }
-    function editTeam(team:DeserializedTeam) {
+    function editTeam(team:DeserializedTeam | undefined) {
       // Initialize edit form data
+      if (!team) {
+        console.error("No team selected")
+        return
+      }
       editFormData.name = team.url_safe_name
       editFormData.owner = team.owner
       editFormData.managers = [...team.managers]
@@ -499,14 +503,15 @@ export default defineComponent({
         console.error("Error removing team:", error)
       }
     }
-    const handleRemoveTeam = () => {
+    const handleRemoveTeam = async() => {
       if (teamIdToRemove.value) {
-        rmTeam(teamIdToRemove.value) // Call rmTeam with the provided team ID
+        await rmTeam(teamIdToRemove.value) // Call rmTeam with the provided team ID
         removeTeamDialog.value = false // Close the dialog
       } else {
         console.error("Please enter a valid team ID.")
       }
     }
+
     onMounted(async() => {
       await store.fetchAccTableData()
     })
