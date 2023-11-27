@@ -8,7 +8,7 @@ let session = ref<Session | undefined>(undefined)
 
 const webRenderer = new WebRenderer()
 const sessionKit = new SessionKit({
-  appName: "boidadmin",
+  appName: "BoidAdmin",
   chains: [
     {
       id: networks[1]!.chainId,

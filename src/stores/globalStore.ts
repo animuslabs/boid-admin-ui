@@ -1,7 +1,7 @@
 
 import { acceptHMRUpdate, defineStore } from "pinia"
-import { boid, createAction, fetchDataFromTable } from "src/lib/contracts"
-import { ActionParams, Contract, Types } from "lib/boid-contract-structure"
+import { createAction2, createAction, fetchDataFromTable } from "src/lib/contracts"
+import { ActionParams, Types } from "lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Action, TransactResult } from "@wharfkit/session"
 import { DeserializedTeam } from "src/lib/types"
@@ -47,14 +47,14 @@ export const useGlobalStore = defineStore({
         this.$patch({ loading: false })
       }
     },
-    async createConfigSetAction(config:Types.Config):Promise<TransactResult | undefined> {
+    async createConfigSetAction(configData:ActionParams.ConfigSet):Promise<TransactResult | undefined> {
       try {
         console.log("Session Data Username:", sessionStore.username)
         if (!sessionStore || !sessionStore.username) {
           console.error("Session or session actor is not defined")
           throw new Error("Session or session actor is not defined")
         }
-        const result = await createAction("config.set", Types.ConfigSet.from({ config }))
+        const result = await createAction2("config.set", configData)
         console.log("Action Sent:", result)
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)

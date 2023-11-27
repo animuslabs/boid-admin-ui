@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.8",
-    "@wharfkit/contract": "^1.0.0",
+    "@wharfkit/contract": "^1.1.1",
     "@wharfkit/session": "^1.0.0",
-    "@wharfkit/signing-request": "^3.0.0",
-    "@wharfkit/wallet-plugin-anchor": "^1.0.4",
+    "@wharfkit/signing-request": "^3.1.0",
+    "@wharfkit/wallet-plugin-anchor": "^1.1.0",
     "@wharfkit/web-renderer": "^1.0.3",
     "buffer": "^6.0.3",
     "pinia": "^2.0.11",

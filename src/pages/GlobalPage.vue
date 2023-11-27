@@ -391,7 +391,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineComponent, onMounted, reactive, computed } from "vue"
+import { onMounted, reactive, computed } from "vue"
 import { useGlobalStore } from "stores/globalStore"
 import { Types } from "lib/boid-contract-structure"
 import { Name } from "@wharfkit/antelope"
@@ -492,12 +492,35 @@ onMounted(async() => {
 
 const handleSave = async() => {
   try {
-    await store.createConfigSetAction(Types.Config.from(config))
+    const convertedKeyActionsWhitelist = config.auth.key_actions_whitelist.map(item => Name.from(item))
+    const convertedSuffixWhitelist = config.account.suffix_whitelist.map(item => Name.from(item))
+    const convertedWhitelistCollections = config.nft.whitelist_collections.map(item => Name.from(item))
+    const convertedRecoveryAccount = Name.from(config.recoveryaccount)
+    let configToSave = {
+      config: new Types.Config({
+        account: { ...config.account, suffix_whitelist: convertedSuffixWhitelist },
+        power: { ...config.power },
+        mint: { ...config.mint },
+        team: { ...config.team },
+        stake: { ...config.stake },
+        time: { ...config.time },
+        auth: { ...config.auth, key_actions_whitelist: convertedKeyActionsWhitelist },
+        nft: { ...config.nft, whitelist_collections: convertedWhitelistCollections },
+        paused: config.paused,
+        allow_deposits: config.allow_deposits,
+        allow_withdrawals: config.allow_withdrawals,
+        recoveryaccount: convertedRecoveryAccount
+      })
+    }
+    console.log("Saving configuration:", configToSave)
+    await store.createConfigSetAction(configToSave)
     console.log("Configuration saved successfully")
   } catch (error) {
     console.error("Error saving configuration:", error)
   }
 }
+
+
 </script>
 <style>
 .my-card {
