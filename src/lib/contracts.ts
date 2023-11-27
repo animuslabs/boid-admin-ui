@@ -77,7 +77,7 @@ export async function createAction2<A extends ActionNames>(
       name: actionNameName,
       authorization,
       data: action_data
-    }, boid.abi)
+    })
     console.log("Action created:", action)
 
     if (!sessionStore.session) {
