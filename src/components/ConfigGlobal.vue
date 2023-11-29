@@ -14,7 +14,8 @@
       <q-btn
         flat
         label="SAVE"
-        color="secondary"
+        color="green"
+        icon="save"
         @click="handleSave"
       />
       <q-btn

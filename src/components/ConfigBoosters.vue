@@ -11,12 +11,6 @@
 <template>
   <q-card class="my-card">
     <q-card-section>
-      <!-- <q-btn
-        flat
-        label="SAVE"
-        color="secondary"
-        @click="handleSave"
-      /> -->
       <q-btn
         outline
         label="Boosters Docs"
@@ -25,6 +19,18 @@
         type="a"
         href="https://new.docs.boid.com/boidcore/telos/tables/pwrmods.html"
         target="_blank"
+      />
+      <q-btn
+        flat
+        label="ADD"
+        color="green"
+        icon="add"
+      />
+      <q-btn
+        flat
+        label="REMOVE"
+        color="red"
+        icon="remove"
       />
       <div class="fit row wrap justify-center">
         <!-- NFT Settings Section -->

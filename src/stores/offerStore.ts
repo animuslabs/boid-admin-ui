@@ -1,8 +1,11 @@
 import { defineStore } from "pinia"
-import { fetchDataFromTable } from "../lib/contracts"
-import { Types } from "../lib/boid-contract-structure"
+import { createAction, fetchDataFromTable } from "../lib/contracts"
+import { Types, ActionParams } from "../lib/boid-contract-structure"
 import { ref } from "vue"
+import { TransactResult } from "@wharfkit/session"
+import { useSessionStore } from "src/stores/sessionStore"
 
+const sessionStore = useSessionStore()
 export const offerStore = defineStore({
   id: "offerStore",
 
@@ -45,7 +48,37 @@ export const offerStore = defineStore({
       } finally {
         this.$patch({ loading: false })
       }
+    },
+    async deleteOfferAction(configData:ActionParams.OfferRm):Promise<TransactResult | undefined> {
+      try {
+        console.log("Session Data Username:", sessionStore.username)
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+        const result = await createAction("offer.rm", configData)
+        console.log("Action Sent:", result)
+      } catch (error:any) {
+        console.error("createConfigSetAction Error:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
+    },
+    async cleanOfferAction():Promise<TransactResult | undefined> {
+      try {
+        console.log("Session Data Username:", sessionStore.username)
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+        const configData:ActionParams.OfferClean = {}
+        const result = await createAction("offer.clean", configData)
+        console.log("Action Sent:", result)
+      } catch (error:any) {
+        console.error("createConfigSetAction Error:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
     }
   }
-
 })

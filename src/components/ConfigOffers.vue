@@ -11,12 +11,6 @@
 <template>
   <q-card class="my-card">
     <q-card-section>
-      <!-- <q-btn
-        flat
-        label="SAVE"
-        color="secondary"
-        @click="handleSave"
-      /> -->
       <q-btn
         outline
         label="Offers Docs"
@@ -25,6 +19,18 @@
         type="a"
         href="https://new.docs.boid.com/boidcore/telos/tables/offers.html"
         target="_blank"
+      />
+      <q-btn
+        flat
+        label="ADD"
+        color="green"
+        icon="add"
+      />
+      <q-btn
+        flat
+        label="Clear ALL"
+        color="red"
+        @click="cleanAllaction"
       />
       <div class="fit row wrap justify-center offers-container">
         <!-- Offers Table -->
@@ -40,7 +46,10 @@
         >
           <template #header="props">
             <q-tr>
-              <q-th v-for="col in props.cols" :key="col.name">
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+              >
                 <span> {{ getShortLabel(col) }}</span>
                 <q-tooltip>{{ col.label }}</q-tooltip>
               </q-th>
@@ -48,7 +57,7 @@
           </template>
           <template #body="props">
             <q-tr :props="props">
-              <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <q-td v-for="col in props.cols" :key="col.name" :props="props" @click="handleRowClick(props.row)">
                 {{ getNestedData(props.row, col.field) }}
               </q-td>
             </q-tr>
@@ -57,12 +66,49 @@
       </div>
     </q-card-section>
   </q-card>
+  <q-dialog v-model="dialog" persistent>
+    <q-card>
+      <q-card-section class="row items-center">
+        <q-space />
+        <q-btn icon="close" flat round @click="dialog = false" />
+      </q-card-section>
+      <q-card-section>
+        <div v-if="selectedOffer">
+          <div><strong>Offer ID:</strong> {{ selectedOffer.offer_id }}</div>
+          <div><strong>Requirements</strong></div>
+          <div>Team ID: {{ selectedOffer.requirements.team_id }}</div>
+          <div>Minimum Power: {{ selectedOffer.requirements.min_power }}</div>
+          <div>Minimum Balance: {{ selectedOffer.requirements.min_balance }}</div>
+          <div>Minimum Stake: {{ selectedOffer.requirements.min_stake }}</div>
+          <div>Minimum Cumulative Team Contribution: {{ selectedOffer.requirements.min_cumulative_team_contribution }}</div>
+          <div><strong>Actions</strong></div>
+          <div>Delegated Stake: {{ selectedOffer.actions.delegated_stake }}</div>
+          <div>Stake Locked Additional Rounds: {{ selectedOffer.actions.stake_locked_additional_rounds }}</div>
+          <div>NFT Actions: {{ selectedOffer.actions.nft_actions }}</div>
+          <div>Balance Payment: {{ selectedOffer.actions.balance_payment }}</div>
+          <div><strong>Rewards</strong></div>
+          <div>NFT Mints: {{ selectedOffer.rewards.nft_mints }}</div>
+          <div>Balance Deposit: {{ selectedOffer.rewards.balance_deposit }}</div>
+          <div>Delegated Stake: {{ selectedOffer.rewards.delegated_stake }}</div>
+          <div>Stake Locked Additional Rounds: {{ selectedOffer.rewards.stake_locked_additional_rounds }}</div>
+          <div>Activate Powermod IDs: {{ selectedOffer.rewards.activate_powermod_ids }}</div>
+          <div><strong>Limits</strong></div>
+          <div>Offer Quantity Remaining: {{ selectedOffer.limits.offer_quantity_remaining }}</div>
+          <div>Available Until Round: {{ selectedOffer.limits.available_until_round }}</div>
+          <div><strong>Total Claimed</strong></div>
+          <div>{{ selectedOffer.total_claimed }}</div>
+        </div>
+      </q-card-section>
+      <q-card-section>
+        <q-btn label="Remove" color="red" @click="handleRemoveOffer" />
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, computed } from "vue"
+import { onMounted, reactive, ref } from "vue"
 import { Types } from "lib/boid-contract-structure"
-import { toObject } from "src/lib/util"
 import { offerStore } from "src/stores/offerStore"
 import { QTable, QTableColumn } from "quasar"
 
@@ -71,7 +117,49 @@ interface ExtendedQTableColumn extends QTableColumn {
 }
 
 const store = offerStore()
+const dialog = ref(false)
+const selectedOffer = ref(null as Types.Offer | null)
 
+const handleRowClick = (offer:Types.Offer) => {
+  selectedOffer.value = offer
+  dialog.value = true
+}
+
+const handleRemoveOffer = async() => {
+  if (selectedOffer.value && selectedOffer.value.offer_id) {
+    try {
+      const offerRm = { offer_id: selectedOffer.value.offer_id }
+      const result = await store.deleteOfferAction(offerRm)
+      if (result) {
+        console.log("Offer removed successfully:", result)
+        // Refresh the offers list to reflect the removal
+        offers.list = await store.fetchOffersTableData()
+        dialog.value = false // Close the dialog after successful removal
+      } else {
+        console.log("Failed to remove the offer.")
+      }
+    } catch (error) {
+      console.error("Error removing offer:", error)
+    }
+  } else {
+    console.error("No offer selected or offer ID is missing.")
+  }
+}
+
+const cleanAllaction = async() => {
+  try {
+    const result = await store.cleanOfferAction()
+    if (result) {
+      console.log("All offers removed successfully:", result)
+      // Refresh the offers list to reflect the removal
+      offers.list = await store.fetchOffersTableData()
+    } else {
+      console.log("Failed to remove all offers.")
+    }
+  } catch (error) {
+    console.error("Error removing all offers:", error)
+  }
+}
 const offers = reactive({
   list: [] as Types.Offer[] | undefined,
   current: {
