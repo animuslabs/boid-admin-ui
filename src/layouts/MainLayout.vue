@@ -42,7 +42,7 @@
             dense
             @click="$router.push('/global')"
           >
-            Global
+            Config
           </q-btn>
           <q-btn
             flat

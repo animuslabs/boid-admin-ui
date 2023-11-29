@@ -1,4 +1,3 @@
-// Importing necessary libraries and functions
 import { defineStore } from "pinia"
 import { fetchDataFromTable } from "../lib/contracts"
 import { Types } from "../lib/boid-contract-structure"
