@@ -24,3 +24,8 @@ export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
 export function stringToBytes(str:string):Bytes {
   return Bytes.fromString(str, "utf8")
 }
+
+// Method to convert Uint8Array to comma-separated string
+export const arrayToString = (array:Uint8Array) => {
+  return Array.from(array).join(", ")
+}

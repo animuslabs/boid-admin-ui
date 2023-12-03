@@ -2,13 +2,13 @@
   <q-page class="container" padding>
     <div>
       <q-tabs v-model="tab" class="text-grey" active-color="primary">
-        <q-tab name="global" label="Global" />
+        <q-tab name="config" label="Config" />
         <q-tab name="boosters" label="Boosters" />
         <q-tab name="offers" label="Offers" />
       </q-tabs>
 
       <div>
-        <ConfigGlobal v-if="tab === 'global'" />
+        <ConfigGlobal v-if="tab === 'config'" />
         <ConfigBoosters v-if="tab === 'boosters'" />
         <ConfigOffers v-if="tab === 'offers'" />
       </div>
@@ -17,21 +17,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue"
+import { defineComponent, ref, onMounted } from "vue"
 import ConfigGlobal from "src/components/ConfigGlobal.vue"
 import ConfigBoosters from "src/components/ConfigBoosters.vue"
 import ConfigOffers from "src/components/ConfigOffers.vue"
+import { useRoute } from "vue-router"
 
 export default defineComponent({
-  name: "GlobalPage",
+  name: "ConfigPage",
   components: {
     ConfigGlobal,
     ConfigBoosters,
     ConfigOffers
   },
   setup() {
-    const tab = ref("global") // Default selected tab
-
+    const tab = ref("config") // Default selected tab
+    const route = useRoute()
+    onMounted(() => {
+      if (route.query.tab) {
+        tab.value = route.query.tab as string
+      }
+    })
     return {
       tab
     }

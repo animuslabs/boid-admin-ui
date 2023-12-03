@@ -79,6 +79,21 @@ export const offerStore = defineStore({
         this.$patch({ error: error.message })
         return undefined
       }
+    },
+    async addOfferAction(configData:ActionParams.OfferAdd):Promise<TransactResult | undefined> {
+      try {
+        console.log("Session Data Username:", sessionStore.username)
+        if (!sessionStore || !sessionStore.username) {
+          console.error("Session or session actor is not defined")
+          throw new Error("Session or session actor is not defined")
+        }
+        const result = await createAction("offer.add", configData)
+        console.log("Action Sent:", result)
+      } catch (error:any) {
+        console.error("createConfigSetAction Error:", error)
+        this.$patch({ error: error.message })
+        return undefined
+      }
     }
   }
 })

@@ -40,7 +40,7 @@
           <q-btn
             flat
             dense
-            @click="$router.push('/global')"
+            @click="$router.push('/config')"
           >
             Config
           </q-btn>
@@ -126,7 +126,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, onMounted } from "vue"
-import { useSessionStore } from "../stores/sessionStore"
+import { useSessionStore } from "src/stores/sessionStore"
 
 export default defineComponent({
   name: "MainLayout",

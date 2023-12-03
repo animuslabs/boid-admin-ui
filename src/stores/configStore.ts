@@ -10,8 +10,8 @@ import { useSessionStore } from "src/stores/sessionStore"
 const sessionStore = useSessionStore()
 
 // Defining the store
-export const useGlobalStore = defineStore({
-  id: "globalStore",
+export const useConfigStore = defineStore({
+  id: "cofigStore",
 
   // Reactive state of the store
   state: () => ({
@@ -68,5 +68,5 @@ export const useGlobalStore = defineStore({
 )
 // this will make the store hot reload during development
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useGlobalStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useConfigStore, import.meta.hot))
 }

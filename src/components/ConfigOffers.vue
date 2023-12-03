@@ -20,12 +20,7 @@
         href="https://new.docs.boid.com/boidcore/telos/tables/offers.html"
         target="_blank"
       />
-      <q-btn
-        flat
-        label="ADD"
-        color="green"
-        icon="add"
-      />
+      <q-btn flat label="ADD" color="green" icon="add" @click="navigateToAddOffer" />
       <q-btn
         flat
         label="Clear ALL"
@@ -43,6 +38,7 @@
           flat
           virtual-scroll
           selection="single"
+          :pagination="pagination"
         >
           <template #header="props">
             <q-tr>
@@ -76,7 +72,7 @@
         <div v-if="selectedOffer">
           <div><strong>Offer ID:</strong> {{ selectedOffer.offer_id }}</div>
           <div><strong>Requirements</strong></div>
-          <div>Team ID: {{ selectedOffer.requirements.team_id }}</div>
+          <div>Team ID: {{ selectedOffer.requirements.team_id.array.toString() }}</div>
           <div>Minimum Power: {{ selectedOffer.requirements.min_power }}</div>
           <div>Minimum Balance: {{ selectedOffer.requirements.min_balance }}</div>
           <div>Minimum Stake: {{ selectedOffer.requirements.min_stake }}</div>
@@ -91,7 +87,7 @@
           <div>Balance Deposit: {{ selectedOffer.rewards.balance_deposit }}</div>
           <div>Delegated Stake: {{ selectedOffer.rewards.delegated_stake }}</div>
           <div>Stake Locked Additional Rounds: {{ selectedOffer.rewards.stake_locked_additional_rounds }}</div>
-          <div>Activate Powermod IDs: {{ selectedOffer.rewards.activate_powermod_ids }}</div>
+          <div>Activate Powermod IDs: {{ selectedOffer.rewards.activate_powermod_ids.array.toString() }}</div>
           <div><strong>Limits</strong></div>
           <div>Offer Quantity Remaining: {{ selectedOffer.limits.offer_quantity_remaining }}</div>
           <div>Available Until Round: {{ selectedOffer.limits.available_until_round }}</div>
@@ -107,10 +103,25 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue"
+import { onMounted, reactive, ref, computed } from "vue"
 import { Types } from "lib/boid-contract-structure"
 import { offerStore } from "src/stores/offerStore"
 import { QTable, QTableColumn } from "quasar"
+import { arrayToString } from "src/lib/reuseFunctions"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+
+const navigateToAddOffer = () => {
+  router.push("config/add-offer")
+    .then(() => {
+      // Navigation succeeded
+    })
+    .catch((error) => {
+      console.error("Failed to navigate:", error)
+    })
+}
+
 
 interface ExtendedQTableColumn extends QTableColumn {
   shortLabel?:string;
@@ -119,12 +130,20 @@ interface ExtendedQTableColumn extends QTableColumn {
 const store = offerStore()
 const dialog = ref(false)
 const selectedOffer = ref(null as Types.Offer | null)
+const pagination = ref({
+  sortBy: "id",
+  descending: false, // Set to true if you want descending order by default
+  page: 1,
+  rowsPerPage: 10
+})
+const offers = reactive({
+  list: [] as Types.Offer[] | undefined
+})
 
 const handleRowClick = (offer:Types.Offer) => {
   selectedOffer.value = offer
   dialog.value = true
 }
-
 const handleRemoveOffer = async() => {
   if (selectedOffer.value && selectedOffer.value.offer_id) {
     try {
@@ -146,6 +165,8 @@ const handleRemoveOffer = async() => {
   }
 }
 
+
+
 const cleanAllaction = async() => {
   try {
     const result = await store.cleanOfferAction()
@@ -160,43 +181,24 @@ const cleanAllaction = async() => {
     console.error("Error removing all offers:", error)
   }
 }
-const offers = reactive({
-  list: [] as Types.Offer[] | undefined,
-  current: {
-    offer_id: 0, // Assuming UInt64 can be represented as a number here
-    requirements: {
-      team_id: 0,
-      min_power: 0, // UInt16
-      min_balance: 0, // UInt32
-      min_stake: 0, // UInt32
-      min_cumulative_team_contribution: 0 // UInt32
-    },
-    actions: {
-      delegated_stake: 0, // UInt16
-      stake_locked_additional_rounds: 0, // UInt16
-      nft_actions: [], // Array of NftAction, provide default values as needed
-      balance_payment: 0 // UInt32
-    },
-    rewards: {
-      nft_mints: [], // Array of NftMint, provide default values as needed
-      balance_deposit: 0, // UInt32
-      delegated_stake: 0, // UInt16
-      stake_locked_additional_rounds: 0, // UInt16
-      activate_powermod_ids: new Uint8Array(0) // Bytes type, adjust if different
-    },
-    limits: {
-      offer_quantity_remaining: 0, // UInt32
-      available_until_round: 0 // UInt16
-    },
-    total_claimed: 0 // UInt32
-  }
-})
-
 function getShortLabel(column:ExtendedQTableColumn) {
   return column.shortLabel || column.label
 }
 function getNestedData(row:Record<string, any>, fieldPath:string):any {
-  return fieldPath.split(".").reduce((obj:Record<string, any> | undefined, key:string) => obj && obj[key], row)
+  const value = fieldPath.split(".").reduce((obj:Record<string, any> | undefined, key:string) => obj && obj[key], row)
+
+  // Check if value is not undefined before proceeding
+  if (value && (fieldPath === "requirements.team_id" || fieldPath === "rewards.activate_powermod_ids")) {
+    // Access the Uint8Array inside the Proxy object, if it exists
+    const arrayValue = value.array
+
+    // Check if the arrayValue is a Uint8Array and convert it to a string
+    if (arrayValue instanceof Uint8Array) {
+      return arrayToString(arrayValue)
+    }
+  }
+
+  return value
 }
 
 const offerColData:ExtendedQTableColumn[] = [
@@ -225,8 +227,6 @@ const offerColData:ExtendedQTableColumn[] = [
   { name: "total_claimed", required: true, label: "Total Claimed", shortLabel: "TotCl", align: "left", field: "total_claimed", sortable: true }
 ]
 
-
-
 onMounted(async() => {
   try {
     const fetchedOffers = await store.fetchOffersTableData()
@@ -247,4 +247,5 @@ onMounted(async() => {
   max-height: 600px;
   overflow-y: auto;
 }
+
 </style>

@@ -391,12 +391,12 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, computed } from "vue"
-import { useGlobalStore } from "stores/globalStore"
+import { useConfigStore } from "stores/configStore"
 import { Types } from "lib/boid-contract-structure"
 import { configHints } from "lib/hints"
 import { toObject } from "src/lib/util"
 
-const store = useGlobalStore()
+const store = useConfigStore()
 const config = reactive({
   account: {
     invite_price: 0,
