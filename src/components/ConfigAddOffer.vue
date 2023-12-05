@@ -71,8 +71,6 @@
           <q-card-section>
             <q-input v-model="newOffer.limits.offer_quantity_remaining" label="Offer Quantity Remaining" class="input-number" dense />
             <q-input v-model="newOffer.limits.available_until_round" label="Available Until Round" class="input-number" dense />
-            <br>
-            <q-input v-model="newOffer.total_claimed" label="Total Claimed" class="input-number" dense />
           </q-card-section>
         </q-card>
       </div>
@@ -150,8 +148,8 @@
 import { reactive, ref, computed } from "vue"
 import { Types } from "lib/boid-contract-structure"
 import { offerStore } from "src/stores/offerStore"
-import { Name, Int32 } from "@wharfkit/antelope"
 import { useRouter } from "vue-router"
+
 
 interface NftAction {
   collection_name:string;
@@ -199,8 +197,7 @@ const newOffer = reactive({
   limits: {
     offer_quantity_remaining: 0, // Default UInt32 value
     available_until_round: 0 // Default UInt16 value
-  },
-  total_claimed: 0 // Default UInt32 value
+  }
 })
 const navigateBackToOffer = () => {
   router.push({ path: "/config", query: { tab: "offers" } })
@@ -377,8 +374,8 @@ const addNftMint = () => {
     mint_template_id: 0,
     mint_schema_name: "",
     mint_collection_name: "",
-    match_immutable_attributes: [], // Initialized as an empty array
-    match_mutable_attributes: [], // Initialized as an empty array
+    match_immutable_attributes: [],
+    match_mutable_attributes: [],
     quantity: 0
   }
 
@@ -459,43 +456,11 @@ const removeMutableAttributeFromMint = (mintIndex:number, attrIndex:number) => {
 
 const handleAddOffer = async() => {
   try {
-    // Convert user inputs to complex types
-    const formattedNftActions = newOffer.actions.nft_actions.map(action => {
-      return Types.NftAction.from({
-        collection_name: Name.from(action.collection_name),
-        schema_name: Name.from(action.schema_name),
-        template_id: Int32.from(action.template_id),
-        match_immutable_attributes: action.match_immutable_attributes,
-        match_mutable_attributes: action.match_mutable_attributes,
-        burn: action.burn,
-        lock_rounds: Int32.from(action.lock_rounds)
-      })
-    })
-    const formattedNftMints = newOffer.rewards.nft_mints.map(mint => {
-      return Types.NftMint.from({
-        mint_template_id: Int32.from(mint.mint_template_id),
-        mint_schema_name: Name.from(mint.mint_schema_name),
-        mint_collection_name: Name.from(mint.mint_collection_name),
-        immutable_data: mint.immutable_data,
-        mutable_data: mint.mutable_data,
-        quantity: Int32.from(mint.quantity)
-      })
-    })
-
-    let offer = Types.Offer.from({
-      ...newOffer,
-      actions: {
-        ...newOffer.actions,
-        nft_actions: formattedNftActions
-      },
-      rewards: {
-        ...newOffer.rewards,
-        nft_mints: formattedNftMints
-      }
-    })
-
+    console.log("New offer:", newOffer)
+    let offer = Types.offeradd.from(newOffer)
+    console.log("Formatted offer:", offer)
     const result = await store.addOfferAction(offer)
-    // Rest of the code remains same
+    return result
   } catch (error) {
     console.error("Error adding offer:", error)
   }
