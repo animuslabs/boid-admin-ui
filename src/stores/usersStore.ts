@@ -4,6 +4,9 @@ import { Types } from "../lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Bytes } from "@wharfkit/antelope"
 import { ParsedAccountMeta, AccountRowData, AccountMeta } from "../lib/types"
+import { useConfigStore } from "src/stores/configStore"
+
+const configStore = useConfigStore()
 
 export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
@@ -74,6 +77,7 @@ export const userStore = defineStore({
       try {
         const dataAccResult = await fetchDataFromTable("accounts")
         const dataAccMetaResult = await fetchDataFromTable("acctmeta")
+        const configResult = await configStore.fetchConfig()
         if (!dataAccResult || !dataAccMetaResult) {
           // Handle the case when one of the fetches returns undefined
           console.error("Failed to fetch data")
@@ -118,19 +122,33 @@ export const userStore = defineStore({
 
             const authKeysString = account.auth.keys.join(", ")
 
+            let max_powered_stake = 0
+            const firstConfig = configResult?.[0]
+            if (firstConfig) {
+              max_powered_stake = Number(firstConfig.power.powered_stake_mult) * Number(account.power.rating) // Assuming each account has a power.rating
+            }
+            const totalStake = Number(account.stake.self_staked) + Number(account.stake.received_delegated_stake)
+            const powered_stake = Math.min(totalStake, max_powered_stake)
+
             return {
               boid_id: boidIdStr,
               owners: Array.isArray(account.owners) ? account.owners.join(", ") : "",
               auth_keys: authKeysString,
-              meta: parsedMeta // Use the parsed meta or the default if meta was null
+              meta: parsedMeta, // Use the parsed meta or the default if meta was null
+              max_powered_stake,
+              powered_stake
             }
           } catch (error) {
+            let max_powered_stake = 0
+            let powered_stake = 0
             console.error(`Error processing account ${account.boid_id}:`, error)
             return {
               boid_id: account.boid_id.toString(),
               owners: Array.isArray(account.owners) ? account.owners.join(", ") : "",
               auth_keys: account.auth.keys.join(", "),
-              meta: new ParsedAccountMeta() // Provide a default ParsedAccountMeta in case of error
+              meta: new ParsedAccountMeta(), // Provide a default ParsedAccountMeta in case of error
+              max_powered_stake,
+              powered_stake
             }
           }
         }))

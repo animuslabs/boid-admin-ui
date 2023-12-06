@@ -25,6 +25,8 @@ export type AccountRowData = {
   owners:string;
   auth_keys:string;
   meta:ParsedAccountMeta;
+  max_powered_stake:number;
+  powered_stake:number;
 };
 
 export class TeamMeta {

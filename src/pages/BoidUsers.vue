@@ -37,6 +37,18 @@
             >
               {{ props.row.meta.text.telosAccount }}
             </q-td>
+            <q-td
+              key="powered_stake"
+              :props="props"
+            >
+              {{ props.row.powered_stake }}
+            </q-td>
+            <q-td
+              key="max_powered_stake"
+              :props="props"
+            >
+              {{ props.row.max_powered_stake }}
+            </q-td>
           </q-tr>
         </template>
       </q-table>
@@ -92,6 +104,18 @@ export default defineComponent({
         name: "telosAccount",
         label: "Telos Account",
         field: (row:AccountRowData) => row.meta.text.telosAccount,
+        sortable: true
+      },
+      {
+        name: "powered_stake",
+        label: "Powered Stake",
+        field: (row:AccountRowData) => row.powered_stake,
+        sortable: true
+      },
+      {
+        name: "max_powered_stake",
+        label: "Max Powered Stake",
+        field: (row:AccountRowData) => row.max_powered_stake,
         sortable: true
       }
     ])
