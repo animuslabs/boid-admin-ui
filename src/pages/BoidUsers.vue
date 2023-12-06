@@ -15,6 +15,7 @@
       <q-table
         :rows="filteredData"
         :columns="columns"
+        :pagination="pagination"
         row-key="boid_id"
       >
         <template #body="props">
@@ -56,86 +57,81 @@
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, ref, computed, Ref } from "vue"
+<script lang="ts" setup>
+import { onMounted, ref, computed, Ref } from "vue"
 import { userStore } from "../stores/usersStore"
 import { AccountRowData } from "../lib/types"
 import { storeToRefs } from "pinia"
 
-export default defineComponent({
-  name: "IndexPage",
-  setup() {
-    const store = userStore()
-    const { isLoading, organizedData: organizedDataRaw } = storeToRefs(store)
-    const organizedData = organizedDataRaw as Ref<AccountRowData[]>
-    const search = ref("")
-    const filteredData = computed(() => {
-      // Ensure organizedData is always treated as an array
-      const data = Array.isArray(organizedData.value) ? organizedData.value : []
-      console.log("Computing filteredData with search:", search.value)
-      console.log("Current organizedData:", data)
+const store = userStore()
+const { isLoading, organizedData: organizedDataRaw } = storeToRefs(store)
+const organizedData = organizedDataRaw as Ref<AccountRowData[]>
+const search = ref("")
+const pagination = ref({
+  sortBy: "powered_stake",
+  descending: true,
+  page: 1,
+  rowsPerPage: 10
+})
+const filteredData = computed(() => {
+  // Ensure organizedData is always treated as an array
+  const data = Array.isArray(organizedData.value) ? organizedData.value : []
+  console.log("Computing filteredData with search:", search.value)
+  console.log("Current organizedData:", data)
 
-      if (!search.value) {
-        return data
-      } else {
-        const searchLower = search.value.toLowerCase()
-        return data.filter(row =>
-          row.boid_id.toLowerCase().includes(searchLower) ||
+  if (!search.value) {
+    return data
+  } else {
+    const searchLower = search.value.toLowerCase()
+    return data.filter(row =>
+      row.boid_id.toLowerCase().includes(searchLower) ||
       row.meta.text.eosAccount.toLowerCase().includes(searchLower) ||
       row.meta.text.telosAccount.toLowerCase().includes(searchLower)
-        )
-      }
-    })
-
-    const columns = ref([
-      {
-        name: "boid_id",
-        label: "BOID ID",
-        field: "boid_id",
-        sortable: true
-      },
-      {
-        name: "eosAccount",
-        label: "EOS Account",
-        field: (row:AccountRowData) => row.meta.text.eosAccount,
-        sortable: true
-      },
-      {
-        name: "telosAccount",
-        label: "Telos Account",
-        field: (row:AccountRowData) => row.meta.text.telosAccount,
-        sortable: true
-      },
-      {
-        name: "powered_stake",
-        label: "Powered Stake",
-        field: (row:AccountRowData) => row.powered_stake,
-        sortable: true
-      },
-      {
-        name: "max_powered_stake",
-        label: "Max Powered Stake",
-        field: (row:AccountRowData) => row.max_powered_stake,
-        sortable: true
-      }
-    ])
-
-    onMounted(async() => {
-      console.log("Fetching table data...")
-      await store.fetchAccTableData()
-      console.log("Store State:", store.$state.organizedDataRaw)
-      console.log("Data fetched:", store.organizedData)
-      console.log("Type of organizedData:", typeof store.organizedData)
-      console.log("Is organizedData an array?:", Array.isArray(store.organizedData))
-    })
-
-    return {
-      isLoading,
-      organizedData,
-      columns,
-      filteredData,
-      search
-    }
+    )
   }
 })
+
+const columns = ref([
+  {
+    name: "boid_id",
+    label: "BOID ID",
+    field: "boid_id",
+    sortable: true
+  },
+  {
+    name: "eosAccount",
+    label: "EOS Account",
+    field: (row:AccountRowData) => row.meta.text.eosAccount,
+    sortable: true
+  },
+  {
+    name: "telosAccount",
+    label: "Telos Account",
+    field: (row:AccountRowData) => row.meta.text.telosAccount,
+    sortable: true
+  },
+  {
+    name: "powered_stake",
+    label: "Powered Stake",
+    field: (row:AccountRowData) => row.powered_stake,
+    sortable: true
+  },
+  {
+    name: "max_powered_stake",
+    label: "Max Powered Stake",
+    field: (row:AccountRowData) => row.max_powered_stake,
+    sortable: true
+  }
+])
+
+onMounted(async() => {
+  console.log("Fetching table data...")
+  await store.fetchAccTableData()
+  console.log("Store State:", store.$state.organizedDataRaw)
+  console.log("Data fetched:", store.organizedData)
+  console.log("Type of organizedData:", typeof store.organizedData)
+  console.log("Is organizedData an array?:", Array.isArray(store.organizedData))
+})
+
+
 </script>
