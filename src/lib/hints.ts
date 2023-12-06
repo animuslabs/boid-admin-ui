@@ -61,3 +61,12 @@ export const configHints = {
   allow_withdrawals: "Used to disable withdrawals, this could be used during beta testing to prevent abuse.",
   recoveryaccount: "The account that can recover an account if the owner key is lost."
 }
+
+export const boostersHints = {
+  mod_id: "The id of the booster",
+  pwr_multiplier: "The multiplier on the power of the account",
+  pwr_add_per_round: "The amount of power to add to the account each round",
+  expire_after_elapsed_rounds: "The number of rounds after which the booster expires",
+  aggregate_pwr_capacity: "The maximum amount of power that can be added to an account by this booster",
+  booster_index: "Remove more than one booster at a time by specifying indexes. Ex. 0, 2"
+}

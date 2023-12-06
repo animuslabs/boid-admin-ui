@@ -1,14 +1,13 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { createAction, fetchDataFromTable } from "../lib/contracts"
-import { ActionParams, Types } from "../lib/boid-contract-structure"
+import { createAction, fetchDataFromTable } from "src/lib/contracts"
+import { ActionParams, Types } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { contractName } from "../lib/config"
 import { Bytes } from "@wharfkit/antelope"
 import { TransactResult } from "@wharfkit/session"
-import { DeserializedTeam, TeamMeta } from "../lib/types"
-import { useSessionStore } from "../stores/sessionStore"
-import { bytesToJson } from "../lib/reuseFunctions"
+import { DeserializedTeam, TeamMeta } from "src/lib/types"
+import { useSessionStore } from "src/stores/sessionStore"
+import { bytesToJson } from "src/lib/reuseFunctions"
 
 const sessionStore = useSessionStore()
 
