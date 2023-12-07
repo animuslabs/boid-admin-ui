@@ -1,9 +1,9 @@
 import { defineStore } from "pinia"
-import { fetchDataFromTable } from "../lib/contracts"
-import { Types } from "../lib/boid-contract-structure"
+import { fetchDataFromTable } from "src/lib/contracts"
+import { Types } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Bytes } from "@wharfkit/antelope"
-import { ParsedAccountMeta, AccountRowData, AccountMeta } from "../lib/types"
+import { ParsedAccountMeta, AccountRowData, AccountMeta } from "src/lib/types"
 import { useConfigStore } from "src/stores/configStore"
 
 const configStore = useConfigStore()

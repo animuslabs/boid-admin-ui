@@ -29,3 +29,31 @@ export function stringToBytes(str:string):Bytes {
 export const arrayToString = (array:Uint8Array) => {
   return Array.from(array).join(", ")
 }
+
+export function generateRandomName():string {
+  const characters = "abcdefghijklmnopqrstuvwxyz12345"
+  let result = ""
+
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length)
+    result += characters[randomIndex]
+  }
+
+  return result
+}
+
+function getFutureDate(days:number):string {
+  const currentDate = new Date()
+  currentDate.setDate(currentDate.getDate() + days)
+
+  // Ensuring the date format is YYYY-MM-DD
+  const year = currentDate.getFullYear()
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0")
+  const day = String(currentDate.getDate()).padStart(2, "0")
+
+  const futureDate = `${year}-${month}-${day}T00:00:00`
+  return futureDate
+}
+
+// Example usage: Get date 14 days in the future
+export const expDate:string = getFutureDate(14)

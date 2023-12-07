@@ -22,12 +22,6 @@ export const endpoints:string[][] = [
 ]
 export const networks:NetworkConfig[] = [
   // default network should be first!!!
-  // {
-  //   name: "eos",
-  //   chainId: "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
-  //   nodeUrl: endpoints[0][1],
-  //   logo: "https://bloks.io/img/chains/eos.png"
-  // }
   {
     name: "telos",
     chainId: "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11",
@@ -37,8 +31,14 @@ export const networks:NetworkConfig[] = [
   {
     name: "telostestnet",
     chainId: "1eaa0824707c8c16bd25145493bf062aecddfeb56c736f6ba6397f3195f33c9f",
-    nodeUrl: "https://telos.testnet.boid.animus.is",
+    nodeUrl: endpoints[2]?.[1] ?? "",
     logo: "https://assets-global.website-files.com/60ae1fd65f7b76f18ddd0bec/61044a5f70f5bbeb24b995ea_Symbol%202%402x.png"
+  },
+  {
+    name: "eos",
+    chainId: "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
+    nodeUrl: endpoints[0]?.[1] ?? "",
+    logo: "https://bloks.io/img/chains/eos.png"
   }
   // {
   //   name: 'waxtestnet',

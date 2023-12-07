@@ -50,6 +50,9 @@
             @click="isLoggedIn ? logout() : login()"
           >
             {{ isLoggedIn ? 'Logout' : 'Login' }}
+            <q-badge class="q-ml-md" align="top" outline color="positive">
+              {{ whatChain }}
+            </q-badge>
           </q-btn>
         </div>
       </q-toolbar>
@@ -138,6 +141,7 @@ export default defineComponent({
   setup() {
     const sessionStore = useSessionStore()
     const isLoggedIn = computed(() => sessionStore.isLoggedIn)
+    const whatChain = computed(() => sessionStore.session?.chain.name)
     const login = async() => {
       await sessionStore.login()
     }
@@ -150,7 +154,8 @@ export default defineComponent({
     return {
       isLoggedIn,
       login,
-      logout
+      logout,
+      whatChain
     }
   }
 })

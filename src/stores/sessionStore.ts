@@ -13,7 +13,8 @@ export const useSessionStore = defineStore({
     isLoggedIn: (state) => state.session !== undefined,
     username: (state) => state.session?.actor.toString() || "",
     authorization: (state) => PermissionLevel.from(state.session?.permissionLevel as PermissionLevel || { actor: "boid", permission: "active" }),
-    sessionState: (state) => state
+    sessionState: (state) => state,
+    whatChain: (state) => state.session?.chain.name || ""
   },
 
   // Actions
