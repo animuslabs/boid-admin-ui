@@ -1,19 +1,19 @@
 import { ContractKit } from "@wharfkit/contract"
-import { endpoints } from "./config"
 import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract, TableNames, RowType, ActionNames } from "src/lib/boid-contract-structure"
 import { Action, TransactResult } from "@wharfkit/session"
 
-const apiClientOptions:APIClientOptions = {
-  url: endpoints[2]![1]!
-}
-
+const sessionStore = useSessionStore()
+// this gets the chain API URL from the active session from the sessionStore
+const url = sessionStore.chainUrl
+const apiClientOptions:APIClientOptions = { url }
+console.log("chain API URL:", apiClientOptions.url)
 const contractKit = new ContractKit({
   client: new APIClient(apiClientOptions)
 })
 
-const sessionStore = useSessionStore()
+
 export const boid = new Contract(contractKit) // boid contract instance
 
 export async function fetchDataFromTable<T extends TableNames>(tableName:T):Promise<RowType<T>[] | undefined> {

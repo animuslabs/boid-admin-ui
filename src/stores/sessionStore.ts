@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import { LocalStorage } from "quasar"
 import { sessionLogin, sessionLogout, sessionRestore } from "../lib/session"
 import { PermissionLevel, Session } from "@wharfkit/session"
+import { endpoints } from "src/lib/config"
 
 export const useSessionStore = defineStore({
   id: "sessionStore",
@@ -14,7 +15,8 @@ export const useSessionStore = defineStore({
     username: (state) => state.session?.actor.toString() || "",
     authorization: (state) => PermissionLevel.from(state.session?.permissionLevel as PermissionLevel || { actor: "boid", permission: "active" }),
     sessionState: (state) => state,
-    whatChain: (state) => state.session?.chain.name || ""
+    whatChain: (state) => state.session?.chain.name || "",
+    chainUrl: (state) => state.session?.chain.url || endpoints[0]?.[1]
   },
 
   // Actions
@@ -24,6 +26,7 @@ export const useSessionStore = defineStore({
       if (sessionData) {
         const serializedSession = sessionData.serialize()
         LocalStorage.set("session", serializedSession)
+        console.log("Local Session Chain URL:", sessionData.chain.url)
       }
       this.session = sessionData
     },

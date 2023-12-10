@@ -19,7 +19,7 @@
     "@wharfkit/web-renderer": "^1.0.3",
     "buffer": "^6.0.3",
     "pinia": "^2.0.11",
-    "quasar": "^2.14.0",
+    "quasar": "^2.14.1",
     "tslib": "^2.1.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
@@ -28,7 +28,7 @@
     "@wharfkit/antelope": "^1.0.2"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.7.0",
+    "@quasar/app-vite": "^1.7.1",
     "@trpc/server": "^10.9.0",
     "@types/ms": "^0.7.31",
     "@types/node": "^12.20.21",
@@ -43,7 +43,7 @@
     "eslint-plugin-vue": "^9.0.0",
     "typescript": "^5.2.2",
     "vite-plugin-rewrite-all": "^1.0.2",
-    "vite-tsconfig-paths": "^4.2.1",
+    "vite-tsconfig-paths": "^4.2.2",
     "vue-tsc": "^1.8.22",
     "webpack": "^5.89.0"
   },

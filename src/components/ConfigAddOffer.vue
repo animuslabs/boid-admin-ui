@@ -453,18 +453,39 @@ const removeMutableAttributeFromMint = (mintIndex:number, attrIndex:number) => {
   }
 }
 
+// testing only
+// const downloadJsonAsFile = (data:any, filename:string) => {
+//   const jsonString = JSON.stringify(data, null, 2) // Beautify the JSON
+//   const blob = new Blob([jsonString], { type: "text/json" })
+//   const url = URL.createObjectURL(blob)
+
+//   const link = document.createElement("a")
+//   link.href = url
+//   link.download = `${filename}.json`
+//   document.body.appendChild(link) // Required for Firefox
+//   link.click()
+//   document.body.removeChild(link)
+
+//   URL.revokeObjectURL(url)
+// }
 
 const handleAddOffer = async() => {
   try {
     console.log("New offer:", newOffer)
     let offer = Types.offeradd.from(newOffer)
     console.log("Formatted offer:", offer)
+
+    // Downloading newOffer and offer as JSON files
+    // downloadJsonAsFile(newOffer, "newOffer")
+    // downloadJsonAsFile(offer, "formattedOffer")
+
     const result = await store.addOfferAction(offer)
     return result
   } catch (error) {
     console.error("Error adding offer:", error)
   }
 }
+
 
 
 </script>
