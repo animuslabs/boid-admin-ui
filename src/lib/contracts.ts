@@ -1,7 +1,8 @@
 import { ContractKit } from "@wharfkit/contract"
 import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
-import { ActionNameParams, Contract, TableNames, RowType, ActionNames } from "src/lib/boid-contract-structure"
+import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames } from "src/lib/boid-contract-structure"
+import { Contract as EosioMsigContract, Types as TypesMultiSign } from "src/lib/eosio-msig-contract-structure"
 import { Action, TransactResult } from "@wharfkit/session"
 
 const sessionStore = useSessionStore()
@@ -14,7 +15,9 @@ const contractKit = new ContractKit({
 })
 
 
-export const boid = new Contract(contractKit) // boid contract instance
+export const boid = new BoidContract(contractKit)
+
+export const eosioMsig = new EosioMsigContract(contractKit)
 
 export async function fetchDataFromTable<T extends TableNames>(tableName:T):Promise<RowType<T>[] | undefined> {
   try {
@@ -78,6 +81,35 @@ export async function createAction2<A extends ActionNames>(
       authorization,
       data: action_data
     })
+    console.log("Action created:", action)
+
+    if (!sessionStore.session) {
+      console.error("Session is not defined")
+      throw new Error("Session is not defined")
+    }
+
+    console.log("Transacting action...")
+    const result = await sessionStore.session.transact({ action })
+    console.log("Transaction result:", result)
+
+    return result
+  } catch (error) {
+    console.error("Error in createAction:", error)
+    throw error
+  }
+}
+
+
+export async function createMultiSignAction(
+  action_data:TypesMultiSign.propose
+):Promise<TransactResult | undefined> {
+  console.log("createAction called with propose", { action_data })
+
+  try {
+    console.log("Creating action: propose with data:", action_data)
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+    const action = eosioMsig.action("propose", action_data)
     console.log("Action created:", action)
 
     if (!sessionStore.session) {

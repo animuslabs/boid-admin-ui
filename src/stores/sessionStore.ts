@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { LocalStorage } from "quasar"
-import { sessionLogin, sessionLogout, sessionRestore } from "../lib/session"
+import { sessionLogin, sessionLogout, sessionRestore } from "src/lib/session"
 import { PermissionLevel, Session } from "@wharfkit/session"
 import { endpoints } from "src/lib/config"
 

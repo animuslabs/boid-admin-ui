@@ -1,82 +1,69 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
-import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
+import { Name } from "@wharfkit/antelope"
 import { ref } from "vue"
-import { TransactResult } from "@wharfkit/session"
-import { ContractKit } from "@wharfkit/contract"
-import { Contract, Types } from "src/lib/eosio-msig-contract-structure"
-import { endpoints } from "src/lib/config"
+import { TransactResult, TimePointSec } from "@wharfkit/session"
+import { Types } from "src/lib/eosio-msig-contract-structure"
 import { useSessionStore } from "src/stores/sessionStore"
 import { generateRandomName, expDate } from "src/lib/reuseFunctions"
+import { createMultiSignAction } from "src/lib/contracts"
 
-// const sessionStore = useSessionStore()
-// const contractKit = sessionStore.contractKit
-// const multiSignContract = new Contract(contractKit) // boid contract instance
+const sessionStore = useSessionStore()
 
-// export const accountInfo = await contractKit.client.v1.chain.get_account(Name.from("eosio.msig"))
+// Defining the store
+export const multiSignStore = defineStore({
+  id: "multiSignStore",
 
+  // Reactive state of the store
+  state: () => ({
+    loading: false,
+    error: ref<string | null>(null)
+  }),
 
-// // Defining the store
-// export const multiSignStore = defineStore({
-//   id: "multiSignStore",
+  actions: {
+    async createProposalAction(
+      reqSignAccs:Types.permission_level[], actions:Types.action[]
+    ):Promise<TransactResult | undefined> {
+      try {
+        console.log("Creating action propose with data:", actions)
+        const session = sessionStore.session
+        if (!session) throw new Error("Session not loaded")
+        const proposerAcc = Name.from(sessionStore.username)
+        const propName = generateRandomName()
+        const expiration = TimePointSec.from(expDate)
+        const action_data = Types.propose.from({
+          proposer: proposerAcc,
+          proposal_name: propName,
+          requested: reqSignAccs,
+          trx: {
+            expiration,
+            ref_block_num: 0,
+            ref_block_prefix: 0,
+            max_net_usage_words: 0,
+            max_cpu_usage_ms: 0,
+            delay_sec: 0,
+            context_free_actions: [],
+            actions,
+            transaction_extensions: []
+          }
+        })
+        console.log("Expire date:", expDate)
+        console.log("Action data prepared:", action_data)
+        const result = await createMultiSignAction(action_data)
+        console.log("Action created:", result)
 
-//   // Reactive state of the store
-//   state: () => ({
-//     loading: false,
-//     error: ref<string | null>(null)
-//   }),
+        if (!sessionStore.session) {
+          console.error("Session is not defined")
+          throw new Error("Session is not defined")
+        }
 
-//   // Getters for computed values based on state
-//   getters: {
-//     isLoading(state) {
-//       return state.loading
-//     },
-//     stateError(state) {
-//       return state.error
-//     }
-//   },
+        return result
+      } catch (error) {
+        console.error("Error in createAction:", error)
+        throw error
+      }
+    }
 
-//   actions: {
-//     async createMultiSignAction(
-//       reqSignAccs:Types.permission_level[], serialized_action_data:Types.action[]
-//     ):Promise<TransactResult | undefined> {
-//       try {
-//         console.log("Creating action propose with data:", serialized_action_data)
-//         const session = sessionStore.session
-//         if (!session) throw new Error("Session not loaded")
-//         const proposerAcc = Name.from(sessionStore.username)
-//         const propName = generateRandomName()
-//         // eslint-disable-next-line new-cap
-//         const trx = new Types.transaction({
-//           context_free_actions: [],
-//           actions: serialized_action_data,
-//           transaction_extensions: []
-//         })
+  }
 
-//         const action = multiSignContract.action("propose", {
-//           proposer: proposerAcc,
-//           proposal_name: propName,
-//           requested: reqSignAccs,
-//           trx
-//         })
-//         console.log("Action created:", action)
-
-//         if (!sessionStore.session) {
-//           console.error("Session is not defined")
-//           throw new Error("Session is not defined")
-//         }
-
-//         console.log("Transacting action...")
-//         const result = await sessionStore.session.transact({ action })
-//         console.log("Transaction result:", result)
-
-//         return result
-//       } catch (error) {
-//         console.error("Error in createAction:", error)
-//         throw error
-//       }
-//     }
-
-//   }
-
-// })
+})

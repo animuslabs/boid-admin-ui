@@ -59,7 +59,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, computed, Ref } from "vue"
-import { userStore } from "../stores/usersStore"
+import { userStore } from "src/stores/usersStore"
 import { AccountRowData } from "../lib/types"
 import { storeToRefs } from "pinia"
 
@@ -125,7 +125,6 @@ const columns = ref([
 ])
 
 onMounted(async() => {
-  console.log("Fetching table data...")
   await store.fetchAccTableData()
   console.log("Store State:", store.$state.organizedDataRaw)
   console.log("Data fetched:", store.organizedData)

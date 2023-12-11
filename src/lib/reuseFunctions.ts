@@ -1,4 +1,4 @@
-import { Bytes } from "@wharfkit/antelope"
+import { Bytes, Name } from "@wharfkit/antelope"
 
 export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
@@ -30,7 +30,7 @@ export const arrayToString = (array:Uint8Array) => {
   return Array.from(array).join(", ")
 }
 
-export function generateRandomName():string {
+export function generateRandomName():Name {
   const characters = "abcdefghijklmnopqrstuvwxyz12345"
   let result = ""
 
@@ -39,7 +39,7 @@ export function generateRandomName():string {
     result += characters[randomIndex]
   }
 
-  return result
+  return Name.from(result)
 }
 
 function getFutureDate(days:number):string {

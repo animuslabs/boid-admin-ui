@@ -47,6 +47,13 @@
           <q-btn
             flat
             dense
+            @click="$router.push('/multi-sign')"
+          >
+            M-Sign
+          </q-btn>
+          <q-btn
+            flat
+            dense
             @click="isLoggedIn ? logout() : login()"
           >
             {{ isLoggedIn ? 'Logout' : 'Login' }}

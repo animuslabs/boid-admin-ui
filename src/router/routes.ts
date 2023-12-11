@@ -9,6 +9,7 @@ const routes:RouteRecordRaw[] = [
       { path: "boid-users", component: () => import("pages/BoidUsers.vue") },
       { path: "teams", component: () => import("pages/TeamsPage.vue") },
       { path: "config", component: () => import("pages/ConfigPage.vue") },
+      { path: "multi-sign", component: () => import("pages/MultiSignPage.vue") },
       { path: "config/add-offer", component: () => import("components/ConfigAddOffer.vue") }
     ]
   },
