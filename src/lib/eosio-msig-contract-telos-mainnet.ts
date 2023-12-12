@@ -24,7 +24,7 @@ export class Contract extends BaseContract {
     super({
       client: args.client,
       abi,
-      account: Name.from("eosio-msig")
+      account: Name.from("eosio.msig")
     })
   }
 
@@ -204,7 +204,7 @@ export namespace Types {
         @Struct.field(TimePoint, { optional: true })
           earliest_exec_time?:TimePoint
     }
-        @Struct.type("transaction_header")
+    @Struct.type("transaction_header")
     export class transaction_header extends Struct {
         @Struct.field(TimePointSec)
           expiration!:TimePointSec
@@ -249,7 +249,6 @@ export namespace Types {
         @Struct.field(transaction)
           trx!:transaction
     }
-
     @Struct.type("unapprove")
     export class unapprove extends Struct {
         @Struct.field(Name)

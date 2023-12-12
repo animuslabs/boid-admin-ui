@@ -32,12 +32,12 @@
   </q-page>
 </template>
 
-
-
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, onMounted } from "vue"
+import { computed, ref, reactive, onMounted } from "vue"
 import { multiSignStore } from "src/stores/multiSignStore"
-import { Types } from "src/lib/eosio-msig-contract-structure"
+import { Types } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { Serializer, ABI } from "@wharfkit/antelope"
+import { wtboidTransferabi } from "src/lib/contracts"
 
 const store = multiSignStore()
 const selectedActionDataJson = ref("")
@@ -68,6 +68,8 @@ const actions = reactive(
   ]
 )
 
+
+
 // Computed property for JSON representation of reqSignAccs
 const reqSignAccsJson = computed({
   get: () => JSON.stringify(reqSignAccs, null, 2),
@@ -86,30 +88,41 @@ const initializeFormFields = () => {
   }
 }
 
-// Handle create proposal
-// Handle create proposal
 const createProposal = async() => {
   console.log("Creating proposal with action:", selectedActionDataJson.value)
 
-  // Parse JSON data back to object format
-  const parsedActionData = JSON.parse(selectedActionDataJson.value)
-  const parsedReqSignAccsData = JSON.parse(reqSignAccsJson.value)
-
-  // Format data according to your Types structure
-  const reqSignAccsData = parsedReqSignAccsData.map((acc:Types.permission_level) => Types.permission_level.from(acc))
-  console.log("reqSignAccsData:", reqSignAccsData)
-
-  // You might need to adjust this if your actions structure is different
-  const actionsData = [Types.action.from(parsedActionData)]
-  console.log("actionsData:", actionsData)
-
   try {
-    const result = await store.createProposalAction(reqSignAccsData, actionsData)
+    const parsedActionData = JSON.parse(selectedActionDataJson.value)
+    const parsedReqSignAccsData = JSON.parse(reqSignAccsJson.value)
+    console.log("Data before serialization:", parsedActionData.data)
+
+    // Ensure data is not undefined or null
+    if (!parsedActionData.data) {
+      throw new Error("Data is undefined or null, cannot serialize")
+    }
+    // Attempt to serialize the data field
+    const serializedData = Serializer.encode({ object: parsedActionData.data, abi: wtboidTransferabi, type: "transfer" })
+    console.log("Serialized data:", serializedData)
+
+    // Update the actions data with serialized data
+    const actionsData = [
+      Types.action.from({
+        ...parsedActionData,
+        data: serializedData
+      })
+    ]
+
+    console.log("actionsData:", actionsData)
+
+    // Attempt to create the proposal with the serialized data
+    const result = await store.createProposalAction(parsedReqSignAccsData, actionsData)
     console.log("Proposal created:", result)
   } catch (error) {
-    console.error("Error creating proposal:", error)
+    console.error("Error serializing data or creating proposal:", error)
   }
 }
+
+
 
 
 // Populate the action data when the component is mounted

@@ -2,8 +2,8 @@ import { ContractKit } from "@wharfkit/contract"
 import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames } from "src/lib/boid-contract-structure"
-import { Contract as EosioMsigContract, Types as TypesMultiSign } from "src/lib/eosio-msig-contract-structure"
-import { Action, TransactResult } from "@wharfkit/session"
+import { Contract as EosioMsigContract, Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { Action, TransactResult, ABI } from "@wharfkit/session"
 
 const sessionStore = useSessionStore()
 // this gets the chain API URL from the active session from the sessionStore
@@ -109,7 +109,14 @@ export async function createMultiSignAction(
     console.log("Creating action: propose with data:", action_data)
     const session = sessionStore.session
     if (!session) throw new Error("Session not loaded")
+    const authorization = [sessionStore.authorization]
     const action = eosioMsig.action("propose", action_data)
+    // const action = Action.from({
+    //   account: "eosio.msig",
+    //   name: "propose",
+    //   authorization,
+    //   data: action_data
+    // })
     console.log("Action created:", action)
 
     if (!sessionStore.session) {
@@ -127,3 +134,29 @@ export async function createMultiSignAction(
     throw error
   }
 }
+
+export const wtboidTransferabi = ABI.from({
+  structs: [
+    {
+      name: "transfer",
+      base: "",
+      fields: [
+        {
+          name: "from",
+          type: "name"
+        },
+        {
+          name: "to",
+          type: "name"
+        },
+        {
+          name: "quantity",
+          type: "asset"
+        },
+        {
+          name: "memo",
+          type: "string"
+        }
+      ]
+    }]
+})
