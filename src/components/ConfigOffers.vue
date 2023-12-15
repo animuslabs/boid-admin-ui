@@ -187,6 +187,10 @@ function getShortLabel(column:ExtendedQTableColumn) {
 function getNestedData(row:Record<string, any>, fieldPath:string):any {
   const value = fieldPath.split(".").reduce((obj:Record<string, any> | undefined, key:string) => obj && obj[key], row)
 
+  // Special handling for NFT actions and mints
+  if (fieldPath === "actions.nft_actions" || fieldPath === "rewards.nft_mints") {
+    return value && value.length > 0 ? "YES" : "NO"
+  }
   // Check if value is not undefined before proceeding
   if (value && (fieldPath === "requirements.team_id" || fieldPath === "rewards.activate_powermod_ids")) {
     // Access the Uint8Array inside the Proxy object, if it exists
