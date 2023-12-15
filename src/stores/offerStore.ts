@@ -49,7 +49,7 @@ export const offerStore = defineStore({
         this.$patch({ loading: false })
       }
     },
-    async deleteOfferAction(configData:ActionParams.OfferRm):Promise<TransactResult | undefined> {
+    async deleteOfferAction(configData:ActionParams.offerrm):Promise<TransactResult | undefined> {
       try {
         console.log("Session Data Username:", sessionStore.username)
         if (!sessionStore || !sessionStore.username) {
@@ -71,7 +71,7 @@ export const offerStore = defineStore({
           console.error("Session or session actor is not defined")
           throw new Error("Session or session actor is not defined")
         }
-        const configData:ActionParams.OfferClean = {}
+        const configData:ActionParams.offerclean = {}
         const result = await createAction("offer.clean", configData)
         console.log("Action Sent:", result)
       } catch (error:any) {
@@ -80,7 +80,7 @@ export const offerStore = defineStore({
         return undefined
       }
     },
-    async addOfferAction(configData:ActionParams.OfferAdd):Promise<TransactResult | undefined> {
+    async addOfferAction(configData:ActionParams.offeradd):Promise<TransactResult | undefined> {
       try {
         console.log("Session Data Username:", sessionStore.username)
         if (!sessionStore || !sessionStore.username) {

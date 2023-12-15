@@ -101,7 +101,7 @@ export const useTeamStore = defineStore({
         const actionName = "team.create"
         console.log(`Preparing to create team with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.TeamCreate = {
+        const action_data:ActionParams.teamcreate = {
           owner: sessionStore.username.toString() || "",
           min_pwr_tax_mult,
           owner_cut_mult,
@@ -130,7 +130,7 @@ export const useTeamStore = defineStore({
       try {
         const actionName = "team.edit"
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.TeamEdit = {
+        const action_data:ActionParams.teamedit = {
           team_id,
           owner,
           managers,
@@ -164,7 +164,7 @@ export const useTeamStore = defineStore({
         const actionName = "team.rm"
         console.log(`Preparing to remove team with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.TeamRm = {
+        const action_data:ActionParams.teamrm = {
           team_id
         }
         console.log("Action data prepared:", action_data)

@@ -1,7 +1,12 @@
 import type {
   Action,
   BytesType,
+  Float32Type,
+  Float64Type,
+  Int16Type,
   Int32Type,
+  Int64Type,
+  Int8Type,
   NameType,
   PublicKeyType,
   SignatureType,
@@ -42,7 +47,7 @@ export class Contract extends BaseContract {
     super({
       client: args.client,
       abi,
-      account: Name.from("boid")
+      account: args.account || Name.from("boid")
     })
   }
 
@@ -59,157 +64,340 @@ export class Contract extends BaseContract {
   }
 }
 export interface ActionNameParams {
-    "account.add":ActionParams.AccountAdd
-    "account.buy":ActionParams.AccountBuy
-    "account.edit":ActionParams.AccountEdit
-    "account.free":ActionParams.AccountFree
-    "account.mod":ActionParams.AccountMod
-    "account.rm":ActionParams.AccountRm
-    "accounts.clr":ActionParams.AccountsClr
-    auth:ActionParams.Auth
-    "auth.addkey":ActionParams.AuthAddkey
-    "auth.clear":ActionParams.AuthClear
-    "auth.init":ActionParams.AuthInit
-    "auth.rmkey":ActionParams.AuthRmkey
-    "booster.add":ActionParams.BoosterAdd
-    "booster.new":ActionParams.BoosterNew
-    "booster.rm":ActionParams.BoosterRm
-    "config.clear":ActionParams.ConfigClear
-    "config.set":ActionParams.ConfigSet
-    "global.chain":ActionParams.GlobalChain
-    "global.clear":ActionParams.GlobalClear
-    "global.set":ActionParams.GlobalSet
-    internalxfer:ActionParams.Internalxfer
-    "invite.add":ActionParams.InviteAdd
-    "invite.buy":ActionParams.InviteBuy
-    "invite.claim":ActionParams.InviteClaim
-    "invite.rm":ActionParams.InviteRm
-    logpwradd:ActionParams.Logpwradd
-    logpwrclaim:ActionParams.Logpwrclaim
-    "meta.clean":ActionParams.MetaClean
-    mint:ActionParams.Mint
-    "nft.lock":ActionParams.NftLock
-    "nft.receiver":ActionParams.NftReceiver
-    "nft.withdraw":ActionParams.NftWithdraw
-    "nft.xfer":ActionParams.NftXfer
-    "offer.add":ActionParams.OfferAdd
-    "offer.claim":ActionParams.OfferClaim
-    "offer.clean":ActionParams.OfferClean
-    "offer.rm":ActionParams.OfferRm
-    "owner.add":ActionParams.OwnerAdd
-    "owner.rm":ActionParams.OwnerRm
-    "power.add":ActionParams.PowerAdd
-    "power.claim":ActionParams.PowerClaim
-    rmdelegstake:ActionParams.Rmdelegstake
-    "sponsor.rm":ActionParams.SponsorRm
-    "sponsor.set":ActionParams.SponsorSet
-    stake:ActionParams.Stake
-    "stake.deleg":ActionParams.StakeDeleg
-    "team.change":ActionParams.TeamChange
-    "team.create":ActionParams.TeamCreate
-    "team.edit":ActionParams.TeamEdit
-    "team.rm":ActionParams.TeamRm
-    "team.setmem":ActionParams.TeamSetmem
-    "team.setpwr":ActionParams.TeamSetpwr
-    "team.taxrate":ActionParams.TeamTaxrate
-    thisround:ActionParams.Thisround
-    "unstake.end":ActionParams.UnstakeEnd
-    "unstake.init":ActionParams.UnstakeInit
-    "unstake.stop":ActionParams.UnstakeStop
-    "unstke.deleg":ActionParams.UnstkeDeleg
-    withdraw:ActionParams.Withdraw
+    "account.add":ActionParams.accountadd
+    "account.buy":ActionParams.accountbuy
+    "account.edit":ActionParams.accountedit
+    "account.free":ActionParams.accountfree
+    "account.mod":ActionParams.accountmod
+    "account.rm":ActionParams.accountrm
+    "accounts.clr":ActionParams.accountsclr
+    auth:ActionParams.auth
+    "auth.addkey":ActionParams.authaddkey
+    "auth.clear":ActionParams.authclear
+    "auth.init":ActionParams.authinit
+    "auth.rmkey":ActionParams.authrmkey
+    "booster.add":ActionParams.boosteradd
+    "booster.new":ActionParams.boosternew
+    "booster.rm":ActionParams.boosterrm
+    "config.clear":ActionParams.configclear
+    "config.set":ActionParams.configset
+    "global.chain":ActionParams.globalchain
+    "global.clear":ActionParams.globalclear
+    "global.set":ActionParams.globalset
+    internalxfer:ActionParams.internalxfer
+    "invite.add":ActionParams.inviteadd
+    "invite.buy":ActionParams.invitebuy
+    "invite.claim":ActionParams.inviteclaim
+    "invite.rm":ActionParams.inviterm
+    logpwradd:ActionParams.logpwradd
+    logpwrclaim:ActionParams.logpwrclaim
+    "meta.clean":ActionParams.metaclean
+    mint:ActionParams.mint
+    "nft.lock":ActionParams.nftlock
+    "nft.receiver":ActionParams.nftreceiver
+    "nft.withdraw":ActionParams.nftwithdraw
+    "nft.xfer":ActionParams.nftxfer
+    "offer.add":ActionParams.offeradd
+    "offer.claim":ActionParams.offerclaim
+    "offer.clean":ActionParams.offerclean
+    "offer.rm":ActionParams.offerrm
+    "owner.add":ActionParams.owneradd
+    "owner.rm":ActionParams.ownerrm
+    "power.add":ActionParams.poweradd
+    "power.claim":ActionParams.powerclaim
+    rmdelegstake:ActionParams.rmdelegstake
+    "sponsor.rm":ActionParams.sponsorrm
+    "sponsor.set":ActionParams.sponsorset
+    stake:ActionParams.stake
+    "stake.deleg":ActionParams.stakedeleg
+    "team.change":ActionParams.teamchange
+    "team.create":ActionParams.teamcreate
+    "team.edit":ActionParams.teamedit
+    "team.rm":ActionParams.teamrm
+    "team.setmem":ActionParams.teamsetmem
+    "team.setpwr":ActionParams.teamsetpwr
+    "team.taxrate":ActionParams.teamtaxrate
+    thisround:ActionParams.thisround
+    "unstake.end":ActionParams.unstakeend
+    "unstake.init":ActionParams.unstakeinit
+    "unstake.stop":ActionParams.unstakestop
+    "unstke.deleg":ActionParams.unstkedeleg
+    withdraw:ActionParams.withdraw
 }
 export namespace ActionParams {
-    export interface AccountAdd {
+    export namespace Types {
+        export interface AccountCreate {
+            boid_id:NameType
+            keys:PublicKeyType[]
+            owners:NameType[]
+        }
+        export interface Action {
+            account:NameType
+            name:NameType
+            authorization:Types.PermissionLevel[]
+            data:BytesType
+        }
+        export interface PermissionLevel {
+            actor:NameType
+            permission:NameType
+        }
+        export interface Booster {
+            mod_id:UInt8Type
+            pwr_multiplier:UInt8Type
+            pwr_add_per_round:UInt16Type
+            expire_after_elapsed_rounds:UInt16Type
+            aggregate_pwr_capacity:UInt32Type
+        }
+        export interface Config {
+            account:Types.ConfigAccount
+            power:Types.ConfigPower
+            mint:Types.ConfigMint
+            team:Types.ConfigTeam
+            stake:Types.ConfigStake
+            time:Types.ConfigTime
+            auth:Types.ConfigAuth
+            nft:Types.ConfigNft
+            paused:boolean
+            allow_deposits:boolean
+            allow_withdrawals:boolean
+            recoveryAccount:NameType
+        }
+        export interface ConfigAccount {
+            invite_price:UInt32Type
+            premium_purchase_price:UInt32Type
+            max_premium_prefix:UInt8Type
+            max_owners:UInt8Type
+            max_boosters:UInt8Type
+            suffix_whitelist:NameType[]
+            remove_sponsor_price:UInt32Type
+            sponsor_max_invite_codes:UInt8Type
+            invite_code_expire_rounds:UInt16Type
+        }
+        export interface ConfigPower {
+            sponsor_tax_mult:Float32Type
+            powered_stake_mult:Float32Type
+            claim_maximum_elapsed_rounds:UInt16Type
+            soft_max_pwr_add:UInt16Type
+            history_slots_length:UInt8Type
+        }
+        export interface ConfigMint {
+            round_powered_stake_mult:Float32Type
+            round_power_mult:Float32Type
+        }
+        export interface ConfigTeam {
+            change_min_rounds:UInt16Type
+            edit_team_min_rounds:UInt16Type
+            team_edit_max_pct_change:UInt16Type
+            buy_team_cost:UInt32Type
+            owner_stake_required:UInt32Type
+            owner_future_stake_lock_rounds_required:UInt16Type
+        }
+        export interface ConfigStake {
+            unstake_rounds:UInt8Type
+            extra_stake_min_locked_rounds:UInt8Type
+        }
+        export interface ConfigTime {
+            rounds_start_sec_since_epoch:UInt32Type
+            round_length_sec:UInt32Type
+        }
+        export interface ConfigAuth {
+            key_actions_whitelist:NameType[]
+            key_account_max_stake:UInt32Type
+            key_account_max_balance:UInt32Type
+            account_max_keys:UInt8Type
+            worker_max_bill_per_action:UInt32Type
+        }
+        export interface ConfigNft {
+            boid_id_maximum_nfts:UInt16Type
+            whitelist_collections:NameType[]
+        }
+        export interface Global {
+            chain_name:NameType
+            total_power:UInt64Type
+            last_inflation_adjust_round:UInt16Type
+        }
+        export interface PowerClaimLog {
+            before:UInt32Type
+            after:UInt32Type
+            from_boosters:UInt32Type
+            elapsed_rounds:UInt16Type
+        }
+        export interface MintLog {
+            power_mint:UInt32Type
+            powered_stake_mint:UInt32Type
+            account_earned:UInt32Type
+            team_cut:UInt32Type
+            team_owner_earned:UInt32Type
+            overstake_mint:UInt32Type
+            total:UInt32Type
+        }
+        export interface OfferRequirements {
+            team_id:BytesType
+            min_power:UInt16Type
+            min_balance:UInt32Type
+            min_stake:UInt32Type
+            min_cumulative_team_contribution:UInt32Type
+        }
+        export interface OfferAction {
+            delegated_stake:UInt16Type
+            stake_locked_additional_rounds:UInt16Type
+            nft_actions:Types.NftAction[]
+            balance_payment:UInt32Type
+        }
+        export interface NftAction {
+            collection_name:NameType
+            schema_name:NameType
+            template_id:Int32Type
+            match_immutable_attributes:Types.AtomicAttribute[]
+            match_mutable_attributes:Types.AtomicAttribute[]
+            burn:boolean
+            lock_rounds:UInt16Type
+        }
+        export interface AtomicAttribute {
+            key:string
+            value:Types.AtomicAttribute_value_variant
+        }
+        export type AtomicAttribute_value_variant =
+            | Int8Type
+            | Int16Type
+            | Int32Type
+            | Int64Type
+            | UInt8Type
+            | UInt16Type
+            | UInt32Type
+            | UInt64Type
+            | Float32Type
+            | Float64Type
+            | String
+            | Int8Type[]
+            | Int16Type[]
+            | Int32Type[]
+            | Int64Type[]
+            | BytesType
+            | UInt16Type[]
+            | UInt32Type[]
+            | UInt64Type[]
+            | Float32Type[]
+            | Float64Type[]
+            | String[]
+        export interface OfferRewards {
+            nft_mints:Types.NftMint[]
+            balance_deposit:UInt32Type
+            delegated_stake:UInt16Type
+            stake_locked_additional_rounds:UInt16Type
+            activate_powermod_ids:BytesType
+        }
+        export interface NftMint {
+            mint_template_id:Int32Type
+            mint_schema_name:NameType
+            mint_collection_name:NameType
+            immutable_data:Types.AtomicAttribute[]
+            mutable_data:Types.AtomicAttribute[]
+            quantity:UInt8Type
+        }
+        export interface OfferLimits {
+            offer_quantity_remaining:UInt32Type
+            available_until_round:UInt16Type
+        }
+        export interface Sponsor {
+            sponsor_boid_id:NameType
+            invites_balance:UInt16Type
+            invite_codes_unclaimed:UInt16Type
+            invite_codes_claimed:UInt32Type
+            sponsored_upgrades:UInt32Type
+            upgrades_total_earned:UInt32Type
+        }
+    }
+    export interface accountadd {
         boid_id:NameType
         owners:NameType[]
         sponsors:NameType[]
         keys:PublicKeyType[]
     }
-    export interface AccountBuy {
+    export interface accountbuy {
         payer_boid_id:NameType
         new_account:Types.AccountCreate
     }
-    export interface AccountEdit {
+    export interface accountedit {
         boid_id:NameType
         meta:BytesType
     }
-    export interface AccountFree {
+    export interface accountfree {
         boid_id:NameType
     }
-    export interface AccountMod {
+    export interface accountmod {
         boid_id:NameType
         received_delegated_stake:UInt16Type
     }
-    export interface AccountRm {
+    export interface accountrm {
         boid_id:NameType
     }
-    export interface AccountsClr {}
-    export interface Auth {
+    export interface accountsclr {}
+    export interface auth {
         boid_id:NameType
         actions:Types.Action[]
         sig:SignatureType
-        keyindex:Int32Type
+        keyIndex:Int32Type
         expires_utc_sec:UInt32Type
     }
-    export interface AuthAddkey {
+    export interface authaddkey {
         boid_id:NameType
         key:PublicKeyType
     }
-    export interface AuthClear {}
-    export interface AuthInit {}
-    export interface AuthRmkey {
+    export interface authclear {}
+    export interface authinit {}
+    export interface authrmkey {
         boid_id:NameType
-        keyindex:Int32Type
+        keyIndex:Int32Type
     }
-    export interface BoosterAdd {
+    export interface boosteradd {
         boid_id:NameType
         mod_id:UInt8Type
     }
-    export interface BoosterNew {
+    export interface boosternew {
         mod:Types.Booster
     }
-    export interface BoosterRm {
+    export interface boosterrm {
         boid_id:NameType
         booster_index:Int32Type[]
     }
-    export interface ConfigClear {}
-    export interface ConfigSet {
+    export interface configclear {}
+    export interface configset {
         config:Types.Config
     }
-    export interface GlobalChain {
+    export interface globalchain {
         chain_name:NameType
     }
-    export interface GlobalClear {}
-    export interface GlobalSet {
-        globaldata:Types.Global
+    export interface globalclear {}
+    export interface globalset {
+        globalData:Types.Global
     }
-    export interface Internalxfer {
+    export interface internalxfer {
         from_boid_id:NameType
         to_boid_id:NameType
         quantity:UInt32Type
         memo:string
     }
-    export interface InviteAdd {
+    export interface inviteadd {
         boid_id:NameType
         invite_code:UInt64Type
         key:PublicKeyType
     }
-    export interface InviteBuy {
+    export interface invitebuy {
         boid_id:NameType
         quantity:UInt16Type
     }
-    export interface InviteClaim {
+    export interface inviteclaim {
         sponsor_boid_id:NameType
         invite_code:UInt64Type
         sig:SignatureType
         new_account:Types.AccountCreate
     }
-    export interface InviteRm {
+    export interface inviterm {
         sponsor_boid_id:NameType
         invite_code:UInt64Type
     }
-    export interface Logpwradd {
+    export interface logpwradd {
         boid_id:NameType
         received:UInt16Type
         from_mult_mods:UInt16Type
@@ -217,96 +405,96 @@ export namespace ActionParams {
         power_increased:UInt16Type
         orign:NameType
     }
-    export interface Logpwrclaim {
+    export interface logpwrclaim {
         boid_id:NameType
         power:Types.PowerClaimLog
         mint:Types.MintLog
     }
-    export interface MetaClean {}
-    export interface Mint {
+    export interface metaclean {}
+    export interface mint {
         to:NameType
         whole_quantity:UInt32Type
     }
-    export interface NftLock {
+    export interface nftlock {
         boid_id:NameType
         asset_id:UInt64Type
         locked_until_round:UInt16Type
     }
-    export interface NftReceiver {
+    export interface nftreceiver {
         boid_id:NameType
         mint_quantity:UInt16Type
     }
-    export interface NftWithdraw {
+    export interface nftwithdraw {
         boid_id:NameType
         asset_ids:UInt64Type[]
         to:NameType
     }
-    export interface NftXfer {
+    export interface nftxfer {
         from_boid_id:NameType
         to_boid_id:NameType
         asset_ids:UInt64Type[]
     }
-    export interface OfferAdd {
+    export interface offeradd {
         requirements:Types.OfferRequirements
         actions:Types.OfferAction
         rewards:Types.OfferRewards
         limits:Types.OfferLimits
     }
-    export interface OfferClaim {
+    export interface offerclaim {
         boid_id:NameType
         offer_id:UInt64Type
         required_nft_action_ids:UInt64Type[]
     }
-    export interface OfferClean {}
-    export interface OfferRm {
+    export interface offerclean {}
+    export interface offerrm {
         offer_id:UInt64Type
     }
-    export interface OwnerAdd {
+    export interface owneradd {
         boid_id:NameType
         owner:NameType
     }
-    export interface OwnerRm {
+    export interface ownerrm {
         boid_id:NameType
         owner:NameType
     }
-    export interface PowerAdd {
+    export interface poweradd {
         boid_id:NameType
         power:UInt16Type
     }
-    export interface PowerClaim {
+    export interface powerclaim {
         boid_id:NameType
     }
-    export interface Rmdelegstake {
+    export interface rmdelegstake {
         stake_id:UInt64Type
     }
-    export interface SponsorRm {
+    export interface sponsorrm {
         sponsor_boid_id:NameType
     }
-    export interface SponsorSet {
+    export interface sponsorset {
         row:Types.Sponsor
     }
-    export interface Stake {
+    export interface stake {
         boid_id:NameType
         quantity:UInt32Type
     }
-    export interface StakeDeleg {
+    export interface stakedeleg {
         from_boid_id:NameType
         to_boid_id:NameType
         stake_quantity:UInt16Type
         lock_until_round:UInt16Type
     }
-    export interface TeamChange {
+    export interface teamchange {
         boid_id:NameType
         new_team_id:UInt8Type
         new_pwr_tax_mult:UInt8Type
     }
-    export interface TeamCreate {
+    export interface teamcreate {
         owner:NameType
         min_pwr_tax_mult:UInt8Type
         owner_cut_mult:UInt8Type
         url_safe_name:string
     }
-    export interface TeamEdit {
+    export interface teamedit {
         team_id:UInt8Type
         owner:NameType
         managers:NameType[]
@@ -315,36 +503,36 @@ export namespace ActionParams {
         url_safe_name:string
         meta:BytesType
     }
-    export interface TeamRm {
+    export interface teamrm {
         team_id:UInt8Type
     }
-    export interface TeamSetmem {
+    export interface teamsetmem {
         team_id:UInt8Type
         new_members:UInt32Type
     }
-    export interface TeamSetpwr {
+    export interface teamsetpwr {
         team_id:UInt8Type
         new_power:UInt32Type
     }
-    export interface TeamTaxrate {
+    export interface teamtaxrate {
         boid_id:NameType
         new_pwr_tax_mult:UInt8Type
     }
-    export interface Thisround {}
-    export interface UnstakeEnd {
+    export interface thisround {}
+    export interface unstakeend {
         boid_id:NameType
     }
-    export interface UnstakeInit {
+    export interface unstakeinit {
         boid_id:NameType
         quantity:UInt32Type
     }
-    export interface UnstakeStop {
+    export interface unstakestop {
         boid_id:NameType
     }
-    export interface UnstkeDeleg {
+    export interface unstkedeleg {
         stake_id:UInt64Type
     }
-    export interface Withdraw {
+    export interface withdraw {
         boid_id:NameType
         quantity:UInt32Type
         to:NameType
@@ -375,7 +563,7 @@ export namespace Types {
       { type: Float64, array: true },
       "string[]"
     ])
-    export class AtomicValue extends Struct {
+    export class AtomicValue extends Variant {
       value!:| Int8
             | Int16
             | Int32
@@ -733,7 +921,7 @@ export namespace Types {
           allow_withdrawals!:boolean
 
         @Struct.field(Name)
-          recoveryaccount!:Name
+          recoveryAccount!:Name
     }
     @Struct.type("ExtendedSymbol")
     export class ExtendedSymbol extends Struct {
@@ -1074,7 +1262,7 @@ export namespace Types {
           sig!:Signature
 
         @Struct.field(Int32)
-          keyindex!:Int32
+          keyIndex!:Int32
 
         @Struct.field(UInt32)
           expires_utc_sec!:UInt32
@@ -1097,7 +1285,7 @@ export namespace Types {
           boid_id!:Name
 
         @Struct.field(Int32)
-          keyindex!:Int32
+          keyIndex!:Int32
     }
     @Struct.type("booster.add")
     export class boosteradd extends Struct {
@@ -1137,7 +1325,7 @@ export namespace Types {
     @Struct.type("global.set")
     export class globalset extends Struct {
         @Struct.field(Global)
-          globaldata!:Global
+          globalData!:Global
     }
     @Struct.type("internalxfer")
     export class internalxfer extends Struct {

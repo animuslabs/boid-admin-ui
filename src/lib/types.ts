@@ -68,3 +68,28 @@ export interface DeserializedTeam {
   last_edit_round:number;
   meta:TeamMeta | null;
 }
+
+export interface NftMint {
+  mint_template_id:string;
+  mint_schema_name:string;
+  mint_collection_name:string;
+  match_immutable_attributes:NftAttribute[],
+  match_mutable_attributes:NftAttribute[],
+  quantity:string;
+}
+
+export interface NftAction {
+  collection_name:string;
+  schema_name:string;
+  template_id:number;
+  match_immutable_attributes:NftAttribute[],
+  match_mutable_attributes:NftAttribute[],
+  burn:boolean;
+  lock_rounds:number;
+}
+
+export interface NftAttribute {
+  key:string;
+  type:string; // Type selected from dropdown
+  value:string; // Value entered by user
+}

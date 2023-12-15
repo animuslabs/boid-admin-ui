@@ -109,14 +109,7 @@ export async function createMultiSignAction(
     console.log("Creating action: propose with data:", action_data)
     const session = sessionStore.session
     if (!session) throw new Error("Session not loaded")
-    const authorization = [sessionStore.authorization]
     const action = eosioMsig.action("propose", action_data)
-    // const action = Action.from({
-    //   account: "eosio.msig",
-    //   name: "propose",
-    //   authorization,
-    //   data: action_data
-    // })
     console.log("Action created:", action)
 
     if (!sessionStore.session) {
