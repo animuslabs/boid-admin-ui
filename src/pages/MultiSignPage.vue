@@ -41,52 +41,19 @@ import { wtboidTransferabi } from "src/lib/contracts"
 
 const store = multiSignStore()
 const selectedActionDataJson = ref("")
-const reqSignAccs = reactive(
-  [
-    {
-      actor: "boid.animus",
-      permission: "active"
-    },
-    {
-      actor: "imjohnatboid",
-      permission: "active"
-    },
-    {
-      actor: "ticitelos113",
-      permission: "active"
-    }
-  ]
-)
-const actions = reactive(
-  [
-    {
-      account: "wt.boid",
-      name: "transfer",
-      data: { from: "vault.boid", to: "service.boid", quantity: "2000000.0000 BOID", memo: "for user rewards" },
-      authorization: [{ actor: "vault.boid", permission: "active" }]
-    }
-  ]
-)
-
-
-
-// Computed property for JSON representation of reqSignAccs
-const reqSignAccsJson = computed({
-  get: () => JSON.stringify(reqSignAccs, null, 2),
-  set: (newValue) => {
-    try {
-      Object.assign(reqSignAccs, JSON.parse(newValue))
-    } catch (e) {
-      console.error("Invalid JSON format")
-    }
+const actions = [
+  {
+    account: "wt.boid",
+    name: "transfer",
+    data: { from: "vault.boid", to: "service.boid", quantity: "2000000.0000 BOID", memo: "for user rewards" },
+    authorization: [{ actor: "vault.boid", permission: "active" }]
   }
-})
-// Function to initialize form fields
-const initializeFormFields = () => {
-  if (actions.length > 0) {
-    selectedActionDataJson.value = JSON.stringify(actions[0], null, 2)
-  }
-}
+]
+const reqSignAccsJson = ref(JSON.stringify([
+  { actor: "boid.animus", permission: "active" },
+  { actor: "imjohnatboid", permission: "active" },
+  { actor: "ticitelos113", permission: "active" }
+], null, 2))
 
 const createProposal = async() => {
   console.log("Creating proposal with action:", selectedActionDataJson.value)
@@ -121,12 +88,11 @@ const createProposal = async() => {
     console.error("Error serializing data or creating proposal:", error)
   }
 }
-
-
-
-
-// Populate the action data when the component is mounted
-onMounted(initializeFormFields)
+onMounted(() => {
+  if (actions.length > 0) {
+    selectedActionDataJson.value = JSON.stringify(actions[0], null, 2)
+  }
+})
 
 </script>
 
