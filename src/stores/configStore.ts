@@ -47,7 +47,7 @@ export const useConfigStore = defineStore({
         this.$patch({ loading: false })
       }
     },
-    async createConfigSetAction(configData:ActionParams.ConfigSet):Promise<TransactResult | undefined> {
+    async createConfigSetAction(configData:ActionParams.configset):Promise<TransactResult | undefined> {
       try {
         console.log("Session Data Username:", sessionStore.username)
         if (!sessionStore || !sessionStore.username) {
