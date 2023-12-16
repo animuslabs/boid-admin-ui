@@ -23,7 +23,7 @@ export const useSessionStore = defineStore({
 
   // Actions
   actions: {
-    // Action to set the boolean property to a specific value
+    // Action to set the boolean property to a specific value for the multi sign modal
     setToggleState(value:boolean) {
       this.multiSignToggleState = value
     },

@@ -1,4 +1,4 @@
-import { ContractKit } from "@wharfkit/contract"
+import { ContractKit, Contract } from "@wharfkit/contract"
 import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames, abi as boidABI } from "src/lib/boid-contract-structure"
@@ -13,14 +13,50 @@ const sessionStore = useSessionStore()
 const url = sessionStore.chainUrl
 const apiClientOptions:APIClientOptions = { url }
 console.log("chain API URL:", apiClientOptions.url)
+const clientAPI = new APIClient(apiClientOptions)
 const contractKit = new ContractKit({
-  client: new APIClient(apiClientOptions)
+  client: clientAPI
 })
 
+// gets the ABI for a given account
+const getABI = async(accountName:string) => {
+  const abi = await clientAPI.v1.chain.get_abi(accountName)
+  return abi
+}
 
+// custom ABI for wt.boid::transfer
+const wtboidTransferabi = ABI.from({
+  structs: [
+    {
+      name: "transfer",
+      base: "",
+      fields: [
+        {
+          name: "from",
+          type: "name"
+        },
+        {
+          name: "to",
+          type: "name"
+        },
+        {
+          name: "quantity",
+          type: "asset"
+        },
+        {
+          name: "memo",
+          type: "string"
+        }
+      ]
+    }]
+})
+
+// abi for boid smart contract taken from local file
 export const boid = new BoidContract(contractKit)
 
+// abi for eosio.msig smart contract taken from local file
 export const eosioMsig = new EosioMsigContract(contractKit)
+
 
 export async function fetchDataFromTable<T extends TableNames>(tableName:T):Promise<RowType<T>[] | undefined> {
   try {
@@ -50,9 +86,6 @@ export async function createAction<A extends ActionNames>(
       console.error("Session is not defined")
       throw new Error("Session is not defined")
     }
-
-    // console.log("Transacting action...")
-    // const result = await sessionStore.session.transact({ action })
     let result
     if (isItMultiSignMode) {
       // If multi-sign mode is enabled, create and execute a multi-sign proposal
@@ -73,74 +106,6 @@ export async function createAction<A extends ActionNames>(
   }
 }
 
-export async function createAction2<A extends ActionNames>(
-  actionName:A,
-  action_data:ActionNameParams[A]
-):Promise<TransactResult | undefined> {
-  console.log("createAction called with", { actionName, action_data })
-
-  try {
-    console.log(`Creating action: ${String(actionName)} with data:`, action_data)
-    const session = sessionStore.session
-    if (!session) throw new Error("Session not loaded")
-    const authorization = [sessionStore.authorization]
-    // Ensure that account and name are Name instances
-    const accountName = Name.from(sessionStore.username)
-    const actionNameName = Name.from(actionName)
-
-    // Create the action object
-    const action = Action.from({
-      account: accountName,
-      name: actionNameName,
-      authorization,
-      data: action_data
-    })
-    console.log("Action created:", action)
-
-    if (!sessionStore.session) {
-      console.error("Session is not defined")
-      throw new Error("Session is not defined")
-    }
-
-    console.log("Transacting action...")
-    const result = await sessionStore.session.transact({ action })
-    console.log("Transaction result:", result)
-
-    return result
-  } catch (error) {
-    console.error("Error in createAction:", error)
-    throw error
-  }
-}
-
-const wtboidTransferabi = ABI.from({
-  structs: [
-    {
-      name: "transfer",
-      base: "",
-      fields: [
-        {
-          name: "from",
-          type: "name"
-        },
-        {
-          name: "to",
-          type: "name"
-        },
-        {
-          name: "quantity",
-          type: "asset"
-        },
-        {
-          name: "memo",
-          type: "string"
-        }
-      ]
-    }]
-})
-
-
-//testing
 export async function createAndExecuteMultiSignProposal(
   reqSignAccs:TypesMultiSign.permission_level[],
   actions:TypesMultiSign.action[]
@@ -149,7 +114,7 @@ export async function createAndExecuteMultiSignProposal(
     console.log("Creating proposal with data:", actions)
 
     // Serialize actions if needed
-    const serializedActions = actions.map(action => {
+    const serializedActions = await Promise.all(actions.map(async action => {
       let abi
       switch (Name.from(action.account).toString()) {
         case "wt.boid":
@@ -159,12 +124,23 @@ export async function createAndExecuteMultiSignProposal(
           abi = boidABI
           break
         // Add cases for other accounts and their ABIs
-        default:
-          throw new Error(`ABI not found for account: ${action.account}`)
+        default: {
+          // Fetch ABI dynamically for accounts not pre-configured
+          const abiAcc = action.account.toString()
+          const abiResponse = await getABI(abiAcc)
+          if (!abiResponse.abi) {
+            throw new Error(`ABI not found for account: ${action.account}`)
+          }
+          abi = ABI.from(abiResponse.abi)
+          if (!abi) {
+            throw new Error(`ABI not found for account: ${action.account}`)
+          }
+          break
+        }
       }
       const serializedData = serializeActionData(action, abi)
       return TypesMultiSign.action.from({ ...action, data: serializedData })
-    })
+    }))
 
     // Prepare the proposal data
     const session = sessionStore.session
@@ -203,3 +179,47 @@ export async function createAndExecuteMultiSignProposal(
     throw error
   }
 }
+
+
+
+
+// another way to create action
+// export async function createAction2<A extends ActionNames>(
+//   actionName:A,
+//   action_data:ActionNameParams[A]
+// ):Promise<TransactResult | undefined> {
+//   console.log("createAction called with", { actionName, action_data })
+
+//   try {
+//     console.log(`Creating action: ${String(actionName)} with data:`, action_data)
+//     const session = sessionStore.session
+//     if (!session) throw new Error("Session not loaded")
+//     const authorization = [sessionStore.authorization]
+//     // Ensure that account and name are Name instances
+//     const accountName = Name.from(sessionStore.username)
+//     const actionNameName = Name.from(actionName)
+
+//     // Create the action object
+//     const action = Action.from({
+//       account: accountName,
+//       name: actionNameName,
+//       authorization,
+//       data: action_data
+//     })
+//     console.log("Action created:", action)
+
+//     if (!sessionStore.session) {
+//       console.error("Session is not defined")
+//       throw new Error("Session is not defined")
+//     }
+
+//     console.log("Transacting action...")
+//     const result = await sessionStore.session.transact({ action })
+//     console.log("Transaction result:", result)
+
+//     return result
+//   } catch (error) {
+//     console.error("Error in createAction:", error)
+//     throw error
+//   }
+// }

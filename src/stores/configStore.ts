@@ -1,9 +1,9 @@
 
 import { acceptHMRUpdate, defineStore } from "pinia"
-import { createAction2, createAction, fetchDataFromTable } from "src/lib/contracts"
-import { ActionParams, Types } from "lib/boid-contract-structure"
+import { createAction, fetchDataFromTable } from "src/lib/contracts"
+import { ActionParams } from "lib/boid-contract-structure"
 import { Ref, ref } from "vue"
-import { Action, TransactResult } from "@wharfkit/session"
+import { TransactResult } from "@wharfkit/session"
 import { DeserializedTeam } from "src/lib/types"
 import { useSessionStore } from "src/stores/sessionStore"
 
@@ -54,7 +54,7 @@ export const useConfigStore = defineStore({
           console.error("Session or session actor is not defined")
           throw new Error("Session or session actor is not defined")
         }
-        const result = await createAction2("config.set", configData)
+        const result = await createAction("config.set", configData)
         console.log("Action Sent:", result)
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)

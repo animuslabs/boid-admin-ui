@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { Ref, ref } from "vue"
-import { createAction, createAction2, fetchDataFromTable } from "src/lib/contracts"
+import { createAction, fetchDataFromTable } from "src/lib/contracts"
 import { ActionParams, Types } from "src/lib/boid-contract-structure"
 import { TransactResult } from "@wharfkit/session"
 import { useSessionStore } from "src/stores/sessionStore"

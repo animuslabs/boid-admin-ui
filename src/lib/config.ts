@@ -1,5 +1,3 @@
-import { Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
-import { Bytes, Name, ABI, Serializer } from "@wharfkit/antelope"
 export const contractName = "boid"
 export interface NetworkConfig {
   name:string
@@ -9,7 +7,7 @@ export interface NetworkConfig {
 }
 
 export const endpoints:string[][] = [
-  ["EOS Endpoint", "https://eos.api.animus.is"],
+  ["EOS Endpoint", "https://eos.api.eosnation.io"],
   ["Telos Endpoint", "https://telos.api.animus.is"],
   ["Telos Testnet Endpoint", "https://telos.testnet.boid.animus.is"],
   ["IPFS Endpoint", "https://ipfs.animus.is/ipfs/"], // 3

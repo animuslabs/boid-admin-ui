@@ -1,5 +1,5 @@
 import { defineStore } from "pinia"
-import { createAction, createAction2, fetchDataFromTable } from "../lib/contracts"
+import { createAction, fetchDataFromTable } from "../lib/contracts"
 import { Types, ActionParams } from "../lib/boid-contract-structure"
 import { ref } from "vue"
 import { TransactResult } from "@wharfkit/session"
@@ -87,7 +87,7 @@ export const offerStore = defineStore({
           console.error("Session or session actor is not defined")
           throw new Error("Session or session actor is not defined")
         }
-        const result = await createAction2("offer.add", configData)
+        const result = await createAction("offer.add", configData)
         console.log("Action Sent:", result)
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
