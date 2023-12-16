@@ -7,7 +7,8 @@ import { endpoints } from "src/lib/config"
 export const useSessionStore = defineStore({
   id: "sessionStore",
   state: () => ({
-    session: undefined as Session | undefined
+    session: undefined as Session | undefined,
+    multiSignToggleState: true // to be used for toggling the multi sign modal on and off
   }),
   // Getters
   getters: {
@@ -16,11 +17,16 @@ export const useSessionStore = defineStore({
     authorization: (state) => PermissionLevel.from(state.session?.permissionLevel as PermissionLevel || { actor: "boid", permission: "active" }),
     sessionState: (state) => state,
     whatChain: (state) => state.session?.chain.name || "",
-    chainUrl: (state) => state.session?.chain.url || endpoints[0]?.[1]
+    chainUrl: (state) => state.session?.chain.url || endpoints[0]?.[1],
+    multiSignState: (state) => state.multiSignToggleState
   },
 
   // Actions
   actions: {
+    // Action to set the boolean property to a specific value
+    setToggleState(value:boolean) {
+      this.multiSignToggleState = value
+    },
     async login() {
       const sessionData = await sessionLogin()
       if (sessionData) {

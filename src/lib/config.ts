@@ -1,3 +1,5 @@
+import { Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { Bytes, Name, ABI, Serializer } from "@wharfkit/antelope"
 export const contractName = "boid"
 export interface NetworkConfig {
   name:string
@@ -65,3 +67,136 @@ export function activeNetwork():NetworkConfig {
   }
   return networks[0]
 }
+
+export const predefinedActions = [
+  //add key [0]
+  [{
+    account: "eosio",
+    name: "updateauth",
+    data: {
+      account: "testaccount1",
+      permission: "active",
+      parent: "owner",
+      auth: {
+        threshold: 1,
+        keys: [{ key: "EOS8d9DmipxtKRK5cpWZnGdE8yKQMhfLuCsoiSaSXgk68eLJmBnBc", weight: 1 }],
+        accounts: [],
+        waits: []
+      }
+    },
+    authorization: [{ actor: "testaccount1", permission: "active" }]
+  }],
+  // vote for producers on Telos [1]
+  [{
+    account: "eosio",
+    name: "voteproducer",
+    data: {
+      voter: "testaccount1",
+      proxy: "",
+      producers: "[amsterdam, argentinatls, bp.boid, caleosblocks, eosauthority, eosiodetroit, eosphereiobp, eosriobrazil, fortisblocks, goodblocktls, kainosblkpro, katalyotelos, nation.tlos, persiantelos, southafrica1, teamgreymass, teleologytls, telosarabia1, teloscentral, telosglobal1, telosgreenbp, telosuknodes, telosunlimit, theteloscope, votetelosusa]"
+    },
+    authorization: [{ actor: "testaccount1", permission: "active" }]
+  }],
+  // payroll [2]
+  [{
+    account: "payroll.boid",
+    name: "pay",
+    data: {
+      pay_id: 174
+    },
+    authorization: [{ actor: "testaccount1", permission: "active" }]
+  }],
+  // make an ibc transfer from eos to telos [3]
+  [{
+    account: "ibc.wt.tlos",
+    name: "retire",
+    data: { beneficiary: "testaccount1", owner: "testaccount1", quantity: "2487.0056 TLOS" },
+    authorization: [{ actor: "testaccount1", permission: "active" }]
+  }],
+  // create new account [4]
+  [
+    {
+      account: "eosio",
+      name: "newaccount",
+      data: {
+        creator: "boid",
+        name: "animus1.boid",
+        owner: {
+          accounts: [],
+          keys: [
+            {
+              key: "EOS53eZ7vvu54zkxLeHKGXW8jqMPfrp4C8YPULMQtrRZ6zh2Hm4cz",
+              weight: 1
+            }
+          ],
+          waits: [],
+          threshold: 1
+        },
+        active: {
+          accounts: [],
+          keys: [
+            {
+              key: "EOS53eZ7vvu54zkxLeHKGXW8jqMPfrp4C8YPULMQtrRZ6zh2Hm4cz",
+              weight: 1
+            }
+          ],
+          waits: [],
+          threshold: 1
+        }
+      },
+      authorization: [
+        {
+          actor: "boid",
+          permission: "active"
+        }
+      ]
+    },
+    {
+      account: "eosio",
+      name: "buyrambytes",
+      data: {
+        payer: "boid",
+        receiver: "animus1.boid",
+        bytes: 11000000
+      },
+      authorization: [
+        {
+          actor: "boid",
+          permission: "active"
+        }
+      ]
+    },
+    {
+      account: "eosio",
+      name: "delegatebw",
+      data: {
+        from: "boid",
+        receiver: "animus1.boid",
+        stake_net_quantity: "1000.0000 GPU",
+        stake_cpu_quantity: "1000.0000 GPU",
+        transfer: true
+      },
+      authorization: [
+        {
+          actor: "boid",
+          permission: "active"
+        }
+      ]
+    }
+  ]
+]
+export const actionDisplayNames = [
+  "Update Auth - Add Key",
+  "vote for producers on Telos",
+  "payroll",
+  "make an ibc transfer from eos to telos",
+  "create new account"
+]
+
+const reqSignAccsJson = JSON.stringify([
+  { actor: "testaccount1", permission: "active" },
+  { actor: "testaccount2", permission: "active" },
+  { actor: "testaccount3", permission: "active" }
+])
+
+export const reqSignAccs = JSON.parse(reqSignAccsJson)

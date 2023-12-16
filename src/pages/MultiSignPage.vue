@@ -33,13 +33,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, reactive, onMounted } from "vue"
-import { multiSignStore } from "src/stores/multiSignStore"
-import { Types } from "src/lib/eosio-msig-contract-telos-mainnet"
-import { Serializer, ABI } from "@wharfkit/antelope"
-import { wtboidTransferabi } from "src/lib/contracts"
+import { ref, onMounted } from "vue"
+import { createAndExecuteMultiSignProposal } from "src/lib/contracts"
 
-const store = multiSignStore()
 const selectedActionDataJson = ref("")
 const actions = [
   {
@@ -61,33 +57,20 @@ const createProposal = async() => {
   try {
     const parsedActionData = JSON.parse(selectedActionDataJson.value)
     const parsedReqSignAccsData = JSON.parse(reqSignAccsJson.value)
-    console.log("Data before serialization:", parsedActionData.data)
 
-    // Ensure data is not undefined or null
-    if (!parsedActionData.data) {
-      throw new Error("Data is undefined or null, cannot serialize")
-    }
-    // Attempt to serialize the data field
-    const serializedData = Serializer.encode({ object: parsedActionData.data, abi: wtboidTransferabi, type: "transfer" })
-    console.log("Serialized data:", serializedData)
+    // Actions array for the proposal
+    const actionsForProposal = [parsedActionData]
 
-    // Update the actions data with serialized data
-    const actionsData = [
-      Types.action.from({
-        ...parsedActionData,
-        data: serializedData
-      })
-    ]
+    console.log("Actions for proposal:", actionsForProposal)
 
-    console.log("actionsData:", actionsData)
-
-    // Attempt to create the proposal with the serialized data
-    const result = await store.createProposalAction(parsedReqSignAccsData, actionsData)
+    // Attempt to create the proposal with the actions
+    const result = await createAndExecuteMultiSignProposal(parsedReqSignAccsData, actionsForProposal)
     console.log("Proposal created:", result)
   } catch (error) {
-    console.error("Error serializing data or creating proposal:", error)
+    console.error("Error creating proposal:", error)
   }
 }
+
 onMounted(() => {
   if (actions.length > 0) {
     selectedActionDataJson.value = JSON.stringify(actions[0], null, 2)

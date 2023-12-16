@@ -1,11 +1,14 @@
 import { ContractKit } from "@wharfkit/contract"
 import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
-import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames } from "src/lib/boid-contract-structure"
+import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames, abi as boidABI } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract, Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
-import { Action, TransactResult, ABI } from "@wharfkit/session"
+import { Action, TransactResult, ABI, TimePointSec } from "@wharfkit/session"
+import { reqSignAccs } from "src/lib/config"
+import { generateRandomName, expDate, serializeActionData } from "src/lib/reuseFunctions"
 
 const sessionStore = useSessionStore()
+
 // this gets the chain API URL from the active session from the sessionStore
 const url = sessionStore.chainUrl
 const apiClientOptions:APIClientOptions = { url }
@@ -35,7 +38,7 @@ export async function createAction<A extends ActionNames>(
   action_data:ActionNameParams[A]
 ):Promise<TransactResult | undefined> {
   console.log("createAction called with", { actionName, action_data })
-
+  let isItMultiSignMode = sessionStore.multiSignState
   try {
     console.log(`Creating action: ${String(actionName)} with data:`, action_data)
     const session = sessionStore.session
@@ -48,10 +51,21 @@ export async function createAction<A extends ActionNames>(
       throw new Error("Session is not defined")
     }
 
-    console.log("Transacting action...")
-    const result = await sessionStore.session.transact({ action })
-    console.log("Transaction result:", result)
+    // console.log("Transacting action...")
+    // const result = await sessionStore.session.transact({ action })
+    let result
+    if (isItMultiSignMode) {
+      // If multi-sign mode is enabled, create and execute a multi-sign proposal
+      console.log("Executing action in multi-sign mode...")
+      result = await createAndExecuteMultiSignProposal(reqSignAccs, [action])
+    } else {
+      // Otherwise, execute a regular transaction
+      console.log("Transacting action...")
+      result = await session.transact({ action })
+    }
 
+
+    console.log("Transaction result:", result)
     return result
   } catch (error) {
     console.error("Error in createAction:", error)
@@ -99,36 +113,7 @@ export async function createAction2<A extends ActionNames>(
   }
 }
 
-
-export async function createMultiSignAction(
-  action_data:TypesMultiSign.propose
-):Promise<TransactResult | undefined> {
-  console.log("createAction called with propose", { action_data })
-
-  try {
-    console.log("Creating action: propose with data:", action_data)
-    const session = sessionStore.session
-    if (!session) throw new Error("Session not loaded")
-    const action = eosioMsig.action("propose", action_data)
-    console.log("Action created:", action)
-
-    if (!sessionStore.session) {
-      console.error("Session is not defined")
-      throw new Error("Session is not defined")
-    }
-
-    console.log("Transacting action...")
-    const result = await sessionStore.session.transact({ action })
-    console.log("Transaction result:", result)
-
-    return result
-  } catch (error) {
-    console.error("Error in createAction:", error)
-    throw error
-  }
-}
-
-export const wtboidTransferabi = ABI.from({
+const wtboidTransferabi = ABI.from({
   structs: [
     {
       name: "transfer",
@@ -153,3 +138,68 @@ export const wtboidTransferabi = ABI.from({
       ]
     }]
 })
+
+
+//testing
+export async function createAndExecuteMultiSignProposal(
+  reqSignAccs:TypesMultiSign.permission_level[],
+  actions:TypesMultiSign.action[]
+):Promise<TransactResult | undefined> {
+  try {
+    console.log("Creating proposal with data:", actions)
+
+    // Serialize actions if needed
+    const serializedActions = actions.map(action => {
+      let abi
+      switch (Name.from(action.account).toString()) {
+        case "wt.boid":
+          abi = wtboidTransferabi
+          break
+        case "boid":
+          abi = boidABI
+          break
+        // Add cases for other accounts and their ABIs
+        default:
+          throw new Error(`ABI not found for account: ${action.account}`)
+      }
+      const serializedData = serializeActionData(action, abi)
+      return TypesMultiSign.action.from({ ...action, data: serializedData })
+    })
+
+    // Prepare the proposal data
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+
+    const proposerAcc = Name.from(sessionStore.username)
+    const propName = generateRandomName()
+    const expiration = TimePointSec.from(expDate)
+    const proposalData = TypesMultiSign.propose.from({
+      proposer: proposerAcc,
+      proposal_name: propName,
+      requested: reqSignAccs,
+      trx: {
+        expiration,
+        ref_block_num: 0,
+        ref_block_prefix: 0,
+        max_net_usage_words: 0,
+        max_cpu_usage_ms: 0,
+        delay_sec: 0,
+        context_free_actions: [],
+        actions: serializedActions,
+        transaction_extensions: []
+      }
+    })
+
+    console.log("Proposal data prepared:", proposalData)
+
+    // Execute the transaction
+    const action = eosioMsig.action("propose", proposalData)
+    const result = await session.transact({ action })
+    console.log("Transaction result:", result)
+
+    return result
+  } catch (error) {
+    console.error("Error in createAndExecuteProposal:", error)
+    throw error
+  }
+}

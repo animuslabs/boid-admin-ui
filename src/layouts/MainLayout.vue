@@ -51,6 +51,12 @@
           >
             M-Sign
           </q-btn>
+          <q-toggle
+            v-model="toggleState"
+            color="green"
+            label="M-Sign Mode"
+            @input="toggleState"
+          />
           <q-btn
             flat
             dense
@@ -140,15 +146,14 @@ import { useSessionStore } from "src/stores/sessionStore"
 
 export default defineComponent({
   name: "MainLayout",
-
-  components: {
-
-  },
-
   setup() {
     const sessionStore = useSessionStore()
     const isLoggedIn = computed(() => sessionStore.isLoggedIn)
     const whatChain = computed(() => sessionStore.session?.chain.name)
+    const toggleState = computed({
+      get: () => sessionStore.multiSignToggleState,
+      set: (value) => sessionStore.setToggleState(value)
+    })
     const login = async() => {
       await sessionStore.login()
     }
@@ -162,7 +167,8 @@ export default defineComponent({
       isLoggedIn,
       login,
       logout,
-      whatChain
+      whatChain,
+      toggleState
     }
   }
 })

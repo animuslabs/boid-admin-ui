@@ -56,7 +56,7 @@ export const boosterStore = defineStore({
         const actionName = "booster.rm"
         console.log(`Preparing to remove booster with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.BoosterRm = { boid_id, booster_index }
+        const action_data:ActionParams.boosterrm = { boid_id, booster_index }
         console.log("Action data prepared:", action_data)
 
         if (!sessionStore || !sessionStore.username) {
@@ -82,7 +82,7 @@ export const boosterStore = defineStore({
         const actionName = "booster.add"
         console.log(`Preparing to add booster to ${boid_id} with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.BoosterAdd = { boid_id, mod_id }
+        const action_data:ActionParams.boosteradd = { boid_id, mod_id }
         console.log("Action data prepared:", action_data)
 
         if (!sessionStore || !sessionStore.username) {
@@ -108,7 +108,7 @@ export const boosterStore = defineStore({
         const actionName = "booster.new"
         console.log(`Preparing to create new booster with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.BoosterNew = { mod }
+        const action_data:ActionParams.boosternew = { mod }
         console.log("Action data prepared:", action_data)
 
         if (!sessionStore || !sessionStore.username) {

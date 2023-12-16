@@ -1,4 +1,4 @@
-import { Bytes, Name } from "@wharfkit/antelope"
+import { Bytes, Name, ABI, Serializer } from "@wharfkit/antelope"
 
 export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
@@ -57,3 +57,18 @@ function getFutureDate(days:number):string {
 
 // Example usage: Get date 14 days in the future
 export const expDate:string = getFutureDate(14)
+
+
+// serialization of actions for transaction
+export function serializeActionData(action:any, abi:ABI) {
+  try {
+    // Ensure action and ABI are provided
+    if (!action || !abi) {
+      throw new Error("Action or ABI is missing for serialization")
+    }
+    return Serializer.encode({ object: action.data, abi, type: action.name })
+  } catch (error) {
+    console.error("Error serializing action data:", error)
+    throw error
+  }
+}
