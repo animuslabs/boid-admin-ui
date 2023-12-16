@@ -4,10 +4,19 @@ import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames, abi as boidABI } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract, Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
 import { Action, TransactResult, ABI, TimePointSec } from "@wharfkit/session"
-import { reqSignAccs } from "src/lib/config"
+import { useSignersStore } from "src/stores/useSignersStore"
 import { generateRandomName, expDate, serializeActionData } from "src/lib/reuseFunctions"
 
 const sessionStore = useSessionStore()
+
+const signersStore = useSignersStore()
+const reqSignAccsConverted = signersStore.signers.map((signer) =>
+// eslint-disable-next-line new-cap
+  new TypesMultiSign.permission_level({
+    actor: Name.from(signer.actor),
+    permission: Name.from(signer.permission)
+  })
+)
 
 // this gets the chain API URL from the active session from the sessionStore
 const url = sessionStore.chainUrl
@@ -90,7 +99,7 @@ export async function createAction<A extends ActionNames>(
     if (isItMultiSignMode) {
       // If multi-sign mode is enabled, create and execute a multi-sign proposal
       console.log("Executing action in multi-sign mode...")
-      result = await createAndExecuteMultiSignProposal(reqSignAccs, [action])
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted, [action])
     } else {
       // Otherwise, execute a regular transaction
       console.log("Transacting action...")

@@ -51,26 +51,25 @@
           >
             M-Sign
           </q-btn>
-          <q-toggle
-            v-model="toggleState"
-            color="green"
-            label="M-Sign Mode"
-            @input="toggleState"
-          />
-          <q-btn
-            flat
-            dense
-            @click="isLoggedIn ? logout() : login()"
-          >
-            {{ isLoggedIn ? 'Logout' : 'Login' }}
-            <q-badge class="q-ml-md" align="top" outline color="positive">
-              {{ whatChain }}
-            </q-badge>
-          </q-btn>
+          <!-- Dropdown Button for LoginMenu -->
+          <q-btn-dropdown icon="person" color="primary">
+            <LoginMenu />
+          </q-btn-dropdown>
         </div>
       </q-toolbar>
     </q-header>
     <q-page-container>
+      <q-banner
+        v-if="isBannerVisible"
+        dense
+        class="bg-purple-8 text-white"
+      >
+        Multi-Signature mode is turned on by default. You can turn it off in the top menu. Make sure to verify your signees before initiating a transaction.
+
+        <template #action>
+          <q-btn flat label="Dismiss" @click="dismissBanner" />
+        </template>
+      </q-banner>
       <router-view />
     </q-page-container>
     <q-footer
@@ -141,34 +140,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, onMounted } from "vue"
+import { defineComponent, onMounted, ref } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
-
+import LoginMenu from "src/components/LoginMenu.vue"
 export default defineComponent({
   name: "MainLayout",
+  components: {
+    LoginMenu
+  },
   setup() {
     const sessionStore = useSessionStore()
-    const isLoggedIn = computed(() => sessionStore.isLoggedIn)
-    const whatChain = computed(() => sessionStore.session?.chain.name)
-    const toggleState = computed({
-      get: () => sessionStore.multiSignToggleState,
-      set: (value) => sessionStore.setToggleState(value)
-    })
-    const login = async() => {
-      await sessionStore.login()
-    }
-    const logout = async() => {
-      await sessionStore.logout()
+    const isBannerVisible = ref(true) // Reactive property for banner visibility
+
+    const dismissBanner = () => {
+      isBannerVisible.value = false // Hide the banner
     }
     onMounted(async() => {
       await sessionStore.renew()
     })
     return {
-      isLoggedIn,
-      login,
-      logout,
-      whatChain,
-      toggleState
+      LoginMenu,
+      isBannerVisible,
+      dismissBanner
     }
   }
 })

@@ -185,36 +185,6 @@ export const useTeamStore = defineStore({
         return undefined
       }
     }
-    // Transfer action NOT USED atm (just an example)
-    // async createTransferAction():Promise<TransactResult | undefined> {
-    //   try {
-    //     const actionName = "transfer"
-    //     console.log(`Preparing to create team with actionName: ${actionName}`)
-    //     console.log("Session Data Username:", sessionStore.username)
-    //     const action_data = {
-    //       from: sessionStore.username.toString() || "",
-    //       to: "3boidanimus3",
-    //       quantity: "100.0000 BOID",
-    //       memo: "test"
-    //     }
-    //     console.log("Action data prepared:", action_data)
-
-    //     if (!sessionStore || !sessionStore.username) {
-    //       console.error("Session or session actor is not defined")
-    //       throw new Error("Session or session actor is not defined")
-    //     }
-
-    //     console.log("Calling createAction...")
-    //     const result = await createAction("token.boid", actionName, action_data)
-    //     console.log("Transfer successfull:", result)
-
-    //     return result
-    //   } catch (error:any) {
-    //     console.error("Error creating team:", error)
-    //     this.$patch({ error: error.message })
-    //     return undefined
-    //   }
-    // }
   }
 
 })

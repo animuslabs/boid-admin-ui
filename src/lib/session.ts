@@ -13,15 +13,18 @@ const sessionKit = new SessionKit({
   chains: [
     {
       id: networks[0]!.chainId,
-      url: networks[0]!.nodeUrl
+      url: networks[0]!.nodeUrl,
+      logo: networks[0]!.logo
     },
     {
       id: networks[1]!.chainId,
-      url: networks[1]!.nodeUrl
+      url: networks[1]!.nodeUrl,
+      logo: networks[1]!.logo
     },
     {
       id: networks[2]!.chainId,
-      url: networks[2]!.nodeUrl
+      url: networks[2]!.nodeUrl,
+      logo: networks[2]!.logo
     }
   ],
   ui: webRenderer,

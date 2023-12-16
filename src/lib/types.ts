@@ -93,3 +93,10 @@ export interface NftAttribute {
   type:string; // Type selected from dropdown
   value:string; // Value entered by user
 }
+
+
+// multising signers store
+export interface Signer {
+  actor:string;
+  permission:string;
+}

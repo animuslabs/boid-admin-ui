@@ -18,6 +18,7 @@ export const useSessionStore = defineStore({
     sessionState: (state) => state,
     whatChain: (state) => state.session?.chain.name || "",
     chainUrl: (state) => state.session?.chain.url || endpoints[0]?.[1],
+    chainLogo: (state) => state.session?.chain.getLogo() || "",
     multiSignState: (state) => state.multiSignToggleState
   },
 

@@ -190,11 +190,3 @@ export const actionDisplayNames = [
   "make an ibc transfer from eos to telos",
   "create new account"
 ]
-
-const reqSignAccsJson = JSON.stringify([
-  { actor: "testaccount1", permission: "active" },
-  { actor: "testaccount2", permission: "active" },
-  { actor: "testaccount3", permission: "active" }
-])
-
-export const reqSignAccs = JSON.parse(reqSignAccsJson)
