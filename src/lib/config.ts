@@ -26,13 +26,13 @@ export const networks:NetworkConfig[] = [
     name: "telos",
     chainId: "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11",
     nodeUrl: endpoints[1]?.[1] ?? "",
-    logo: "https://assets-global.website-files.com/60ae1fd65f7b76f18ddd0bec/61044a5f70f5bbeb24b995ea_Symbol%202%402x.png"
+    logo: "src/assets/Telos-circle.png"
   },
   {
     name: "telostestnet",
     chainId: "1eaa0824707c8c16bd25145493bf062aecddfeb56c736f6ba6397f3195f33c9f",
     nodeUrl: endpoints[2]?.[1] ?? "",
-    logo: "https://assets-global.website-files.com/60ae1fd65f7b76f18ddd0bec/61044a5f70f5bbeb24b995ea_Symbol%202%402x.png"
+    logo: "src/assets/Telos-circle.png"
   },
   {
     name: "eos",

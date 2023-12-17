@@ -19,7 +19,7 @@
       <div class="column items-center">
         <div class="q-mr-sm avatar-badge-container">
           <q-avatar size="72x">
-            <img v-if="chainLogo" :src="chainLogo.toString()">
+            <q-img v-if="chainLogo" style="height: 50px; width: 50px" :src="chainLogo.toString()" />
           </q-avatar>
 
           <!-- Badge with whatChain value -->
