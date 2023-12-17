@@ -51,11 +51,24 @@ export const userStore = defineStore({
   id: "usersStore",
 
   // Reactive state of the store
-  state: () => ({
-    organizedDataRaw: ref([]) as Ref<AccountRowData[]>,
-    loading: false,
-    error: ref<string | null>(null)
-  }),
+  state: () => {
+    // Calculate current date and date 7 days ago
+    const now = new Date()
+    const oneWeekAgo = new Date(now)
+    oneWeekAgo.setDate(now.getDate() - 7)
+    // Calculate tomorrow's date
+    const tomorrow = new Date(now)
+    tomorrow.setDate(now.getDate() + 1)
+
+    return {
+      organizedDataRaw: ref([]) as Ref<AccountRowData[]>,
+      selectedBoidId: "",
+      fromDate: oneWeekAgo.toISOString().substring(0, 10), // 7 days ago
+      toDate: tomorrow.toISOString().substring(0, 10), // tomorrow's date
+      loading: false,
+      error: ref<string | null>(null)
+    }
+  },
 
   // Getters for computed values based on state
   getters: {
@@ -164,6 +177,27 @@ export const userStore = defineStore({
       } finally {
         this.$patch({ loading: false })
       }
+    },
+    setSelectedBoidId(boidId:string) {
+      this.selectedBoidId = boidId
+    },
+
+    setFromDate(date:string) {
+      this.fromDate = date
+    },
+
+    setToDate(date:string) {
+      this.toDate = date
+    },
+    updateDateRange() {
+      // Update the date range to the last 7 days
+      const now = new Date()
+      const oneWeekAgo = new Date(now)
+      oneWeekAgo.setDate(now.getDate() - 7)
+      const tomorrow = new Date(now)
+      tomorrow.setDate(now.getDate() + 1)
+      this.fromDate = oneWeekAgo.toISOString().substring(0, 10)
+      this.toDate = tomorrow.toISOString().substring(0, 10)
     }
   }
 

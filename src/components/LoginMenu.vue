@@ -17,8 +17,8 @@
       <q-separator vertical inset class="q-mx-lg" />
 
       <div class="column items-center">
-        <div class="avatar-badge-container">
-          <q-avatar size="72px">
+        <div class="q-mr-sm avatar-badge-container">
+          <q-avatar size="72x">
             <img v-if="chainLogo" :src="chainLogo.toString()">
           </q-avatar>
 
@@ -26,14 +26,13 @@
           <q-badge
             v-if="whatChain"
             color="primary"
-            floating
+            align="bottom"
+            :label="whatChain"
             class="badge-on-avatar"
-          >
-            {{ whatChain }}
-          </q-badge>
+          />
         </div>
 
-        <div class="text-subtitle1 q-mt-md q-mb-xs">
+        <div class="text-subtitle1 q-mt-md q-mb-xs q-mr-xs">
           {{ loggedAccount }}
         </div>
 

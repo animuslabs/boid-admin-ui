@@ -377,7 +377,7 @@
 
           <q-input
             filled
-            v-model="config.recoveryaccount"
+            v-model="recoveryAccountComputed"
             label="Recovery Account"
             type="text"
             :hint="configHints.recoveryaccount"
@@ -395,6 +395,7 @@ import { useConfigStore } from "stores/configStore"
 import { Types } from "lib/boid-contract-structure"
 import { configHints } from "lib/hints"
 import { toObject } from "src/lib/util"
+import { Name } from "@wharfkit/antelope"
 
 const store = useConfigStore()
 const config = reactive({
@@ -453,7 +454,17 @@ const config = reactive({
   recoveryaccount: ""
 })
 
-
+const recoveryAccountComputed = computed({
+  get: () => {
+    // Assuming Name type has a toString method or similar
+    return config.recoveryaccount.toString()
+  },
+  set: (newValue) => {
+    // Convert the string back to a Name object, and store its string representation
+    const nameObj = Name.from(newValue) // Convert to Name type
+    config.recoveryaccount = nameObj.toString()
+  }
+})
 const suffixWhitelistComputed = computed({
   get: () => {
     // Joins the array elements into a comma-separated string for display
