@@ -10,6 +10,7 @@
           color="green"
           label="M-Sign Mode"
           @input="toggleState"
+          class="q-mb-md"
         />
         <q-btn label="Signees" @click="goToEditSigners" />
       </div>
@@ -17,22 +18,20 @@
       <q-separator vertical inset class="q-mx-lg" />
 
       <div class="column items-center">
-        <div class="q-mr-sm avatar-badge-container">
-          <q-avatar size="72x">
-            <q-img v-if="chainLogo" style="height: 50px; width: 50px" :src="chainLogo.toString()" />
-          </q-avatar>
-
-          <!-- Badge with whatChain value -->
+        <div class="col avatar-badge-container">
           <q-badge
             v-if="whatChain"
             color="primary"
-            align="bottom"
             :label="whatChain"
-            class="badge-on-avatar"
           />
         </div>
+        <div class="col">
+          <q-avatar>
+            <img v-if="chainLogo" style="height: 50px; width: 50px" :src="chainLogo.toString()" class="avatar-image">
+          </q-avatar>
+        </div>
 
-        <div class="text-subtitle1 q-mt-md q-mb-xs q-mr-xs">
+        <div class="col text-subtitle1 q-mt-lg q-mb-xs q-mr-xs">
           {{ loggedAccount }}
         </div>
 
@@ -104,15 +103,14 @@ export default defineComponent({
     /* Add your styles here */
   }
   .avatar-badge-container {
-  position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center; /* Vertically center */
+  justify-content: center; /* Horizontally center */
 }
 
-.badge-on-avatar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(50%, -50%);
-  /* Adjust these values as necessary */
+.avatar-image {
+  height: 50px;
+  width: 50px;
 }
+
 </style>
