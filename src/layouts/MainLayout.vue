@@ -44,13 +44,6 @@
           >
             Config
           </q-btn>
-          <q-btn
-            flat
-            dense
-            @click="$router.push('/multi-sign')"
-          >
-            M-Sign
-          </q-btn>
           <!-- Dropdown Button for LoginMenu -->
           <q-btn-dropdown icon="person" color="primary">
             <LoginMenu />
