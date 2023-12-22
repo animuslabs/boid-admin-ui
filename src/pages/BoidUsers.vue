@@ -84,8 +84,10 @@ import { userStore } from "src/stores/usersStore"
 import { AccountRowData } from "src/lib/types"
 import { storeToRefs } from "pinia"
 import ChartsComponent from "src/components/MainChartsComponent.vue"
+import { useApiStore } from "src/stores/apiStore"
 
 const store = userStore()
+const apiStore = useApiStore()
 const { isLoading, organizedData: organizedDataRaw } = storeToRefs(store)
 const organizedData = organizedDataRaw as Ref<AccountRowData[]>
 const search = ref("")
@@ -194,6 +196,9 @@ onMounted(async() => {
   console.log("Data fetched:", store.organizedData)
   console.log("Type of organizedData:", typeof store.organizedData)
   console.log("Is organizedData an array?:", Array.isArray(store.organizedData))
+  console.log("Telos API: ", apiStore.getUrlForChain("Telos"))
+  console.log("EOS API: ", apiStore.getUrlForChain("EOS"))
+  console.log("Telos Testnet API: ", apiStore.getUrlForChain("Telos Testnet"))
 })
 
 

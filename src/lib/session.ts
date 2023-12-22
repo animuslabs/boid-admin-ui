@@ -2,9 +2,15 @@ import { networks } from "./config"
 import { SessionKit, Session } from "@wharfkit/session"
 import { WebRenderer } from "@wharfkit/web-renderer"
 import { WalletPluginAnchor } from "@wharfkit/wallet-plugin-anchor"
-import { ref } from "vue"
+import { ref, computed } from "vue"
+import { useApiStore } from "src/stores/apiStore"
 
 let session = ref<Session | undefined>(undefined)
+
+const apiStore = useApiStore()
+const telosUrl = computed(() => apiStore.getUrlForChain("Telos"))
+const eosUrl = computed(() => apiStore.getUrlForChain("EOS"))
+const telosTestnetUrl = computed(() => apiStore.getUrlForChain("Telos Testnet"))
 
 const webRenderer = new WebRenderer()
 const sessionKit = new SessionKit({
@@ -13,17 +19,17 @@ const sessionKit = new SessionKit({
   chains: [
     {
       id: networks[0]!.chainId,
-      url: networks[0]!.nodeUrl,
+      url: telosUrl.value,
       logo: networks[0]!.logo
     },
     {
       id: networks[1]!.chainId,
-      url: networks[1]!.nodeUrl,
+      url: telosTestnetUrl.value,
       logo: networks[1]!.logo
     },
     {
       id: networks[2]!.chainId,
-      url: networks[2]!.nodeUrl,
+      url: eosUrl.value,
       logo: networks[2]!.logo
     }
   ],

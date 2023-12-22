@@ -1,3 +1,7 @@
+import { APIClient, APIClientOptions } from "@wharfkit/antelope"
+import { Contract as BoidContract, abi as boidABI } from "src/lib/boid-contract-structure"
+import { Contract as EosioMsigContract, abi as msigABI } from "src/lib/eosio-msig-contract-telos-mainnet"
+
 export class ParsedAccountMeta {
   text:{
     tagline:string
@@ -99,4 +103,29 @@ export interface NftAttribute {
 export interface Signer {
   actor:string;
   permission:string;
+}
+
+export class ContractFactory {
+  private client:APIClient
+
+  constructor(url:string) {
+    const apiClientOptions:APIClientOptions = { url }
+    this.client = new APIClient(apiClientOptions)
+  }
+
+  createBoidContract():BoidContract {
+    return new BoidContract({
+      client: this.client,
+      abi: boidABI,
+      account: "boid"
+    })
+  }
+
+  createEosioMsigContract():EosioMsigContract {
+    return new EosioMsigContract({
+      client: this.client,
+      abi: msigABI,
+      account: "eosio.msig"
+    })
+  }
 }

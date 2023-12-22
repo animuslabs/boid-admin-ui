@@ -1,10 +1,13 @@
 import { defineStore } from "pinia"
 import { Ref, ref } from "vue"
 import { createAction, fetchDataFromTable } from "src/lib/contracts"
-import { ActionParams, Types } from "src/lib/boid-contract-structure"
 import { TransactResult } from "@wharfkit/session"
 import { useSessionStore } from "src/stores/sessionStore"
+import { ActionParams, Types, Contract as BoidContract } from "src/lib/boid-contract-structure"
+import { useApiStore } from "src/stores/apiStore"
+
 const sessionStore = useSessionStore()
+const apiStore = useApiStore()
 
 export const boosterStore = defineStore({
   id: "boosterStore",
@@ -29,8 +32,9 @@ export const boosterStore = defineStore({
     async fetchBoostersTableData():Promise<Types.Booster[] | undefined> {
       console.log("fetchBoostersTableData called")
       this.$patch({ loading: true, error: null })
+      const contract = apiStore.boidContractInitialized
       try {
-        const dataBoostersResult = await fetchDataFromTable("boosters")
+        const dataBoostersResult = await fetchDataFromTable(contract as BoidContract, "boosters")
         if (!dataBoostersResult) {
           // Handle the case when one of the fetches returns undefined
           console.error("Failed to fetch data")

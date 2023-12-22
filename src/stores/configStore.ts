@@ -1,14 +1,15 @@
 
 import { acceptHMRUpdate, defineStore } from "pinia"
 import { createAction, fetchDataFromTable } from "src/lib/contracts"
-import { ActionParams } from "lib/boid-contract-structure"
+import { ActionParams, Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { TransactResult } from "@wharfkit/session"
 import { DeserializedTeam } from "src/lib/types"
 import { useSessionStore } from "src/stores/sessionStore"
+import { useApiStore } from "src/stores/apiStore"
 
 const sessionStore = useSessionStore()
-
+const apiStore = useApiStore()
 // Defining the store
 export const useConfigStore = defineStore({
   id: "cofigStore",
@@ -37,7 +38,8 @@ export const useConfigStore = defineStore({
     async fetchConfig() {
       this.$patch({ loading: true, error: null })
       try {
-        const configData = await fetchDataFromTable("config")
+        const contract = apiStore.boidContractInitialized
+        const configData = await fetchDataFromTable(contract as BoidContract, "config")
         console.log("Config data fetched:", configData)
         return configData
       } catch (error:any) {

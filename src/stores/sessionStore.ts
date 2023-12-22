@@ -1,14 +1,15 @@
 import { defineStore } from "pinia"
 import { LocalStorage } from "quasar"
 import { sessionLogin, sessionLogout, sessionRestore } from "src/lib/session"
+import { APIClient } from "@wharfkit/antelope"
 import { PermissionLevel, Session } from "@wharfkit/session"
-import { endpoints } from "src/lib/config"
 
 export const useSessionStore = defineStore({
   id: "sessionStore",
   state: () => ({
     session: undefined as Session | undefined,
-    multiSignToggleState: true // to be used for toggling the multi sign modal on and off
+    multiSignToggleState: true, // to be used for toggling the multi sign modal on and off
+    clientAPI: null as APIClient | null
   }),
   // Getters
   getters: {
@@ -17,7 +18,7 @@ export const useSessionStore = defineStore({
     authorization: (state) => PermissionLevel.from(state.session?.permissionLevel as PermissionLevel || { actor: "boid", permission: "active" }),
     sessionState: (state) => state,
     whatChain: (state) => state.session?.chain.name || "",
-    chainUrl: (state) => state.session?.chain.url || endpoints[0]?.[1],
+    chainUrl: (state) => state.session?.chain.url,
     chainLogo: (state) => state.session?.chain.getLogo() || "",
     multiSignState: (state) => state.multiSignToggleState
   },

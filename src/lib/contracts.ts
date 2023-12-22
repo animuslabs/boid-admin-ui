@@ -1,14 +1,14 @@
-import { ContractKit, Contract } from "@wharfkit/contract"
-import { APIClient, APIClientOptions, Name } from "@wharfkit/antelope"
+import { Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames, abi as boidABI } from "src/lib/boid-contract-structure"
-import { Contract as EosioMsigContract, Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
-import { Action, TransactResult, ABI, TimePointSec } from "@wharfkit/session"
+import { Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { TransactResult, ABI, TimePointSec } from "@wharfkit/session"
 import { useSignersStore } from "src/stores/useSignersStore"
 import { generateRandomName, expDate, serializeActionData } from "src/lib/reuseFunctions"
-
+import { useApiStore } from "src/stores/apiStore"
+import { Contract } from "@wharfkit/contract"
 const sessionStore = useSessionStore()
-
+const apiStore = useApiStore()
 const signersStore = useSignersStore()
 const reqSignAccsConverted = signersStore.signers.map((signer) =>
 // eslint-disable-next-line new-cap
@@ -18,18 +18,12 @@ const reqSignAccsConverted = signersStore.signers.map((signer) =>
   })
 )
 
-// this gets the chain API URL from the active session from the sessionStore
-const url = sessionStore.chainUrl
-const apiClientOptions:APIClientOptions = { url }
-console.log("chain API URL:", apiClientOptions.url)
-const clientAPI = new APIClient(apiClientOptions)
-const contractKit = new ContractKit({
-  client: clientAPI
-})
-
 // gets the ABI for a given account
 const getABI = async(accountName:string) => {
-  const abi = await clientAPI.v1.chain.get_abi(accountName)
+  if (!apiStore.clientAPI) {
+    throw new Error("API client is not initialized")
+  }
+  const abi = await apiStore.clientAPI.v1.chain.get_abi(accountName)
   return abi
 }
 
@@ -60,16 +54,9 @@ const wtboidTransferabi = ABI.from({
     }]
 })
 
-// abi for boid smart contract taken from local file
-export const boid = new BoidContract(contractKit)
-
-// abi for eosio.msig smart contract taken from local file
-export const eosioMsig = new EosioMsigContract(contractKit)
-
-
-export async function fetchDataFromTable<T extends TableNames>(tableName:T):Promise<RowType<T>[] | undefined> {
+export async function fetchDataFromTable<T extends TableNames>(contract:BoidContract, tableName:T):Promise<RowType<T>[] | undefined> {
   try {
-    const tableData:RowType<T>[] = await boid.table(tableName).query().all()
+    const tableData:RowType<T>[] = await contract.table(tableName).query().all()
     console.log(`Data fetched from ${tableName}:`, tableData)
     return tableData
   } catch (error:any) {
@@ -88,7 +75,7 @@ export async function createAction<A extends ActionNames>(
     console.log(`Creating action: ${String(actionName)} with data:`, action_data)
     const session = sessionStore.session
     if (!session) throw new Error("Session not loaded")
-    const action = boid.action(actionName, action_data)
+    const action = apiStore.boidContract.action(actionName, action_data)
     console.log("Action created:", action)
 
     if (!sessionStore.session) {
@@ -178,7 +165,7 @@ export async function createAndExecuteMultiSignProposal(
     console.log("Proposal data prepared:", proposalData)
 
     // Execute the transaction
-    const action = eosioMsig.action("propose", proposalData)
+    const action = apiStore.eosioMsigContract.action("propose", proposalData)
     const result = await session.transact({ action })
     console.log("Transaction result:", result)
 
@@ -188,47 +175,3 @@ export async function createAndExecuteMultiSignProposal(
     throw error
   }
 }
-
-
-
-
-// another way to create action
-// export async function createAction2<A extends ActionNames>(
-//   actionName:A,
-//   action_data:ActionNameParams[A]
-// ):Promise<TransactResult | undefined> {
-//   console.log("createAction called with", { actionName, action_data })
-
-//   try {
-//     console.log(`Creating action: ${String(actionName)} with data:`, action_data)
-//     const session = sessionStore.session
-//     if (!session) throw new Error("Session not loaded")
-//     const authorization = [sessionStore.authorization]
-//     // Ensure that account and name are Name instances
-//     const accountName = Name.from(sessionStore.username)
-//     const actionNameName = Name.from(actionName)
-
-//     // Create the action object
-//     const action = Action.from({
-//       account: accountName,
-//       name: actionNameName,
-//       authorization,
-//       data: action_data
-//     })
-//     console.log("Action created:", action)
-
-//     if (!sessionStore.session) {
-//       console.error("Session is not defined")
-//       throw new Error("Session is not defined")
-//     }
-
-//     console.log("Transacting action...")
-//     const result = await sessionStore.session.transact({ action })
-//     console.log("Transaction result:", result)
-
-//     return result
-//   } catch (error) {
-//     console.error("Error in createAction:", error)
-//     throw error
-//   }
-// }

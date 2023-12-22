@@ -390,7 +390,7 @@ export default defineComponent({
       return regex.test(newTeamData.url_safe_name)
     })
     const editDialog = ref(false)
-    const ipfsEndpoint = endpoints[3]?.[1] || "https://ipfs.pintastic.link/ipfs/"
+    const ipfsEndpoint = endpoints[0]?.[1] || "https://ipfs.io/ipfs/"
     const linkOptions = [
       "twitter", "medium", "discord", "telegram", "facebook", "linkedIn"
     ]

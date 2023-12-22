@@ -1,15 +1,17 @@
 // Importing necessary libraries and functions
 import { defineStore } from "pinia"
 import { createAction, fetchDataFromTable } from "src/lib/contracts"
-import { ActionParams, Types } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Bytes } from "@wharfkit/antelope"
 import { TransactResult } from "@wharfkit/session"
 import { DeserializedTeam, TeamMeta } from "src/lib/types"
 import { useSessionStore } from "src/stores/sessionStore"
 import { bytesToJson } from "src/lib/reuseFunctions"
+import { ActionParams, Types, Contract as BoidContract } from "src/lib/boid-contract-structure"
+import { useApiStore } from "src/stores/apiStore"
 
 const sessionStore = useSessionStore()
+const apiStore = useApiStore()
 
 async function deserializeTeam(team:Types.Team):Promise<DeserializedTeam> {
   let deserializedMeta:TeamMeta = new TeamMeta()
@@ -73,8 +75,9 @@ export const useTeamStore = defineStore({
   actions: {
     async fetchAccTableData():Promise<DeserializedTeam[] | undefined> {
       this.$patch({ loading: true, error: null })
+      const contract = apiStore.boidContractInitialized
       try {
-        const dataTeamsResult = await fetchDataFromTable("teams")
+        const dataTeamsResult = await fetchDataFromTable(contract as BoidContract, "teams")
         if (!dataTeamsResult) {
           console.error("Failed to fetch data")
           this.$patch({ error: "Failed to fetch data" })

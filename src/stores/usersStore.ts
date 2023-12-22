@@ -1,12 +1,14 @@
 import { defineStore } from "pinia"
 import { fetchDataFromTable } from "src/lib/contracts"
-import { Types } from "src/lib/boid-contract-structure"
+import { Types, Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Bytes } from "@wharfkit/antelope"
 import { ParsedAccountMeta, AccountRowData, AccountMeta } from "src/lib/types"
 import { useConfigStore } from "src/stores/configStore"
+import { useApiStore } from "src/stores/apiStore"
 
 const configStore = useConfigStore()
+const apiStore = useApiStore()
 
 export async function bytesToJson<T>(bytes:Bytes):Promise<T> {
   try {
@@ -87,9 +89,15 @@ export const userStore = defineStore({
     async fetchAccTableData():Promise<AccountRowData[] | undefined> {
       console.log("fetchAccTableData called")
       this.$patch({ loading: true, error: null })
+      const contract = apiStore.boidContractInitialized
       try {
-        const dataAccResult = await fetchDataFromTable("accounts")
-        const dataAccMetaResult = await fetchDataFromTable("acctmeta")
+        if (!contract) {
+          console.error("Boid contract is not initialized")
+          this.$patch({ loading: false, error: "Boid contract is not initialized" })
+          return
+        }
+        const dataAccResult = await fetchDataFromTable(contract as BoidContract, "accounts")
+        const dataAccMetaResult = await fetchDataFromTable(contract as BoidContract, "acctmeta")
         const configResult = await configStore.fetchConfig()
         if (!dataAccResult || !dataAccMetaResult) {
           // Handle the case when one of the fetches returns undefined

@@ -134,9 +134,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue"
+import { defineComponent, onMounted, ref, watch } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import LoginMenu from "src/components/LoginMenu.vue"
+import { useApiStore } from "src/stores/apiStore"
+
 export default defineComponent({
   name: "MainLayout",
   components: {
@@ -144,6 +146,7 @@ export default defineComponent({
   },
   setup() {
     const sessionStore = useSessionStore()
+    const apiStore = useApiStore()
     const isBannerVisible = ref(true) // Reactive property for banner visibility
 
     const dismissBanner = () => {

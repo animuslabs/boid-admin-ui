@@ -7,37 +7,59 @@ export interface NetworkConfig {
 }
 
 export const endpoints:string[][] = [
-  ["EOS Endpoint", "https://eos.api.eosnation.io"],
-  ["Telos Endpoint", "https://telos.api.animus.is"],
-  ["Telos Testnet Endpoint", "https://telos.testnet.boid.animus.is"],
-  ["IPFS Endpoint", "https://ipfs.animus.is/ipfs/"], // 3
-  ["EOS AtomicAssets", "https://eos.api.atomicassets.io"], // 4
-  ["WAX AtomicAssets", "https://wax.eu.eosamsterdam.net"], // 5
-  ["EOS AtomicHub", "https://eos.atomichub.io/explorer/asset/"], // 6
-  ["EOS AtomicHub Templates", "https://eos.atomichub.io/explorer/template/"], // 7
-  ["Nefty blocks Telos Testnet Assets", "https://telos-test.neftyblocks.com/assets/"], // 8
-  ["Nefty blocks Telos Testnet Templates", "https://telos-test.neftyblocks.com/templates/"], // 9
-  ["Nefty blocks Telos Assets", "https://telos.neftyblocks.com/assets/"], // 10
-  ["Nefty blocks Telos Templates", "https://telos.neftyblocks.com/templates/"] // 11
+  ["IPFS Endpoint", "https://ipfs.animus.is/ipfs/"], // 0
+  ["EOS AtomicAssets", "https://eos.api.atomicassets.io"], // 1
+  ["WAX AtomicAssets", "https://wax.eu.eosamsterdam.net"], // 2
+  ["EOS AtomicHub", "https://eos.atomichub.io/explorer/asset/"], // 3
+  ["EOS AtomicHub Templates", "https://eos.atomichub.io/explorer/template/"], // 4
+  ["Nefty blocks Telos Testnet Assets", "https://telos-test.neftyblocks.com/assets/"], // 5
+  ["Nefty blocks Telos Testnet Templates", "https://telos-test.neftyblocks.com/templates/"], // 6
+  ["Nefty blocks Telos Assets", "https://telos.neftyblocks.com/assets/"], // 7
+  ["Nefty blocks Telos Templates", "https://telos.neftyblocks.com/templates/"] // 8
 ]
+
+export const EOSendpoints:string[][] = [
+  ["Boid BP", "https://eos.api.boid.animus.is"],
+  ["EOSphere", "https://eos.eosphere.io"],
+  ["EOS Nation", "https://eos.api.eosnation.io"],
+  ["EOS Amsterdam", "https://mainnet.eosamsterdam.net"],
+  ["EOSeoul", "https://api.eoseoul.io"]
+]
+
+export const TelosEndpoints:string[][] = [
+  ["Boid BP", "https://telos.api.boid.animus.is"],
+  ["EOSphere", "https://telos.eosphere.io"],
+  ["EOS Nation", "https://telos.api.eosnation.io"],
+  ["TelosUSA", "https://telos.eosusa.io"],
+  ["BP Yknot", "https://bp-telos-testnet.y-knot.io"]
+]
+
+export const TelosTestnetEndpoints:string[][] = [
+  ["Boid BP", "https://telos.testnet.boid.animus.is"],
+  ["EOSphere", "https://telos-testnet.eosphere.io"],
+  ["EOS Nation", "https://telostest.api.eosnation.io"],
+  ["TelosUSA", "https://test.telos.eosusa.io"],
+  ["Teleology One", "https://testnet.telos.teleology.one"]
+]
+
 export const networks:NetworkConfig[] = [
   // default network should be first!!!
   {
     name: "telos",
     chainId: "4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11",
-    nodeUrl: endpoints[1]?.[1] ?? "",
+    nodeUrl: TelosEndpoints[0]?.[1] ?? "",
     logo: "./Telos-circle.png"
   },
   {
     name: "telostestnet",
     chainId: "1eaa0824707c8c16bd25145493bf062aecddfeb56c736f6ba6397f3195f33c9f",
-    nodeUrl: endpoints[2]?.[1] ?? "",
+    nodeUrl: TelosTestnetEndpoints[0]?.[1] ?? "",
     logo: "./Telos-circle.png"
   },
   {
     name: "eos",
     chainId: "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
-    nodeUrl: endpoints[0]?.[1] ?? "",
+    nodeUrl: EOSendpoints[0]?.[1] ?? "",
     logo: "https://bloks.io/img/chains/eos.png"
   }
   // {
