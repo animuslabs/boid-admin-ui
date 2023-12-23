@@ -1,9 +1,8 @@
 import { defineStore } from "pinia"
 import { TelosEndpoints, EOSendpoints, TelosTestnetEndpoints } from "src/lib/config"
-import { APIClient, APIClientOptions } from "@wharfkit/antelope"
-import { ContractKit, Contract } from "@wharfkit/contract"
-import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames, abi as boidABI } from "src/lib/boid-contract-structure"
-import { Contract as EosioMsigContract, Types as TypesMultiSign, abi as msigABI } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { APIClient } from "@wharfkit/antelope"
+import { Contract as BoidContract } from "src/lib/boid-contract-structure"
+import { Contract as EosioMsigContract } from "src/lib/eosio-msig-contract-telos-mainnet"
 import { ContractFactory } from "src/lib/types"
 
 type ApiResponse = {

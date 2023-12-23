@@ -64,7 +64,7 @@
         class="text-white"
         :style="{ backgroundColor: 'var(--ltpurple)' }"
       >
-        Multi-Signature mode is turned on by default. You can turn it off in the top menu. Make sure to verify your signees before initiating a transaction.
+        Multi-Signature mode is turned on by default. You can turn it off in the settings menu. Make sure to verify your signees before initiating a transaction.
 
         <template #action>
           <q-btn flat label="Dismiss" @click="dismissBanner" />

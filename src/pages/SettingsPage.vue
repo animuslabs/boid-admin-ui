@@ -1,57 +1,99 @@
 <template>
   <q-page class="flex flex-center">
-    <q-card>
-      <q-card-section class="text-center">
-        <q-btn-group spread>
-          <q-btn
-            v-for="chain in chains"
-            :key="chain.name"
-            :label="chain.name"
-            :color="selectedChain && chain.name === selectedChain.name ? 'primary' : 'secondary'"
-            @click="selectChain(chain.name)"
-          />
-        </q-btn-group>
-
-        <div v-if="selectedChain">
-          <q-btn icon="refresh" label="auto refresh every 10s" flat />
-
-          <div v-if="selectedChain.data && Object.keys(selectedChain.data).length > 0">
-            <table dense class="q-table">
-              <thead>
-                <tr>
-                  <th>Node Name</th>
-                  <th>Reply (ms)</th>
-                  <th>Success</th>
-                  <th>Select</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(response, nodeName) in selectedChain.data" :key="nodeName" :class="{ 'selected-row': response.url === (selectedUrl ?? '') }">
-                  <td>{{ response.node_name }}</td>
-                  <td>{{ response.duration }}</td>
-                  <td>{{ response.success }}</td>
-                  <td>
-                    <q-btn :label="response.url === (selectedUrl ?? '') ? 'Selected' : 'Select'" @click="setActiveEndpoint(response.url)" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </q-card-section>
+    <q-card class="my-card" flat bordered>
       <q-card-section>
-        <div class="text-h6 q-mb-md">
-          M-Sign Settings
+        <div class="text-h6">
+          Choose your settings
         </div>
-        <q-toggle
-          v-model="toggleState"
-          color="green"
-          label="M-Sign Mode"
-          @input="toggleState"
-          class="q-mb-md q-mr-lg"
-        />
-        <q-btn label="Signees" @click="goToEditSigners" />
       </q-card-section>
+
+      <q-tabs v-model="tab" class="text-teal">
+        <q-tab label="Chains" name="chains-tab" />
+        <q-tab label="Multi-Sign" name="msign-tab" />
+      </q-tabs>
+
+      <q-separator />
+
+      <q-tab-panels v-model="tab" animated>
+        <q-tab-panel name="chains-tab">
+          <q-splitter v-model="splitterModel" style="height: 500px">
+            <!-- Pane for tabs -->
+            <template #before>
+              <q-tabs
+                v-model="selectedChainName"
+                vertical
+                class="text-primary"
+                style="height: 100%;"
+              >
+                <q-tab
+                  v-for="chain in chains"
+                  :key="chain.name"
+                  :name="chain.name"
+                  :label="chain.name"
+                  :color="selectedChain && chain.name === selectedChain.name ? 'primary' : 'secondary'"
+                  @click="selectChain(chain.name)"
+                />
+              </q-tabs>
+            </template>
+
+            <!-- Pane for chain data -->
+            <template #after>
+              <q-card-section class="text-center">
+                <div v-if="selectedChain">
+                  <q-btn icon="refresh" label="auto refresh every 10s" flat />
+
+                  <div v-if="selectedChain.data && Object.keys(selectedChain.data).length > 0">
+                    <table dense class="q-table">
+                      <thead>
+                        <tr>
+                          <th>Node Name</th>
+                          <th>Reply (ms)</th>
+                          <th>Success</th>
+                          <th>Select</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(response, nodeName) in selectedChain.data" :key="nodeName" :class="{ 'selected-row': response.url === (selectedUrl ?? '') }">
+                          <td>{{ response.node_name }}</td>
+                          <td>{{ response.duration }}</td>
+                          <td>{{ response.success }}</td>
+                          <td>
+                            <q-btn :label="response.url === (selectedUrl ?? '') ? 'Selected' : 'Select'" @click="setActiveEndpoint(response.url)" />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </q-card-section>
+            </template>
+          </q-splitter>
+          <q-bar class="bg-secondary">
+            Telos Active API: {{ apiStore.getUrlForChain("Telos") }}
+          </q-bar>
+          <q-bar class="bg-secondary">
+            Telos Testnet Active API: {{ apiStore.getUrlForChain("Telos Testnet") }}
+          </q-bar>
+          <q-bar class="bg-secondary">
+            EOS Active API: {{ apiStore.getUrlForChain("EOS") }}
+          </q-bar>
+        </q-tab-panel>
+
+        <q-tab-panel name="msign-tab">
+          <div>
+            <q-toggle
+              v-model="toggleState"
+              color="green"
+              label="Multi-Signature Mode"
+              @input="toggleState"
+              class="q-mb-md q-mr-lg"
+            />
+          </div>
+          <div>
+            <EditSignersComponent />
+          </div>
+        </q-tab-panel>
+      </q-tab-panels>
     </q-card>
   </q-page>
 </template>
@@ -63,6 +105,7 @@ import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
 import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints } from "src/lib/config"
 import { fetchDataFromEndpoints } from "src/lib/apiFetchData"
+import EditSignersComponent from "src/components/EditSignersComponent.vue"
 
 type ApiResponse = {
   node_name:string;
@@ -83,20 +126,21 @@ const store = useSessionStore()
 const apiStore = useApiStore()
 const selectedChain = ref<Chain | null>(null)
 const selectedUrl = ref<string>("")
+
+const tab = ref("chains-tab")
+const splitterModel = ref(30) // Adjust for initial splitter size
+const selectedChainName = ref("") // Model for selected chain tab
+
 const refreshInterval = ref<number | null>(null)
-const router = useRouter()
+const isBannerVis = ref(true)
+const bannerDismiss = () => {
+  isBannerVis.value = false // Hide the banner
+}
 const toggleState = computed({
   get: () => store.multiSignToggleState,
   set: (value) => store.setToggleState(value)
 })
-const goToEditSigners = async() => {
-  try {
-    await router.push("config/edit-signers")
-  } catch (err) {
-    // Handle the navigation error
-    console.error("Navigation failed:", err)
-  }
-}
+
 const initialDataFromEndpoints = (endpoints:string[][]):ApiResponse[] => {
   return endpoints.map(endpoint => ({
     node_name: endpoint[0] || "Unknown", // Provide a default value if undefined
