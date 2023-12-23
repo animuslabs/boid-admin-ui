@@ -1,13 +1,13 @@
 <template>
   <q-page class="flex flex-center">
     <q-card class="my-card" flat bordered>
-      <q-card-section>
-        <div class="text-h6">
-          Choose your settings
-        </div>
+      <q-card-section class="flex flex-center">
+        <q-chip color="primary" outline text-color="white">
+          <q-icon size="20px" name="south" /> Choose your settings <q-icon size="20px" name="south" />
+        </q-chip>
       </q-card-section>
 
-      <q-tabs v-model="tab" class="text-teal">
+      <q-tabs v-model="tab" active-bg-color="primary" active-color="white" class="full-width-tabs">
         <q-tab label="Chains" name="chains-tab" />
         <q-tab label="Multi-Sign" name="msign-tab" />
       </q-tabs>
@@ -16,7 +16,7 @@
 
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="chains-tab">
-          <q-splitter v-model="splitterModel" style="height: 500px">
+          <q-splitter v-model="splitterModel" style="height: 375px">
             <!-- Pane for tabs -->
             <template #before>
               <q-tabs
@@ -24,6 +24,8 @@
                 vertical
                 class="text-primary"
                 style="height: 100%;"
+                active-bg-color="primary"
+                active-color="white"
               >
                 <q-tab
                   v-for="chain in chains"
@@ -53,7 +55,11 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="(response, nodeName) in selectedChain.data" :key="nodeName" :class="{ 'selected-row': response.url === (selectedUrl ?? '') }">
+                        <tr
+                          v-for="(response, nodeName) in selectedChain.data"
+                          :key="nodeName"
+                          :class="{ 'selected-row': response.url === (selectedUrl ?? ''), 'row-failure': !response.success, 'row-success': response.success, }"
+                        >
                           <td>{{ response.node_name }}</td>
                           <td>{{ response.duration }}</td>
                           <td>{{ response.success }}</td>
@@ -68,15 +74,6 @@
               </q-card-section>
             </template>
           </q-splitter>
-          <q-bar class="bg-secondary">
-            Telos Active API: {{ apiStore.getUrlForChain("Telos") }}
-          </q-bar>
-          <q-bar class="bg-secondary">
-            Telos Testnet Active API: {{ apiStore.getUrlForChain("Telos Testnet") }}
-          </q-bar>
-          <q-bar class="bg-secondary">
-            EOS Active API: {{ apiStore.getUrlForChain("EOS") }}
-          </q-bar>
         </q-tab-panel>
 
         <q-tab-panel name="msign-tab">
@@ -100,7 +97,6 @@
 
 <script lang="ts" setup>
 import { computed, ref, ComputedRef, watch, onUnmounted, onMounted, onBeforeUnmount } from "vue"
-import { useRouter } from "vue-router"
 import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
 import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints } from "src/lib/config"
@@ -132,10 +128,7 @@ const splitterModel = ref(30) // Adjust for initial splitter size
 const selectedChainName = ref("") // Model for selected chain tab
 
 const refreshInterval = ref<number | null>(null)
-const isBannerVis = ref(true)
-const bannerDismiss = () => {
-  isBannerVis.value = false // Hide the banner
-}
+
 const toggleState = computed({
   get: () => store.multiSignToggleState,
   set: (value) => store.setToggleState(value)
@@ -275,6 +268,16 @@ console.log("username", username)
   max-height: fit-content;
 }
 .selected-row {
-  background-color: $secondary;
+  background-color: $primary;
+  color: white !important;
 }
+.full-width-tabs .q-tab {
+  flex: 1; /* Distributes width equally */
+}
+.row-failure {
+    color: rgb(255, 0, 0);
+  }
+.row-success {
+    color: green;
+  }
 </style>
