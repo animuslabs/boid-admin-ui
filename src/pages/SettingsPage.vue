@@ -2,7 +2,7 @@
   <q-page class="flex flex-center">
     <q-card class="my-card" flat bordered>
       <q-card-section class="flex flex-center">
-        <q-chip color="primary" outline text-color="white">
+        <q-chip color="primary" outline square text-color="white">
           <q-icon size="20px" name="south" /> Choose your settings <q-icon size="20px" name="south" />
         </q-chip>
       </q-card-section>
@@ -43,7 +43,7 @@
               <q-card-section class="text-center">
                 <div v-if="selectedChain">
                   <q-btn icon="refresh" label="auto refresh every 10s" flat />
-
+                  <q-separator />
                   <div v-if="selectedChain.data && Object.keys(selectedChain.data).length > 0">
                     <table dense class="q-table">
                       <thead>
@@ -62,7 +62,7 @@
                         >
                           <td>{{ response.node_name }}</td>
                           <td>{{ response.duration }}</td>
-                          <td>{{ response.success }}</td>
+                          <td>{{ response.success ? 'YES' : 'FAULT' }}</td>
                           <td>
                             <q-btn :label="response.url === (selectedUrl ?? '') ? 'Selected' : 'Select'" @click="setActiveEndpoint(response.url)" />
                           </td>
