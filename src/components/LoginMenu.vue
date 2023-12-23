@@ -1,6 +1,6 @@
 <template>
-  <div class="q-pa-md">
-    <div class="row no-wrap q-pa-md">
+  <div class="q-pa-xs">
+    <div class="row no-wrap q-pa-sm">
       <div class="column items-center">
         <div class="col avatar-badge-container">
           <q-badge
@@ -12,6 +12,7 @@
         <div class="col">
           <q-avatar>
             <img v-if="chainLogo" style="height: 50px; width: 50px" :src="chainLogo.toString()" class="avatar-image">
+            <img v-else src="src/assets/logo-boid-dots.png" class="avatar-image">
           </q-avatar>
         </div>
 
