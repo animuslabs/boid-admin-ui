@@ -16,33 +16,22 @@
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted } from "vue"
+<script lang="ts" setup>
+import { ref, onMounted } from "vue"
 import ConfigGlobal from "src/components/ConfigGlobal.vue"
 import ConfigBoosters from "src/components/ConfigBoosters.vue"
 import ConfigOffers from "src/components/ConfigOffers.vue"
 import { useRoute } from "vue-router"
 
-export default defineComponent({
-  name: "ConfigPage",
-  components: {
-    ConfigGlobal,
-    ConfigBoosters,
-    ConfigOffers
-  },
-  setup() {
-    const tab = ref("config") // Default selected tab
-    const route = useRoute()
-    onMounted(() => {
-      if (route.query.tab) {
-        tab.value = route.query.tab as string
-      }
-    })
-    return {
-      tab
-    }
+
+const tab = ref("config") // Default selected tab
+const route = useRoute()
+onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string
   }
 })
+
 </script>
 <style>
 .container {

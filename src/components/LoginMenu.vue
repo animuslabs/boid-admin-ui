@@ -1,22 +1,6 @@
 <template>
   <div class="q-pa-md">
     <div class="row no-wrap q-pa-md">
-      <div class="column">
-        <div class="text-h6 q-mb-md">
-          M-Sign Settings
-        </div>
-        <q-toggle
-          v-model="toggleState"
-          color="green"
-          label="M-Sign Mode"
-          @input="toggleState"
-          class="q-mb-md"
-        />
-        <q-btn label="Signees" @click="goToEditSigners" />
-      </div>
-
-      <q-separator vertical inset class="q-mx-lg" />
-
       <div class="column items-center">
         <div class="col avatar-badge-container">
           <q-badge
@@ -50,50 +34,40 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed, ref } from "vue"
+<script lang="ts" setup>
+import { ref, watch } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
-import { useRouter } from "vue-router"
-export default defineComponent({
-  name: "LoginMenu",
-  setup() {
-    const sessionStore = useSessionStore()
-    const isLoggedIn = computed(() => sessionStore.isLoggedIn)
-    const chainLogo = computed(() => sessionStore.chainLogo || "")
-    const whatChain = computed(() => sessionStore.whatChain)
-    const loggedAccount = computed(() => sessionStore.session?.actor)
-    const toggleState = computed({
-      get: () => sessionStore.multiSignToggleState,
-      set: (value) => sessionStore.setToggleState(value)
-    })
-    const login = async() => {
-      await sessionStore.login()
-    }
-    const logout = async() => {
-      await sessionStore.logout()
-    }
-    const router = useRouter()
-    const goToEditSigners = async() => {
-      try {
-        await router.push("config/edit-signers")
-      } catch (err) {
-        // Handle the navigation error
-        console.error("Navigation failed:", err)
-      }
-    }
 
-    return {
-      isLoggedIn,
-      login,
-      logout,
-      chainLogo,
-      toggleState,
-      loggedAccount,
-      whatChain,
-      goToEditSigners
-    }
-  }
+const sessionStore = useSessionStore()
+
+const isLoggedIn = ref(sessionStore.isLoggedIn)
+const chainLogo = ref(sessionStore.chainLogo || "")
+const whatChain = ref(sessionStore.whatChain)
+const loggedAccount = ref(sessionStore.session?.actor)
+
+watch(() => sessionStore.isLoggedIn, (newVal) => {
+  isLoggedIn.value = newVal
 })
+
+watch(() => sessionStore.chainLogo, (newVal) => {
+  chainLogo.value = newVal
+})
+
+watch(() => sessionStore.whatChain, (newVal) => {
+  whatChain.value = newVal
+})
+
+watch(() => sessionStore.session?.actor, (newVal) => {
+  loggedAccount.value = newVal
+})
+
+const login = async() => {
+  await sessionStore.login()
+}
+
+const logout = async() => {
+  await sessionStore.logout()
+}
 </script>
 
 <style scoped>

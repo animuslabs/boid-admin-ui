@@ -272,7 +272,7 @@
             />
             <q-btn
               icon="delete"
-              @click="removeLink(index)"
+              @click="removeMedia(index)"
             />
           </div>
           <q-btn
@@ -368,249 +368,217 @@
   </template>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, computed, ref, reactive } from "vue"
+<script lang="ts" setup>
+import { onMounted, computed, ref, reactive } from "vue"
 import { useTeamStore } from "../stores/teamsStore"
 import { stringToBytes } from "../lib/reuseFunctions"
 import { endpoints } from "../lib/config"
 import { QTableColumn } from "quasar"
 import { DeserializedTeam, TeamMeta } from "../lib/types"
 
-export default defineComponent({
-  name: "TeamsPage",
-  setup() {
-    const store = useTeamStore()
-    const card = ref(false)
-    const selectedTeam = ref<DeserializedTeam | undefined>(undefined)
-    const teamIdToRemove = ref(0)
-    const removeTeamDialog = ref(false)
+const store = useTeamStore()
+const card = ref(false)
+const selectedTeam = ref<DeserializedTeam | undefined>(undefined)
+const teamIdToRemove = ref(0)
+const removeTeamDialog = ref(false)
 
-    const urlSafeNameValid = computed(() => {
-      const regex = /^[a-z0-9-]{1,20}$/
-      return regex.test(newTeamData.url_safe_name)
-    })
-    const editDialog = ref(false)
-    const ipfsEndpoint = endpoints[0]?.[1] || "https://ipfs.io/ipfs/"
-    const linkOptions = [
-      "twitter", "medium", "discord", "telegram", "facebook", "linkedIn"
-    ]
-    const mediaOptions = ["icon", "logo", "banner"]
-    const textOptions = ["summary"]
-    const editFormData = reactive({
-      name: "",
-      owner: "",
-      managers: [] as string[],
-      min_pwr_tax_mult: 0,
-      owner_cut_mult: 0,
-      links: [] as [string, string][],
-      media: [] as [string, string][],
-      text: [] as [string, string][]
-    })
-
-    const addTeamDialog = ref(false)
-    const newTeamData = reactive({
-      url_safe_name: "",
-      min_pwr_tax_mult: 10,
-      owner_cut_mult: 10
-    })
-
-    const createNewTeam = async() => {
-      console.log("createNewTeam called with", newTeamData)
-
-      try {
-        console.log("Initiating team creation")
-        const result = await store.createTeamAction(
-          newTeamData.min_pwr_tax_mult,
-          newTeamData.owner_cut_mult,
-          newTeamData.url_safe_name
-        )
-
-        if (result) {
-          console.log("Team created successfully:", result)
-          console.log("Refreshing team data")
-          await store.fetchAccTableData()
-        } else {
-          console.log("No result returned from createTeamAction, possibly due to an error")
-        }
-
-        console.log("Closing add team dialog")
-        addTeamDialog.value = false
-      } catch (error) {
-        console.error("Error caught in createNewTeam:", error)
-      }
-    }
-    const addLink = () => {
-      editFormData.links.push(["", ""])
-    }
-
-    const removeLink = (index:number) => {
-      editFormData.links.splice(index, 1)
-    }
-
-    const addMedia = () => {
-      editFormData.media.push(["", ""])
-    }
-
-    const removeMedia = (index:number) => {
-      editFormData.media.splice(index, 1)
-    }
-    const addText = () => {
-      editFormData.text.push(["", ""])
-    }
-
-    const removeText = (index:number) => {
-      editFormData.text.splice(index, 1)
-    }
-
-    function openTeamDetails(team:DeserializedTeam) {
-      selectedTeam.value = team
-      card.value = true
-    }
-    function editTeam(team:DeserializedTeam | undefined) {
-      // Initialize edit form data
-      if (!team) {
-        console.error("No team selected")
-        return
-      }
-      editFormData.name = team.url_safe_name
-      editFormData.owner = team.owner
-      editFormData.managers = [...team.managers]
-      editFormData.min_pwr_tax_mult = team.min_pwr_tax_mult
-      editFormData.owner_cut_mult = team.owner_cut_mult
-
-      // Ensure links and media are formatted as arrays of arrays
-      editFormData.links = team.meta && team.meta.links ? team.meta.links.map(link => [link[0], link[1]]) : []
-      editFormData.media = team.meta && team.meta.media ? team.meta.media.map(media => [media[0], media[1]]) : []
-      editFormData.text = team.meta && team.meta.text ? [...team.meta.text] : []
-      editDialog.value = true
-    }
-
-    const rmTeam = async(teamIdToRemove:number) => {
-      if (!teamIdToRemove) {
-        console.error("No team ID provided for removal.")
-        return
-      }
-
-      try {
-        const result = await store.removeTeamAction(teamIdToRemove)
-        if (result) {
-          console.log("Team removed successfully:", result)
-        // Refresh the team list or perform other updates as needed
-        } else {
-          console.log("Failed to remove the team.")
-        }
-      } catch (error) {
-        console.error("Error removing team:", error)
-      }
-    }
-    const handleRemoveTeam = async() => {
-      if (teamIdToRemove.value) {
-        await rmTeam(teamIdToRemove.value) // Call rmTeam with the provided team ID
-        removeTeamDialog.value = false // Close the dialog
-      } else {
-        console.error("Please enter a valid team ID.")
-      }
-    }
-
-    onMounted(async() => {
-      await store.fetchAccTableData()
-    })
-
-    const teamData = computed(() => store.organizedData)
-    const columns:QTableColumn[] = [
-      { name: "team_id", label: "Team ID", field: "team_id", align: "left" },
-      { name: "logo", label: "Logo", field: "logo", align: "left" },
-      { name: "name", label: "Name", field: "url_safe_name", align: "left" },
-      { name: "owner", label: "Owner", field: "owner", align: "left" },
-      { name: "members", label: "Members", field: "members", align: "left" },
-      { name: "power", label: "Power", field: "power", align: "left" }
-    ]
-
-    const saveEdit = async() => {
-      console.log("Saving edits:", editFormData)
-
-      // Create an instance of TeamMeta
-      const meta = new TeamMeta()
-      meta.links = editFormData.links
-      meta.media = editFormData.media
-      meta.text = editFormData.text
-
-      // Serialize meta data to JSON string
-      const metaString = JSON.stringify(meta)
-
-      // Convert JSON string to BytesType
-      const metaBytes = stringToBytes(metaString)
-
-      // Prepare data for editTeamAction
-      const teamEditData = {
-        team_id: selectedTeam.value?.team_id ?? 0,
-        owner: editFormData.owner,
-        managers: editFormData.managers,
-        min_pwr_tax_mult: editFormData.min_pwr_tax_mult,
-        owner_cut_mult: editFormData.owner_cut_mult,
-        url_safe_name: editFormData.name,
-        meta: metaBytes
-      }
-
-      // Call editTeamAction
-      try {
-        const result = await store.editTeamAction(
-          teamEditData.team_id,
-          teamEditData.owner,
-          teamEditData.managers,
-          teamEditData.min_pwr_tax_mult,
-          teamEditData.owner_cut_mult,
-          teamEditData.url_safe_name,
-          teamEditData.meta
-        )
-
-        if (result) {
-          console.log("Team edited successfully:", result)
-          await store.fetchAccTableData()
-          const updatedTeam = teamData.value.find(team => team.team_id === selectedTeam.value?.team_id)
-          if (updatedTeam) {
-            selectedTeam.value = updatedTeam
-          }
-        } else {
-          console.log("No result returned from editTeamAction, possibly due to an error")
-        }
-      } catch (error) {
-        console.error("Error editing team:", error)
-      }
-
-      editDialog.value = false // Close edit dialog after attempting to save
-    }
-
-    return {
-      teamData,
-      columns,
-      ipfsEndpoint,
-      selectedTeam,
-      card,
-      openTeamDetails,
-      editFormData,
-      saveEdit,
-      editTeam,
-      editDialog,
-      addLink,
-      removeLink,
-      addMedia,
-      removeMedia,
-      addTeamDialog,
-      newTeamData,
-      createNewTeam,
-      urlSafeNameValid,
-      addText,
-      removeText,
-      linkOptions,
-      mediaOptions,
-      textOptions,
-      teamIdToRemove,
-      handleRemoveTeam,
-      removeTeamDialog
-    }
-  }
+const urlSafeNameValid = computed(() => {
+  const regex = /^[a-z0-9-]{1,20}$/
+  return regex.test(newTeamData.url_safe_name)
 })
+const editDialog = ref(false)
+const ipfsEndpoint = endpoints[0]?.[1] || "https://ipfs.io/ipfs/"
+const linkOptions = [
+  "twitter", "medium", "discord", "telegram", "facebook", "linkedIn"
+]
+const mediaOptions = ["icon", "logo", "banner"]
+const textOptions = ["summary"]
+const editFormData = reactive({
+  name: "",
+  owner: "",
+  managers: [] as string[],
+  min_pwr_tax_mult: 0,
+  owner_cut_mult: 0,
+  links: [] as [string, string][],
+  media: [] as [string, string][],
+  text: [] as [string, string][]
+})
+
+const addTeamDialog = ref(false)
+const newTeamData = reactive({
+  url_safe_name: "",
+  min_pwr_tax_mult: 10,
+  owner_cut_mult: 10
+})
+
+const createNewTeam = async() => {
+  console.log("createNewTeam called with", newTeamData)
+
+  try {
+    console.log("Initiating team creation")
+    const result = await store.createTeamAction(
+      newTeamData.min_pwr_tax_mult,
+      newTeamData.owner_cut_mult,
+      newTeamData.url_safe_name
+    )
+
+    if (result) {
+      console.log("Team created successfully:", result)
+      console.log("Refreshing team data")
+      await store.fetchAccTableData()
+    } else {
+      console.log("No result returned from createTeamAction, possibly due to an error")
+    }
+
+    console.log("Closing add team dialog")
+    addTeamDialog.value = false
+  } catch (error) {
+    console.error("Error caught in createNewTeam:", error)
+  }
+}
+const addLink = () => {
+  editFormData.links.push(["", ""])
+}
+
+const removeLink = (index:number) => {
+  editFormData.links.splice(index, 1)
+}
+
+const addMedia = () => {
+  editFormData.media.push(["", ""])
+}
+
+const removeMedia = (index:number) => {
+  editFormData.media.splice(index, 1)
+}
+const addText = () => {
+  editFormData.text.push(["", ""])
+}
+
+const removeText = (index:number) => {
+  editFormData.text.splice(index, 1)
+}
+
+function openTeamDetails(team:DeserializedTeam) {
+  selectedTeam.value = team
+  card.value = true
+}
+function editTeam(team:DeserializedTeam | undefined) {
+  // Initialize edit form data
+  if (!team) {
+    console.error("No team selected")
+    return
+  }
+  editFormData.name = team.url_safe_name
+  editFormData.owner = team.owner
+  editFormData.managers = [...team.managers]
+  editFormData.min_pwr_tax_mult = team.min_pwr_tax_mult
+  editFormData.owner_cut_mult = team.owner_cut_mult
+
+  // Ensure links and media are formatted as arrays of arrays
+  editFormData.links = team.meta && team.meta.links ? team.meta.links.map(link => [link[0], link[1]]) : []
+  editFormData.media = team.meta && team.meta.media ? team.meta.media.map(media => [media[0], media[1]]) : []
+  editFormData.text = team.meta && team.meta.text ? [...team.meta.text] : []
+  editDialog.value = true
+}
+
+const rmTeam = async(teamIdToRemove:number) => {
+  if (!teamIdToRemove) {
+    console.error("No team ID provided for removal.")
+    return
+  }
+
+  try {
+    const result = await store.removeTeamAction(teamIdToRemove)
+    if (result) {
+      console.log("Team removed successfully:", result)
+      // Refresh the team list or perform other updates as needed
+    } else {
+      console.log("Failed to remove the team.")
+    }
+  } catch (error) {
+    console.error("Error removing team:", error)
+  }
+}
+const handleRemoveTeam = async() => {
+  if (teamIdToRemove.value) {
+    await rmTeam(teamIdToRemove.value) // Call rmTeam with the provided team ID
+    removeTeamDialog.value = false // Close the dialog
+  } else {
+    console.error("Please enter a valid team ID.")
+  }
+}
+
+onMounted(async() => {
+  await store.fetchAccTableData()
+})
+
+const teamData = computed(() => store.organizedData)
+const columns:QTableColumn[] = [
+  { name: "team_id", label: "Team ID", field: "team_id", align: "left" },
+  { name: "logo", label: "Logo", field: "logo", align: "left" },
+  { name: "name", label: "Name", field: "url_safe_name", align: "left" },
+  { name: "owner", label: "Owner", field: "owner", align: "left" },
+  { name: "members", label: "Members", field: "members", align: "left" },
+  { name: "power", label: "Power", field: "power", align: "left" }
+]
+
+const saveEdit = async() => {
+  console.log("Saving edits:", editFormData)
+
+  // Create an instance of TeamMeta
+  const meta = new TeamMeta()
+  meta.links = editFormData.links
+  meta.media = editFormData.media
+  meta.text = editFormData.text
+
+  // Serialize meta data to JSON string
+  const metaString = JSON.stringify(meta)
+
+  // Convert JSON string to BytesType
+  const metaBytes = stringToBytes(metaString)
+
+  // Prepare data for editTeamAction
+  const teamEditData = {
+    team_id: selectedTeam.value?.team_id ?? 0,
+    owner: editFormData.owner,
+    managers: editFormData.managers,
+    min_pwr_tax_mult: editFormData.min_pwr_tax_mult,
+    owner_cut_mult: editFormData.owner_cut_mult,
+    url_safe_name: editFormData.name,
+    meta: metaBytes
+  }
+
+  // Call editTeamAction
+  try {
+    const result = await store.editTeamAction(
+      teamEditData.team_id,
+      teamEditData.owner,
+      teamEditData.managers,
+      teamEditData.min_pwr_tax_mult,
+      teamEditData.owner_cut_mult,
+      teamEditData.url_safe_name,
+      teamEditData.meta
+    )
+
+    if (result) {
+      console.log("Team edited successfully:", result)
+      await store.fetchAccTableData()
+      const updatedTeam = teamData.value.find(team => team.team_id === selectedTeam.value?.team_id)
+      if (updatedTeam) {
+        selectedTeam.value = updatedTeam
+      }
+    } else {
+      console.log("No result returned from editTeamAction, possibly due to an error")
+    }
+  } catch (error) {
+    console.error("Error editing team:", error)
+  }
+
+  editDialog.value = false // Close edit dialog after attempting to save
+}
+
+
 </script>
 
 <style scoped>

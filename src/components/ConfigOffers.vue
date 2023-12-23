@@ -103,7 +103,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, computed } from "vue"
+import { onMounted, reactive, ref } from "vue"
 import { Types } from "lib/boid-contract-structure"
 import { offerStore } from "src/stores/offerStore"
 import { QTable, QTableColumn } from "quasar"

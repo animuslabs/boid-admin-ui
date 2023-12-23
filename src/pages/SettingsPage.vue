@@ -2,30 +2,6 @@
   <q-page class="flex flex-center">
     <q-card>
       <q-card-section class="text-center">
-        <div
-          v-if="username"
-          class="text-weight-bold q-mb-md"
-        >
-          Captain {{ username }}, welcome back to the command deck! 🚀
-          <p class="q-mb-md">
-            Ready to save the day again? The BoidVerse awaits your mighty powers!
-          </p>
-        </div>
-        <div
-          v-else
-          class="text-weight-bold q-mb-md"
-        >
-          Oh, It's you...
-          <p class="q-mb-md">
-            I guess you should probably login or something. 🤔
-          </p>
-          Some options may or may not be available to you. 🤷‍♂️
-          <p class="q-ma-md">
-            Remember, with great power comes great responsibility. Use your powers wisely! 🦸‍♂️
-          </p>
-        </div>
-      </q-card-section>
-      <q-card-section class="text-center">
         <q-btn-group spread>
           <q-btn
             v-for="chain in chains"
@@ -63,12 +39,26 @@
           </div>
         </div>
       </q-card-section>
+      <q-card-section>
+        <div class="text-h6 q-mb-md">
+          M-Sign Settings
+        </div>
+        <q-toggle
+          v-model="toggleState"
+          color="green"
+          label="M-Sign Mode"
+          @input="toggleState"
+          class="q-mb-md q-mr-lg"
+        />
+        <q-btn label="Signees" @click="goToEditSigners" />
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, ComputedRef, watch, onUnmounted, onMounted, onBeforeUnmount } from "vue"
+import { useRouter } from "vue-router"
 import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
 import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints } from "src/lib/config"
@@ -94,6 +84,19 @@ const apiStore = useApiStore()
 const selectedChain = ref<Chain | null>(null)
 const selectedUrl = ref<string>("")
 const refreshInterval = ref<number | null>(null)
+const router = useRouter()
+const toggleState = computed({
+  get: () => store.multiSignToggleState,
+  set: (value) => store.setToggleState(value)
+})
+const goToEditSigners = async() => {
+  try {
+    await router.push("config/edit-signers")
+  } catch (err) {
+    // Handle the navigation error
+    console.error("Navigation failed:", err)
+  }
+}
 const initialDataFromEndpoints = (endpoints:string[][]):ApiResponse[] => {
   return endpoints.map(endpoint => ({
     node_name: endpoint[0] || "Unknown", // Provide a default value if undefined
@@ -180,8 +183,6 @@ const selectChain = async(chainName:string) => {
     startAutoRefresh()
   }
 }
-
-
 
 const setActiveEndpoint = async(url:string) => {
   if (!selectedChain.value) {

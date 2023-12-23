@@ -44,6 +44,12 @@
           >
             Config
           </q-btn>
+          <q-btn
+            flat
+            dense
+            @click="$router.push('/settings')"
+            icon="settings"
+          />
           <!-- Dropdown Button for LoginMenu -->
           <q-btn-dropdown icon="person" color="primary">
             <LoginMenu />
@@ -133,35 +139,20 @@
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, ref, watch } from "vue"
+<script lang="ts" setup>
+import { onMounted, ref } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import LoginMenu from "src/components/LoginMenu.vue"
-import { useApiStore } from "src/stores/apiStore"
 
-export default defineComponent({
-  name: "MainLayout",
-  components: {
-    LoginMenu
-  },
-  setup() {
-    const sessionStore = useSessionStore()
-    const apiStore = useApiStore()
-    const isBannerVisible = ref(true) // Reactive property for banner visibility
-
-    const dismissBanner = () => {
-      isBannerVisible.value = false // Hide the banner
-    }
-    onMounted(async() => {
-      await sessionStore.renew()
-    })
-    return {
-      LoginMenu,
-      isBannerVisible,
-      dismissBanner
-    }
-  }
+const sessionStore = useSessionStore()
+const isBannerVisible = ref(true) // Reactive property for banner visibility
+const dismissBanner = () => {
+  isBannerVisible.value = false // Hide the banner
+}
+onMounted(async() => {
+  await sessionStore.renew()
 })
+
 </script>
 <style>
 .border-bottom {
