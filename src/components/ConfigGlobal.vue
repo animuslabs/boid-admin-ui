@@ -451,18 +451,18 @@ const config = reactive({
   paused: false,
   allow_deposits: false,
   allow_withdrawals: false,
-  recoveryaccount: ""
+  recoveryAccount: ""
 })
 
 const recoveryAccountComputed = computed({
   get: () => {
     // Assuming Name type has a toString method or similar
-    return config.recoveryaccount.toString()
+    return config.recoveryAccount.toString()
   },
   set: (newValue) => {
     // Convert the string back to a Name object, and store its string representation
     const nameObj = Name.from(newValue) // Convert to Name type
-    config.recoveryaccount = nameObj.toString()
+    config.recoveryAccount = nameObj.toString()
   }
 })
 const suffixWhitelistComputed = computed({
