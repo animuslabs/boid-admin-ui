@@ -7,7 +7,7 @@ export interface NetworkConfig {
 }
 
 export const endpoints:string[][] = [
-  ["IPFS Endpoint", "https://ipfs.animus.is/ipfs/"], // 0
+  // 0
   ["EOS AtomicAssets", "https://eos.api.atomicassets.io"], // 1
   ["WAX AtomicAssets", "https://wax.eu.eosamsterdam.net"], // 2
   ["EOS AtomicHub", "https://eos.atomichub.io/explorer/asset/"], // 3
@@ -40,6 +40,18 @@ export const TelosTestnetEndpoints:string[][] = [
   ["EOS Nation", "https://telostest.api.eosnation.io"],
   ["TelosUSA", "https://test.telos.eosusa.io"],
   ["Teleology One", "https://testnet.telos.teleology.one"]
+]
+
+export const trpcEndpoints:string[][] = [
+  ["Boid Mainnet", "https://powerapi.animus.is/api"],
+  ["Boid Testnet", "https://powerapi-testnet.animus.is/api"]
+]
+
+export const ipfsEndpoints:string[][] = [
+  ["Boid IPFS", "https://ipfs.animus.is/ipfs/"],
+  ["Infura IPFS", "https://ipfs.infura.io/ipfs/"],
+  ["Pinata IPFS", "https://gateway.pinata.cloud/ipfs/"],
+  ["Global IPFS", "https://ipfs.io/ipfs/"]
 ]
 
 export const networks:NetworkConfig[] = [

@@ -743,7 +743,7 @@
     pako "^2.0.4"
     tslib "^2.1.0"
 
-"@wharfkit/antelope@^1.0.0", "@wharfkit/antelope@^1.0.2":
+"@wharfkit/antelope@^1.0.0", "@wharfkit/antelope@^1.0.2", "@wharfkit/antelope@^1.0.4":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@wharfkit/antelope/-/antelope-1.0.2.tgz#99947c03bd709af712a2fab0a4d8237d81b52f9e"
   integrity sha512-Oad6w0xg+3DyKqOhXcpEiyhZXizcoqdKX0UO6+YsjMZ4+qs16++Uq2YcxUeOHTpSeh2RM4EtX8qijyF5JzUg4w==
@@ -762,30 +762,31 @@
   dependencies:
     tslib "^2.1.0"
 
-"@wharfkit/contract@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@wharfkit/contract/-/contract-1.1.1.tgz#2e96476fac45d06684f90b2a54b3cac39e71c760"
-  integrity sha512-WN6tzVuuacpzD8yo4uZZPdniXk9Q+ZGkBtUQ+mbeOQaEzrsnncOrHJlck20nmSb/EC8ij1EG0xlhnyhKjnvSYQ==
+"@wharfkit/contract@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@wharfkit/contract/-/contract-1.1.4.tgz#5d65a7effa02bb71c98a7493cfdca2472578e6d5"
+  integrity sha512-7jRgyAHrxg0/RJzOoGn4r1Md2Kho2Bozxzv+sn3c5e7ii8w9nQjyyVnYmFEVRFh6pQ0BtR/pqh6wrYJYTfXQIA==
   dependencies:
     "@wharfkit/abicache" "^1.2.0"
-    "@wharfkit/antelope" "^1.0.0"
+    "@wharfkit/antelope" "^1.0.4"
     "@wharfkit/signing-request" "^3.1.0"
     tslib "^2.1.0"
 
-"@wharfkit/protocol-esr@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@wharfkit/protocol-esr/-/protocol-esr-1.1.0.tgz#a7bd2cce784b9010bf04cdee76c64d7c717916f1"
-  integrity sha512-HON8TOECA3gIj1kulJIyVpNmpmKs9E/tOXU433hPmQaL0o+xXCJfVV56o8NCRYvyH80SwgspJgENchFSJ+BJZA==
+"@wharfkit/protocol-esr@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@wharfkit/protocol-esr/-/protocol-esr-1.2.1.tgz#83e537c6ec70295141ca399b2c35857f7a28a873"
+  integrity sha512-gOjV8pbQOQLHCs7DqsnVu+qUrgV9RblNR9xUGLo0ldHwveWyULo5eWaxpqW+eaeeDi4YfNruVp4mUmEEZPhdAQ==
   dependencies:
     "@greymass/buoy" "^1.0.3"
     "@greymass/miniaes" "^1.0.0"
+    "@wharfkit/antelope" "^1.0.4"
     isomorphic-ws "^5.0.0"
     ws "^8.13.0"
 
-"@wharfkit/session@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@wharfkit/session/-/session-1.2.1.tgz#e0fa8ce11eac218a4eb63670416844188ecb55bd"
-  integrity sha512-4NG2OrKAFEpFUzD7uHtnmnzi3S+eQhJ0ZCid9AYVfxb1PeXFl9YlEVcCwylG2pRTlwoaVir4onkp4rGzpawzzw==
+"@wharfkit/session@^1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@wharfkit/session/-/session-1.2.5.tgz#56a8a99de0424d96d0b00488180db3c9729d3609"
+  integrity sha512-EXKA9EB/8zF1CtLU/0ZXGAzieD8/vZDLd3jzj+zSQjZ4TyI8m22qxU/78y3JOvAS6g1m6Mh5bqDPCZN6oBWtxA==
   dependencies:
     "@wharfkit/abicache" "^1.2.1"
     "@wharfkit/antelope" "^1.0.2"
@@ -802,19 +803,20 @@
     "@wharfkit/antelope" "^1.0.0"
     tslib "^2.0.3"
 
-"@wharfkit/wallet-plugin-anchor@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@wharfkit/wallet-plugin-anchor/-/wallet-plugin-anchor-1.1.0.tgz#c1613a1bd315ab754522e7aa80c7028bf891449a"
-  integrity sha512-gFyho2EPVztOmYJbEUG/vtt/VUjfMsy9n0Uz3wT9dXiTvg+J0fOplBBbsM9Dq8TuimDiX8VfxAuMrzW3QURlRw==
+"@wharfkit/wallet-plugin-anchor@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@wharfkit/wallet-plugin-anchor/-/wallet-plugin-anchor-1.2.0.tgz#3043ed9592be03fb254a9ffc95ea0da81c3a92eb"
+  integrity sha512-UqRKGaBkWObvUDEJXtgxuj69IeEGEitrOB/K5L9pm0cB7KHLG2/RLhTMsk/rGRRLPx8c7Gix2Ky4mT3WGw7TMw==
   dependencies:
-    "@wharfkit/protocol-esr" "^1.1.0"
+    "@wharfkit/antelope" "^1.0.4"
+    "@wharfkit/protocol-esr" "^1.2.1"
     isomorphic-ws "^5.0.0"
     ws "^8.13.0"
 
-"@wharfkit/web-renderer@^1.0.3":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@wharfkit/web-renderer/-/web-renderer-1.1.1.tgz#8c24f6961860e6e24d1e031338d49797b94ee788"
-  integrity sha512-me7NJ2btuYmWWUJlrVcyHbCzweVToGbxBOYvpsLsfNhj6zKJcVu40YGMdBBsGNqWDDzdZ+JgpDqNGRWfSWr+YQ==
+"@wharfkit/web-renderer@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@wharfkit/web-renderer/-/web-renderer-1.2.0.tgz#7bfc85afd326bf5cf93fb1b4864e25f1bf7252e4"
+  integrity sha512-lHnuMS4j4+BtR62UgXGhR1DvOBNg4HDDj3j+WmL/DfG9KG0taKXN/KQq8Ap48hmxIvQ5QCeGkq/JSIyHsqEU7A==
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"

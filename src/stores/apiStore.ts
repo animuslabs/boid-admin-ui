@@ -1,9 +1,12 @@
 import { defineStore } from "pinia"
-import { TelosEndpoints, EOSendpoints, TelosTestnetEndpoints } from "src/lib/config"
+import { TelosEndpoints, EOSendpoints, TelosTestnetEndpoints, ipfsEndpoints, trpcEndpoints } from "src/lib/config"
 import { APIClient } from "@wharfkit/antelope"
 import { Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract } from "src/lib/eosio-msig-contract-telos-mainnet"
 import { ContractFactory } from "src/lib/types"
+import { createTRPCProxyClient, httpLink } from "@trpc/client"
+import HRouter from "src/lib/trpc/trpcAPIimport"
+
 
 type ApiResponse = {
   chain:string;
@@ -30,7 +33,10 @@ export const useApiStore = defineStore("apiStore", {
     } as Record<string, string>,
     clientAPI: new APIClient({ url: TelosEndpoints[0]?.[1] }),
     boidContract: new BoidContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
-    eosioMsigContract: new EosioMsigContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) })
+    eosioMsigContract: new EosioMsigContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
+    ipfsURL: ipfsEndpoints[0]?.[1] || "",
+    trpcURL: trpcEndpoints[0]?.[1] || "",
+    trpcClient: null as any
   }),
   getters: {
     getResponsesByChain: (state) => {
@@ -48,6 +54,12 @@ export const useApiStore = defineStore("apiStore", {
       return (chainName:string) => {
         return state.chainUrls[chainName] || ""
       }
+    },
+    getIPFSurl: (state) => {
+      return state.ipfsURL || ""
+    },
+    getTRPCurl: (state) => {
+      return state.trpcURL || ""
     },
     // Getter for boidContract
     boidContractInitialized: (state) => {
@@ -67,6 +79,33 @@ export const useApiStore = defineStore("apiStore", {
         console.error(`Chain name ${chainName} is not valid`)
       }
     },
+    updateIPFSUrl(newUrl:string) {
+      if (ipfsEndpoints.some(endpoint => endpoint[1] === newUrl)) {
+        this.ipfsURL = newUrl
+        console.log(`Updated IPFS URL to: ${newUrl}`)
+      } else {
+        console.error(`IPFS URL ${newUrl} is not valid`)
+      }
+    },
+    initializeTRPCClient() {
+      this.trpcClient = createTRPCProxyClient<HRouter.AppRouter>({
+        links: [
+          httpLink({
+            url: this.trpcURL
+          })
+        ]
+      })
+    },
+    updateTRPCUrl(newUrl:string) {
+      if (trpcEndpoints.some(endpoint => endpoint[1] === newUrl)) {
+        this.trpcURL = newUrl
+        console.log(`Updated TRPC URL to: ${newUrl}`)
+        // Reinitialize the TRPC client
+        this.initializeTRPCClient()
+      } else {
+        console.error(`TRPC URL ${newUrl} is not valid`)
+      }
+    },
     initializeContracts(chainName:string) {
       const url = this.chainUrls[chainName] // Get the URL for the selected chain
       if (!url) {
@@ -84,3 +123,7 @@ export const useApiStore = defineStore("apiStore", {
     }
   }
 })
+
+// Initialize TRPC client immediately
+const apiStoreInstance = useApiStore()
+apiStoreInstance.initializeTRPCClient()

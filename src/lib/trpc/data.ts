@@ -1,11 +1,16 @@
 import { DoubleYChartOptions } from "./interfaces"
-import { trpc } from "src/lib/trpc/trpc"
+import { useApiStore } from "src/stores/apiStore"
+import { computed } from "vue"
+
+const apiStore = useApiStore()
+const trpcClient = computed(() => apiStore.trpcClient)
+
 
 export const fetchGetDeltasBoidIDData = (
   boid_id:string,
   from:string,
   to:string
-) => trpc.GetDeltasBoidID.query({ boid_id, from, to })
+) => trpcClient.value.GetDeltasBoidID.query({ boid_id, from, to })
 export const boidIDstakePowerOptions:DoubleYChartOptions = {
   colors: ["#004573", "#47EEB2", "#33B3E6", "#F04A68"], // darker blue, green
   chart: {
@@ -88,7 +93,7 @@ export const fetchGetCombinedData = (
   boid_id:string,
   from:string,
   to:string
-) => trpc.GetCombinedData.query({ boid_id, from, to })
+) => trpcClient.value.GetCombinedData.query({ boid_id, from, to })
 export const combinedDataOptions:DoubleYChartOptions = {
   colors: ["#004573", "#47EEB2", "#33B3E6", "#F04A68"], // darker blue, orange, yellow, green
   chart: {
@@ -208,7 +213,7 @@ export const fetchGetLogPwrClaimData = (
   boid_id:string,
   from:string,
   to:string
-) => trpc.GetLogPwrClaim.query({ boid_id, from, to })
+) => trpcClient.value.GetLogPwrClaim.query({ boid_id, from, to })
 export const logPwrClaimOptions:DoubleYChartOptions = {
   colors: ["#004573", "#47EEB2", "#33B3E6", "#F04A68", "#0000FF", "#FF4500", "#32CD32", "#8A2BE2", "#A52A2A", "#DEB887"],
   chart: {

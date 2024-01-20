@@ -372,9 +372,11 @@
 import { onMounted, computed, ref, reactive } from "vue"
 import { useTeamStore } from "../stores/teamsStore"
 import { stringToBytes } from "../lib/reuseFunctions"
-import { endpoints } from "../lib/config"
 import { QTableColumn } from "quasar"
 import { DeserializedTeam, TeamMeta } from "../lib/types"
+import { useApiStore } from "../stores/apiStore"
+
+const apiStore = useApiStore()
 
 const store = useTeamStore()
 const card = ref(false)
@@ -387,7 +389,7 @@ const urlSafeNameValid = computed(() => {
   return regex.test(newTeamData.url_safe_name)
 })
 const editDialog = ref(false)
-const ipfsEndpoint = endpoints[0]?.[1] || "https://ipfs.io/ipfs/"
+const ipfsEndpoint = apiStore.getIPFSurl
 const linkOptions = [
   "twitter", "medium", "discord", "telegram", "facebook", "linkedIn"
 ]

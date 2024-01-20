@@ -8,7 +8,8 @@
       </q-card-section>
 
       <q-tabs v-model="tab" active-bg-color="primary" active-color="white" class="full-width-tabs">
-        <q-tab label="Chains" name="chains-tab" />
+        <q-tab label="Chains API" name="chains-tab" />
+        <q-tab label="IPFS & TRPC" name="endpoints-tab" />
         <q-tab label="Multi-Sign" name="msign-tab" />
       </q-tabs>
 
@@ -90,6 +91,29 @@
             <EditSignersComponent />
           </div>
         </q-tab-panel>
+        <q-tab-panel name="endpoints-tab">
+          <div class="q-pa-md">
+            <q-select
+              label="Select IPFS Endpoint"
+              :options="ipfsOptions"
+              v-model="selectedIPFSUrl"
+              option-value="value"
+              option-label="label"
+              outlined
+              dense
+            />
+            <q-select
+              label="Select TRPC Endpoint"
+              :options="trpcOptions"
+              v-model="selectedTRPCUrl"
+              option-value="value"
+              option-label="label"
+              outlined
+              dense
+            />
+            <q-btn label="Update Endpoints" color="primary" @click="updateEndpoints" class="q-mt-md" />
+          </div>
+        </q-tab-panel>
       </q-tab-panels>
     </q-card>
   </q-page>
@@ -99,7 +123,7 @@
 import { computed, ref, ComputedRef, watch, onUnmounted, onMounted, onBeforeUnmount } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
-import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints } from "src/lib/config"
+import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints, ipfsEndpoints, trpcEndpoints } from "src/lib/config"
 import { fetchDataFromEndpoints } from "src/lib/apiFetchData"
 import EditSignersComponent from "src/components/EditSignersComponent.vue"
 
@@ -259,6 +283,35 @@ onUnmounted(() => {
 const username = computed(() => store.username)
 console.log("username", username)
 
+// IPFS & TRPC
+const selectedIPFSUrl = ref<{ label:string; value:string } | null>(null)
+const selectedTRPCUrl = ref<{ label:string; value:string } | null>(null)
+
+
+const ipfsOptions = ipfsEndpoints.map(endpoint => ({ label: endpoint[0], value: endpoint[1] }))
+const trpcOptions = trpcEndpoints.map(endpoint => ({ label: endpoint[0], value: endpoint[1] }))
+
+const updateEndpoints = () => {
+  const oldIPFSUrl = apiStore.getIPFSurl
+  const oldTRPCUrl = apiStore.getTRPCurl
+
+  // Use the `.value` property of the selected option object
+  const newIPFSUrl = selectedIPFSUrl.value?.value
+  const newTRPCUrl = selectedTRPCUrl.value?.value
+
+  if (newIPFSUrl && newTRPCUrl) {
+    apiStore.updateIPFSUrl(newIPFSUrl)
+    apiStore.updateTRPCUrl(newTRPCUrl)
+
+    console.log(`IPFS URL changed from ${oldIPFSUrl} to ${newIPFSUrl}`)
+    console.log(`TRPC URL changed from ${oldTRPCUrl} to ${newTRPCUrl}`)
+  } else {
+    console.error("Invalid URL selection")
+  }
+}
+
+// Call initializeTRPCClient initially to set up the TRPC client
+useApiStore().initializeTRPCClient()
 </script>
 
 <style scoped lang="scss">
