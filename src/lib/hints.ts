@@ -26,7 +26,7 @@ export const configHints = {
   },
   team: {
     change_min_rounds: "Minimum rounds an account must wait before changing teams. This helps maintain team stability and prevents frequent hopping.",
-    edit_team_min_rounds: "Minimum rounds a team owner must wait before changing teams. This enforces a cooling-off period for team modifications.",
+    edit_team_min_rounds: "Minimum rounds a team owner must wait before editing teams. This enforces a cooling-off period for team modifications.",
     team_edit_max_pct_change: "Maximum percentage that team tax and owner cut can be adjusted (up or down) with each edit. This limits drastic changes in team policies.",
     buy_team_cost: "The amount of BOID required to create a new team. This is a one-time cost for team formation.",
     owner_stake_required: "The amount of BOID stake required to create a team. This stake acts as a commitment from the team owner.",
