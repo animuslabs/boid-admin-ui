@@ -224,11 +224,37 @@
             v-model="editFormData.name"
             label="Team Name"
             class="q-my-md"
+            :hint="teamHints.name"
           />
           <q-input
             v-model="editFormData.owner"
             label="Owner"
             class="q-my-md"
+            :hint="teamHints.owner"
+          />
+          <template v-for="(manager, index) in editFormData.managers" :key="'manager-' + index">
+            <q-input
+              v-model="editFormData.managers[index]"
+              :label="'Manager ' + (index + 1)"
+              class="q-my-md"
+            />
+            <q-btn icon="delete" @click="removeManager(index)" />
+          </template>
+          <q-btn label="Add Manager" @click="addManager" />
+
+          <q-input
+            v-model="editFormData.min_pwr_tax_mult"
+            label="Min Power Tax Mult"
+            type="number"
+            class="q-my-md"
+            :hint="teamHints.team_tax"
+          />
+          <q-input
+            v-model="editFormData.owner_cut_mult"
+            label="Owner Cut Mult"
+            type="number"
+            class="q-my-md"
+            :hint="teamHints.owner_cut"
           />
 
           <!-- Dynamic fields for links -->
@@ -375,6 +401,7 @@ import { stringToBytes } from "../lib/reuseFunctions"
 import { QTableColumn } from "quasar"
 import { DeserializedTeam, TeamMeta } from "../lib/types"
 import { useApiStore } from "../stores/apiStore"
+import { teamHints } from "lib/hints"
 
 const apiStore = useApiStore()
 
@@ -459,6 +486,14 @@ const addText = () => {
 
 const removeText = (index:number) => {
   editFormData.text.splice(index, 1)
+}
+
+const addManager = () => {
+  editFormData.managers.push("")
+}
+
+const removeManager = (index:number) => {
+  editFormData.managers.splice(index, 1)
 }
 
 function openTeamDetails(team:DeserializedTeam) {

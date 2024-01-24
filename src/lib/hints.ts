@@ -70,3 +70,11 @@ export const boostersHints = {
   aggregate_pwr_capacity: "The maximum amount of power that can be added to an account by this booster",
   booster_index: "Remove more than one booster at a time by specifying indexes. Ex. 0, 2"
 }
+
+export const teamHints = {
+  name: "no lowercase letters, no spaces, no special characters, only hyphens allowed",
+  owner: "Boid account that owns the team",
+  managers: "Boid accounts that can manage the team (not implemented)",
+  team_tax: "The % of power that is taxed when a user is memmber of the team. Range 0-200, 100 = 50%",
+  owner_cut: "The percentage of power from team tax given to the team owner. Range 0-200, 100 = 50%"
+}

@@ -49,7 +49,9 @@
             dense
             @click="$router.push('/settings')"
             icon="settings"
-          />
+          >
+            <q-badge :color="badgeColor" label="M-Sign" class="q-ma-xs" />
+          </q-btn>
           <!-- Dropdown Button for LoginMenu -->
           <q-btn-dropdown icon="person" color="primary">
             <LoginMenu />
@@ -140,19 +142,20 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue"
+import { onMounted, ref, computed } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import LoginMenu from "src/components/LoginMenu.vue"
 
 const sessionStore = useSessionStore()
 const isBannerVisible = ref(true) // Reactive property for banner visibility
+
 const dismissBanner = () => {
   isBannerVisible.value = false // Hide the banner
 }
 onMounted(async() => {
   await sessionStore.renew()
 })
-
+const badgeColor = computed(() => sessionStore.multiSignToggleState ? "green" : "red")
 </script>
 <style>
 .border-bottom {
