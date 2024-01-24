@@ -26,9 +26,12 @@
         </div>
       </q-card-section>
       <q-card-section class="text-center">
-        <q-btn color="primary" @click="goToEditSettings">
-          Choose your Chain
-        </q-btn>
+        <p>This is a place where you can check:</p>
+        <q-list>
+          <li>All users boid_id's and their graphical charts</li>
+          <li>Teams list, create new or edit existing</li>
+          <li>See whole BoidCore global settings and edit them</li>
+        </q-list>
       </q-card-section>
     </q-card>
   </q-page>

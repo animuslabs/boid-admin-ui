@@ -8,7 +8,7 @@
       </q-card-section>
 
       <q-tabs v-model="tab" active-bg-color="primary" active-color="white" class="full-width-tabs">
-        <q-tab label="Chains API" name="chains-tab" />
+        <q-tab label="API" name="chains-tab" />
         <q-tab label="IPFS & TRPC" name="endpoints-tab" />
         <q-tab label="Multi-Sign" name="msign-tab" />
       </q-tabs>
@@ -192,27 +192,27 @@ const chains = ref<Chain[]>([
       return mergeDataWithInitial(initialNodes, liveResponses as unknown as Record<string, ApiResponse>)
     })
 
-  },
-  {
-    name: "EOS",
-    fetchData: () => fetchDataFromEndpoints(EOSendpoints, "EOS"),
-    data: computed(() => {
-      const liveResponses = apiStore.getResponsesByChain("EOS")
-      const initialNodes = initialDataFromEndpoints(EOSendpoints)
-      return mergeDataWithInitial(initialNodes, liveResponses as unknown as Record<string, ApiResponse>)
-    })
-
-  },
-  {
-    name: "Telos Testnet",
-    fetchData: () => fetchDataFromEndpoints(TelosTestnetEndpoints, "Telos Testnet"),
-    data: computed(() => {
-      const liveResponses = apiStore.getResponsesByChain("Telos Testnet")
-      const initialNodes = initialDataFromEndpoints(TelosTestnetEndpoints)
-      return mergeDataWithInitial(initialNodes, liveResponses as unknown as Record<string, ApiResponse>)
-    })
-
   }
+  // {
+  //   name: "EOS",
+  //   fetchData: () => fetchDataFromEndpoints(EOSendpoints, "EOS"),
+  //   data: computed(() => {
+  //     const liveResponses = apiStore.getResponsesByChain("EOS")
+  //     const initialNodes = initialDataFromEndpoints(EOSendpoints)
+  //     return mergeDataWithInitial(initialNodes, liveResponses as unknown as Record<string, ApiResponse>)
+  //   })
+
+  // },
+  // {
+  //   name: "Telos Testnet",
+  //   fetchData: () => fetchDataFromEndpoints(TelosTestnetEndpoints, "Telos Testnet"),
+  //   data: computed(() => {
+  //     const liveResponses = apiStore.getResponsesByChain("Telos Testnet")
+  //     const initialNodes = initialDataFromEndpoints(TelosTestnetEndpoints)
+  //     return mergeDataWithInitial(initialNodes, liveResponses as unknown as Record<string, ApiResponse>)
+  //   })
+
+  // }
 ])
 
 const handleVisibilityChange = () => {
