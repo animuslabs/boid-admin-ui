@@ -31,6 +31,8 @@
           <li>All users boid_id's and their graphical charts</li>
           <li>Teams list, create new or edit existing</li>
           <li>See whole BoidCore global settings and edit them</li>
+          <li>Create, edit boosters</li>
+          <li>Create, edit offers</li>
         </q-list>
       </q-card-section>
     </q-card>

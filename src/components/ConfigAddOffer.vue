@@ -59,7 +59,7 @@
             <q-input v-model="newOffer.rewards.balance_deposit" label="Balance Deposit" class="input-number" dense />
             <q-input v-model="newOffer.rewards.delegated_stake" label="Delegated Stake" class="input-number" />
             <q-input v-model="newOffer.rewards.stake_locked_additional_rounds" label="Stake Locked Additional Rounds" class="input-number" dense />
-            <q-input v-model="activatePowermodIdsString" :error="isInvalidInput" :error-message="activatePowermodErrorMessage" label="Activate Powermod IDs" class="input-number" dense />
+            <q-input v-model="activateBoosterIdsString" :error="isInvalidInput" :error-message="activateBoosterErrorMessage" label="Activate Booster IDs" class="input-number" dense />
           </q-card-section>
         </q-card>
         <q-card class="q-ma-sm">
@@ -180,7 +180,7 @@ import {
   currentAction, currentActionIndex, addNftAction, editNftAction, saveNftAction,
   removeNftAction, showNftActionDialog, addImmutableAttribute,
   removeImmutableAttribute, addMutableAttribute, removeMutableAttribute,
-  isInvalidInput, isInvalidTeamId, activatePowermodErrorMessage, teamIdErrorMessage, parseAttributeValue
+  isInvalidInput, isInvalidTeamId, activateBoosterErrorMessage, teamIdErrorMessage, parseAttributeValue
 } from "src/lib/offerAdd"
 
 const store = offerStore()
@@ -196,8 +196,8 @@ const navigateBackToOffer = () => {
     })
 }
 
-const activatePowermodIdsString = computed({
-  get: () => newOffer.rewards.activate_powermod_ids.join(", "),
+const activateBoosterIdsString = computed({
+  get: () => newOffer.rewards.activate_booster_ids.join(", "),
   set: (value) => {
     const numbers = value.split(",")
       .map((num) => num.trim())
@@ -206,7 +206,7 @@ const activatePowermodIdsString = computed({
     isInvalidInput.value = numbers.length !== value.split(",").length
 
     if (!isInvalidInput.value) {
-      newOffer.rewards.activate_powermod_ids = numbers.map(Number)
+      newOffer.rewards.activate_booster_ids = numbers.map(Number)
     }
   }
 })

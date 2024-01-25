@@ -1,5 +1,5 @@
 import { defineStore } from "pinia"
-import { Ref, ref } from "vue"
+import { ref } from "vue"
 import { createAction, fetchDataFromTable } from "src/lib/contracts"
 import { TransactResult } from "@wharfkit/session"
 import { useSessionStore } from "src/stores/sessionStore"
@@ -79,14 +79,14 @@ export const boosterStore = defineStore({
         return undefined
       }
     },
-    async addBoosterAction(boid_id:string, mod_id:number):Promise<TransactResult | undefined> {
-      console.log("addBoosterAction called with", { mod_id })
+    async addBoosterAction(boid_id:string, booster_id:number):Promise<TransactResult | undefined> {
+      console.log("addBoosterAction called with", { booster_id })
 
       try {
         const actionName = "booster.add"
         console.log(`Preparing to add booster to ${boid_id} with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.boosteradd = { boid_id, mod_id }
+        const action_data:ActionParams.boosteradd = { boid_id, booster_id }
         console.log("Action data prepared:", action_data)
 
         if (!sessionStore || !sessionStore.username) {
@@ -105,14 +105,14 @@ export const boosterStore = defineStore({
         return undefined
       }
     },
-    async newBoosterAction(mod:Types.Booster):Promise<TransactResult | undefined> {
-      console.log("newBoosterAction called with", { mod })
+    async newBoosterAction(booster:Types.Booster):Promise<TransactResult | undefined> {
+      console.log("newBoosterAction called with", { booster })
 
       try {
         const actionName = "booster.new"
         console.log(`Preparing to create new booster with actionName: ${actionName}`)
         console.log("Session Data Username:", sessionStore.username)
-        const action_data:ActionParams.boosternew = { mod }
+        const action_data:ActionParams.boosternew = { booster }
         console.log("Action data prepared:", action_data)
 
         if (!sessionStore || !sessionStore.username) {

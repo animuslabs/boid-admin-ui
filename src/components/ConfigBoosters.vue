@@ -17,7 +17,7 @@
         color="primary"
         icon="help"
         type="a"
-        href="https://new.docs.boid.com/boidcore/telos/tables/pwrmods.html"
+        href="https://docs.boid.com/boidcore/telos/actions/boosters.html"
         target="_blank"
       />
       <!-- Add, Remove, Add Boid ID, Remove Boid ID Buttons -->
@@ -36,7 +36,7 @@
           :rows="boosters"
           :columns="boosterColData"
           :pagination="pagination"
-          row-key="mod_id"
+          row-key="booster_id"
           dense
           flat
         />
@@ -52,7 +52,7 @@
             Add Booster
           </div>
           <q-input v-model="addInput.boid_id" label="Boid ID" type="text" />
-          <q-input v-model="addInput.mod_id" :hint="boostersHints.mod_id" label="Mod ID" type="number" />
+          <q-input v-model="addInput.booster_id" :hint="boostersHints.booster_id" label="Booster ID" type="number" />
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" @click="showAddDialog = false" />
@@ -69,31 +69,35 @@
             New Booster
           </div>
           <q-input
-            v-model="modInput.mod_id"
+            v-model="boosterInput.booster_id"
             type="number"
             label="Booster ID"
-            :hint="boostersHints.mod_id"
+            :hint="boostersHints.booster_id"
+            class="q-mb-lg"
           />
           <q-input
-            v-model="modInput.pwr_multiplier"
+            v-model="boosterInput.pwr_multiplier"
             type="number"
             label="Power Multiplier"
             :hint="boostersHints.pwr_multiplier"
+            class="q-mb-lg"
           />
           <q-input
-            v-model="modInput.pwr_add_per_round"
+            v-model="boosterInput.pwr_add_per_round"
             type="number"
             label="Power Add per Round"
             :hint="boostersHints.pwr_add_per_round"
+            class="q-mb-lg"
           />
           <q-input
-            v-model="modInput.expire_after_elapsed_rounds"
+            v-model="boosterInput.expire_after_elapsed_rounds"
             type="number"
             label="Expire After Elapsed Rounds"
             :hint="boostersHints.expire_after_elapsed_rounds"
+            class="q-mb-lg"
           />
           <q-input
-            v-model="modInput.aggregate_pwr_capacity"
+            v-model="boosterInput.aggregate_pwr_capacity"
             type="number"
             label="Aggregate Power Capacity"
             :hint="boostersHints.aggregate_pwr_capacity"
@@ -134,7 +138,7 @@ import { Types } from "src/lib/boid-contract-structure"
 
 const store = boosterStore()
 interface SimpleBooster {
-  mod_id:number;
+  booster_id:number;
   pwr_multiplier:number;
   pwr_add_per_round:number;
   expire_after_elapsed_rounds:number;
@@ -143,15 +147,15 @@ interface SimpleBooster {
 const boosters = ref<SimpleBooster[]>([])
 
 const boosterColData:QTableColumn[] = [
-  { name: "mod_id", required: true, label: "Mod ID", align: "left", field: "mod_id", sortable: true },
+  { name: "booster_id", required: true, label: "Booster ID", align: "left", field: "booster_id", sortable: true },
   { name: "pwr_multiplier", required: true, label: "Power Multiplier", align: "left", field: "pwr_multiplier", sortable: true },
   { name: "pwr_add_per_round", required: true, label: "Power Add per Round", align: "left", field: "pwr_add_per_round", sortable: true },
   { name: "expire_after_elapsed_rounds", required: true, label: "Expire After Elapsed Rounds", align: "left", field: "expire_after_elapsed_rounds", sortable: true },
   { name: "aggregate_pwr_capacity", required: true, label: "Aggregate Power Capacity", align: "left", field: "aggregate_pwr_capacity", sortable: true }
 ]
 
-const modInput = reactive({
-  mod_id: 0,
+const boosterInput = reactive({
+  booster_id: 0,
   pwr_multiplier: 0,
   pwr_add_per_round: 0,
   expire_after_elapsed_rounds: 0,
@@ -160,7 +164,7 @@ const modInput = reactive({
 
 const addInput = reactive({
   boid_id: "",
-  mod_id: 0
+  booster_id: 0
 })
 
 const removeInput = reactive({
@@ -183,7 +187,7 @@ const updateBoostersList = async() => {
   const fetchedBoosters = await store.fetchBoostersTableData()
   if (fetchedBoosters && fetchedBoosters.length > 0) {
     boosters.value = fetchedBoosters.map(booster => ({
-      mod_id: booster.mod_id.toNumber(),
+      booster_id: booster.booster_id.toNumber(),
       pwr_multiplier: booster.pwr_multiplier.toNumber(),
       pwr_add_per_round: booster.pwr_add_per_round.toNumber(),
       expire_after_elapsed_rounds: booster.expire_after_elapsed_rounds.toNumber(),
@@ -194,7 +198,7 @@ const updateBoostersList = async() => {
 
 const handleAdd = async() => {
   try {
-    await store.addBoosterAction(addInput.boid_id, addInput.mod_id)
+    await store.addBoosterAction(addInput.boid_id, addInput.booster_id)
     await updateBoostersList()
     showAddDialog.value = false
   } catch (error) {
@@ -203,8 +207,8 @@ const handleAdd = async() => {
 }
 const handleNew = async() => {
   try {
-    const mod = Types.Booster.from(modInput)
-    await store.newBoosterAction(mod)
+    const booster = Types.Booster.from(boosterInput)
+    await store.newBoosterAction(booster)
     await updateBoostersList()
     showNewDialog.value = false
   } catch (error) {

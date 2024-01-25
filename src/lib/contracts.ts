@@ -6,7 +6,7 @@ import { TransactResult, ABI, TimePointSec } from "@wharfkit/session"
 import { useSignersStore } from "src/stores/useSignersStore"
 import { generateRandomName, expDate, serializeActionData } from "src/lib/reuseFunctions"
 import { useApiStore } from "src/stores/apiStore"
-import { Contract } from "@wharfkit/contract"
+
 const sessionStore = useSessionStore()
 const apiStore = useApiStore()
 const signersStore = useSignersStore()
@@ -84,6 +84,18 @@ export async function createAction<A extends ActionNames>(
     }
     let result
     if (isItMultiSignMode) {
+      // Construct the complete action object
+    // eslint-disable-next-line new-cap
+      const action = new TypesMultiSign.action({
+        account: "boid",
+        name: actionName,
+        // eslint-disable-next-line new-cap
+        authorization: [new TypesMultiSign.permission_level({
+          actor: Name.from("boid"),
+          permission: Name.from("active")
+        })],
+        data: action_data
+      })
       // If multi-sign mode is enabled, create and execute a multi-sign proposal
       console.log("Executing action in multi-sign mode...")
       result = await createAndExecuteMultiSignProposal(reqSignAccsConverted, [action])

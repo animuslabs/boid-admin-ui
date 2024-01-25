@@ -63,7 +63,7 @@ export const configHints = {
 }
 
 export const boostersHints = {
-  mod_id: "The id of the booster",
+  booster_id: "The id of the booster",
   pwr_multiplier: "The multiplier on the power of the account",
   pwr_add_per_round: "The amount of power to add to the account each round",
   expire_after_elapsed_rounds: "The number of rounds after which the booster expires",

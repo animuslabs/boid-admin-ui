@@ -14,10 +14,10 @@
     "@quasar/extras": "^1.16.8",
     "@trpc/client": "^10.44.1",
     "@wharfkit/contract": "^1.1.4",
-    "@wharfkit/session": "^1.2.5",
+    "@wharfkit/session": "^1.2.6",
     "@wharfkit/signing-request": "^3.1.0",
-    "@wharfkit/wallet-plugin-anchor": "^1.2.0",
-    "@wharfkit/web-renderer": "^1.2.0",
+    "@wharfkit/wallet-plugin-anchor": "^1.2.1",
+    "@wharfkit/web-renderer": "^1.2.2",
     "apexcharts": "^3.45.0",
     "buffer": "^6.0.3",
     "pinia": "^2.0.11",
@@ -28,7 +28,7 @@
     "vue3-apexcharts": "^1.4.4"
   },
   "resolutions": {
-    "@wharfkit/antelope": "^1.0.2"
+    "@wharfkit/antelope": "^1.0.5"
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.7.1",

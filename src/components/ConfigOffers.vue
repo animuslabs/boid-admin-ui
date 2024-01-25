@@ -17,7 +17,7 @@
         color="primary"
         icon="help"
         type="a"
-        href="https://new.docs.boid.com/boidcore/telos/tables/offers.html"
+        href="https://docs.boid.com/boidcore/telos/actions/offers.html"
         target="_blank"
       />
       <q-btn flat label="ADD" color="green" icon="add" @click="navigateToAddOffer" />
@@ -87,7 +87,7 @@
           <div>Balance Deposit: {{ selectedOffer.rewards.balance_deposit }}</div>
           <div>Delegated Stake: {{ selectedOffer.rewards.delegated_stake }}</div>
           <div>Stake Locked Additional Rounds: {{ selectedOffer.rewards.stake_locked_additional_rounds }}</div>
-          <div>Activate Powermod IDs: {{ selectedOffer.rewards.activate_powermod_ids.array.toString() }}</div>
+          <div>Activate Boosters IDs: {{ selectedOffer.rewards.activate_booster_ids.array.toString() }}</div>
           <div><strong>Limits</strong></div>
           <div>Offer Quantity Remaining: {{ selectedOffer.limits.offer_quantity_remaining }}</div>
           <div>Available Until Round: {{ selectedOffer.limits.available_until_round }}</div>
@@ -192,7 +192,7 @@ function getNestedData(row:Record<string, any>, fieldPath:string):any {
     return value && value.length > 0 ? "YES" : "NO"
   }
   // Check if value is not undefined before proceeding
-  if (value && (fieldPath === "requirements.team_id" || fieldPath === "rewards.activate_powermod_ids")) {
+  if (value && (fieldPath === "requirements.team_id" || fieldPath === "rewards.activate_booster_ids")) {
     // Access the Uint8Array inside the Proxy object, if it exists
     const arrayValue = value.array
 
@@ -223,7 +223,7 @@ const offerColData:ExtendedQTableColumn[] = [
   { name: "balance_deposit", required: true, label: "Rewards: Balance Deposit", shortLabel: "BalDep", align: "left", field: "rewards.balance_deposit", sortable: true },
   { name: "delegated_stake", required: true, label: "Rewards: Delegated Stake", shortLabel: "DelSt", align: "left", field: "rewards.delegated_stake", sortable: true },
   { name: "stake_locked_additional_rounds", required: true, label: "Rewards: Stake Locked Additional Rounds", shortLabel: "StLAddR", align: "left", field: "rewards.stake_locked_additional_rounds", sortable: true },
-  { name: "activate_powermod_ids", required: true, label: "Rewards: Activate Powermod IDs", shortLabel: "ActPwrId", align: "left", field: "rewards.activate_powermod_ids", sortable: true },
+  { name: "activate_booster_ids", required: true, label: "Rewards: Activate Boosters IDs", shortLabel: "ActPwrId", align: "left", field: "rewards.activate_booster_ids", sortable: true },
   // limits
   { name: "offer_quantity_remaining", required: true, label: "Limits: Offer Quantity Remaining", shortLabel: "QnRem", align: "left", field: "limits.offer_quantity_remaining", sortable: true },
   { name: "available_until_round", required: true, label: "Limits: Available Until Round", shortLabel: "AvUnR", align: "left", field: "limits.available_until_round", sortable: true },

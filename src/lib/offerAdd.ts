@@ -23,7 +23,7 @@ export const newOffer = reactive({
     balance_deposit: 0, // Default UInt32 value
     delegated_stake: 0, // Default UInt16 value
     stake_locked_additional_rounds: 0, // Default UInt16 value
-    activate_powermod_ids: [] as number[] // array of numbers | default bytes
+    activate_booster_ids: [] as number[] // array of numbers | default bytes
   },
   limits: {
     offer_quantity_remaining: 0, // Default UInt32 value
@@ -42,7 +42,7 @@ export const atomicAttributeVariants = [
 ]
 
 // Action Section
-export const activatePowermodErrorMessage = "Please enter a comma separated list of numbers."
+export const activateBoosterErrorMessage = "Please enter a comma separated list of numbers."
 export const teamIdErrorMessage = "Please enter a comma separated list of numbers."
 export const isInvalidInput = ref(false)
 export const isInvalidTeamId = ref(false)
