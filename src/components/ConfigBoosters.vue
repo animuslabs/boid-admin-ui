@@ -80,21 +80,21 @@
             type="number"
             label="Power Multiplier"
             :hint="boostersHints.pwr_multiplier"
-            class="q-mb-lg"
+            class="q-mb-xl"
           />
           <q-input
             v-model="boosterInput.pwr_add_per_round"
             type="number"
             label="Power Add per Round"
             :hint="boostersHints.pwr_add_per_round"
-            class="q-mb-lg"
+            class="q-mb-xl"
           />
           <q-input
             v-model="boosterInput.expire_after_elapsed_rounds"
             type="number"
             label="Expire After Elapsed Rounds"
             :hint="boostersHints.expire_after_elapsed_rounds"
-            class="q-mb-lg"
+            class="q-mb-xl"
           />
           <q-input
             v-model="boosterInput.aggregate_pwr_capacity"

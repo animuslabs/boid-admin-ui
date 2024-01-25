@@ -132,8 +132,8 @@
             <div><strong>Managers:</strong> {{ selectedTeam.managers }}</div>
             <div><strong>Members:</strong> {{ selectedTeam.members }}</div>
             <div><strong>Power:</strong> {{ selectedTeam.power }}</div>
-            <div><strong>Power TAX:</strong> {{ selectedTeam.min_pwr_tax_mult }} %</div>
-            <div><strong>Owner Power Cut from TAX:</strong> {{ selectedTeam.owner_cut_mult }} %</div>
+            <div><strong>Power TAX:</strong> {{ selectedTeam.min_pwr_tax_mult/2 }} %</div>
+            <div><strong>Owner Power Cut from TAX:</strong> {{ selectedTeam.owner_cut_mult/2 }} %</div>
             <div><strong>Balance:</strong> {{ selectedTeam.balance }} BOID</div>
             <div><strong>Team ID:</strong> {{ selectedTeam.team_id }}</div>
             <div><strong>Last Edit Round:</strong> {{ selectedTeam.last_edit_round }}</div>

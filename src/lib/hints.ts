@@ -63,18 +63,18 @@ export const configHints = {
 }
 
 export const boostersHints = {
-  booster_id: "The id of the booster",
-  pwr_multiplier: "The multiplier on the power of the account",
-  pwr_add_per_round: "The amount of power to add to the account each round",
-  expire_after_elapsed_rounds: "The number of rounds after which the booster expires",
-  aggregate_pwr_capacity: "The maximum amount of power that can be added to an account by this booster",
+  booster_id: "next unique booster id number",
+  pwr_multiplier: "The multiplier on the power of the account. Unit range 0-200 | Ex. 100 = 50% of the account's power is added to the account each round",
+  pwr_add_per_round: "The amount of power to add to the account each round. One round eq 13h.",
+  expire_after_elapsed_rounds: "The number of rounds after which the booster expires. 1 month = 55 rounds | 6 months = 332 rounds | 1 year = 664 rounds",
+  aggregate_pwr_capacity: "The maximum amount of power that can be added to an account by this booster.",
   booster_index: "Remove more than one booster at a time by specifying indexes. Ex. 0, 2"
 }
 
 export const teamHints = {
-  name: "no lowercase letters, no spaces, no special characters, only hyphens allowed",
-  owner: "Boid account that owns the team",
-  managers: "Boid accounts that can manage the team (not implemented)",
-  team_tax: "The % of power that is taxed when a user is memmber of the team. Range 0-200, 100 = 50%",
-  owner_cut: "The percentage of power from team tax given to the team owner. Range 0-200, 100 = 50%"
+  name: "no uppercase letters, no spaces, no special characters, only hyphens allowed",
+  owner: "boid account that owns the team",
+  managers: "boid accounts that can manage the team (not implemented)",
+  team_tax: "% tax on your power as a team member. Unit range 0-200, 100 = 50%",
+  owner_cut: "% of team tax given to the owner. Unit range 0-200, 100 = 50%"
 }
