@@ -5,8 +5,8 @@
         Edit transaction signers
       </div>
       <div v-for="(signer, index) in signersStore.signers" :key="index" class="q-ma-sm">
-        <q-input v-model="signer.actor" label="Actor" />
-        <q-input v-model="signer.permission" label="Permission" />
+        <q-input v-model="signer.actor" label="Actor" @input="updateSigner(index, 'actor', $event)" />
+        <q-input v-model="signer.permission" label="Permission" @input="updateSigner(index, 'permission', $event)" />
         <q-btn icon="delete" color="negative" @click="removeSigner(index)" />
       </div>
       <q-btn icon="add" label="Add Signer" @click="addSigner" />
@@ -36,6 +36,19 @@ const addSigner = () => {
 
 const removeSigner = (index:number) => {
   signersStore.removeSigner(index)
+}
+const updateSigner = (index:number, key:"actor" | "permission", value:string) => {
+  // Check if the signer exists at the given index
+  const signer = signersStore.signers[index]
+  if (signer) {
+    if (key === "actor") {
+      signersStore.updateSigner(index, value, signer.permission)
+    } else {
+      signersStore.updateSigner(index, signer.actor, value)
+    }
+  } else {
+    console.error("Signer not found at index:", index)
+  }
 }
 
 const cancel = () => {

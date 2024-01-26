@@ -21,6 +21,9 @@ export const useSignersStore = defineStore("signers", {
     },
     setSigners(signers:{ actor:string; permission:string }[]) {
       this.signers = signers
+    },
+    updateSigner(index:number, actor:string, permission:string) {
+      this.signers[index] = { actor, permission }
     }
   }
 })
