@@ -1,4 +1,4 @@
-import { APIClient, APIClientOptions } from "@wharfkit/antelope"
+import { APIClient, APIClientOptions, PublicKey, PrivateKey } from "@wharfkit/antelope"
 import { Contract as BoidContract, abi as boidABI } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract, abi as msigABI } from "src/lib/eosio-msig-contract-telos-mainnet"
 
@@ -128,4 +128,15 @@ export class ContractFactory {
       account: "eosio.msig"
     })
   }
+}
+
+export interface KeyPair {
+  privateKey:{
+    key:PrivateKey;
+    wif:string;
+  };
+  publicKey:{
+    key:PublicKey;
+    eosFormat:string;
+  };
 }

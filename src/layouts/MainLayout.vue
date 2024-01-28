@@ -47,6 +47,13 @@
           <q-btn
             flat
             dense
+            @click="$router.push('/tools')"
+          >
+            Tools
+          </q-btn>
+          <q-btn
+            flat
+            dense
             @click="$router.push('/settings')"
             icon="settings"
           >
