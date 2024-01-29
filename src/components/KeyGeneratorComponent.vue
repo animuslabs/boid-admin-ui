@@ -11,8 +11,8 @@
           <q-input filled v-model="boidIdPw" label="Password" type="password" />
 
           <div class="q-mt-md">
-            <q-btn label="Generate Keys" type="submit" color="primary" />
-            <q-btn label="Reset" @click="onReset" color="secondary" />
+            <q-btn label="Generate Keys" type="submit" color="primary" class="q-ma-sm" />
+            <q-btn label="Reset" @click="onReset" color="secondary" class="q-ma-sm" />
           </div>
         </q-form>
       </q-card-section>

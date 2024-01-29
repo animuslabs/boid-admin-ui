@@ -2,7 +2,7 @@
   <q-card>
     <q-card-section>
       <div class="text-h6">
-        Edit transaction signers
+        Edit trx signers
       </div>
       <div v-for="(signer, index) in signersStore.signers" :key="index" class="q-ma-sm">
         <q-input v-model="signer.actor" label="Actor" @input="updateSigner(index, 'actor', $event)" />
