@@ -6,6 +6,11 @@ import { TransactResult, ABI, TimePointSec } from "@wharfkit/session"
 import { useSignersStore } from "src/stores/useSignersStore"
 import { generateRandomName, expDate, serializeActionData } from "src/lib/reuseFunctions"
 import { useApiStore } from "src/stores/apiStore"
+import { EventEmitter } from "events"
+import { Notify } from "quasar"
+import { endpoints } from "src/lib/config"
+
+export const notifyEvent = new EventEmitter()
 
 const sessionStore = useSessionStore()
 const apiStore = useApiStore()
@@ -104,9 +109,8 @@ export async function createAction<A extends ActionNames>(
       console.log("Transacting action...")
       result = await session.transact({ action })
     }
-
-
     console.log("Transaction result:", result)
+    notifyEvent.emit("TrxResult", result)
     return result
   } catch (error) {
     console.error("Error in createAction:", error)
@@ -180,10 +184,47 @@ export async function createAndExecuteMultiSignProposal(
     const action = apiStore.eosioMsigContract.action("propose", proposalData)
     const result = await session.transact({ action })
     console.log("Transaction result:", result)
-
     return result
   } catch (error) {
     console.error("Error in createAndExecuteProposal:", error)
     throw error
   }
 }
+
+export function showNotification(result:TransactResult):void {
+  const transactionId = result.response?.transaction_id ?? "unknown"
+
+  if (transactionId === "unknown") {
+    // Notification for error case
+    Notify.create({
+      message: "Failed to process transaction. Transaction ID is unavailable.",
+      color: "negative", // Red color for errors
+      icon: "mdi-alert-circle",
+      position: "bottom",
+      timeout: 20000
+    })
+  } else {
+    // Transaction URL
+    const transactionUrl = endpoints?.[8]?.[1] + "/transaction/" + transactionId
+
+    // Notification for success case
+    Notify.create({
+      message: "Trx went through successfully!",
+      color: "positive", // Green color for success
+      icon: "mdi-check-circle",
+      position: "bottom",
+      timeout: 20000,
+      actions: [
+        {
+          icon: "link",
+          label: "View Transaction",
+          handler: () => {
+            window.open(transactionUrl, "_blank")
+          }
+        }
+      ]
+    })
+  }
+}
+
+

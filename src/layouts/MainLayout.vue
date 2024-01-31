@@ -152,9 +152,14 @@
 import { onMounted, ref, computed } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import LoginMenu from "src/components/LoginMenu.vue"
+import { notifyEvent, showNotification } from "src/lib/contracts"
 
 const sessionStore = useSessionStore()
 const isBannerVisible = ref(true) // Reactive property for banner visibility
+
+notifyEvent.on("TrxResult", (result) => {
+  showNotification(result)
+})
 
 const dismissBanner = () => {
   isBannerVisible.value = false // Hide the banner

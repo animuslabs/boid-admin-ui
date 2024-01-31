@@ -7,15 +7,15 @@ export interface NetworkConfig {
 }
 
 export const endpoints:string[][] = [
-  // 0
-  ["EOS AtomicAssets", "https://eos.api.atomicassets.io"], // 1
-  ["WAX AtomicAssets", "https://wax.eu.eosamsterdam.net"], // 2
-  ["EOS AtomicHub", "https://eos.atomichub.io/explorer/asset/"], // 3
-  ["EOS AtomicHub Templates", "https://eos.atomichub.io/explorer/template/"], // 4
-  ["Nefty blocks Telos Testnet Assets", "https://telos-test.neftyblocks.com/assets/"], // 5
-  ["Nefty blocks Telos Testnet Templates", "https://telos-test.neftyblocks.com/templates/"], // 6
-  ["Nefty blocks Telos Assets", "https://telos.neftyblocks.com/assets/"], // 7
-  ["Nefty blocks Telos Templates", "https://telos.neftyblocks.com/templates/"] // 8
+  ["EOS AtomicAssets", "https://eos.api.atomicassets.io"], // 0
+  ["WAX AtomicAssets", "https://wax.eu.eosamsterdam.net"], // 1
+  ["EOS AtomicHub", "https://eos.atomichub.io/explorer/asset/"], // 2
+  ["EOS AtomicHub Templates", "https://eos.atomichub.io/explorer/template/"], // 3
+  ["Nefty blocks Telos Testnet Assets", "https://telos-test.neftyblocks.com/assets/"], // 4
+  ["Nefty blocks Telos Testnet Templates", "https://telos-test.neftyblocks.com/templates/"], // 5
+  ["Nefty blocks Telos Assets", "https://telos.neftyblocks.com/assets/"], // 6
+  ["Nefty blocks Telos Templates", "https://telos.neftyblocks.com/templates/"], // 7
+  ["Telos Mainnet Explorer", "https://explorer.telos.net"] // 8
 ]
 
 export const EOSendpoints:string[][] = [
