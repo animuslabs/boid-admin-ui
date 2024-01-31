@@ -126,6 +126,7 @@ import { useApiStore } from "src/stores/apiStore"
 import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints, ipfsEndpoints, trpcEndpoints } from "src/lib/config"
 import { fetchDataFromEndpoints } from "src/lib/apiFetchData"
 import EditSignersComponent from "src/components/EditSignersComponent.vue"
+import { Notify } from "quasar"
 
 type ApiResponse = {
   node_name:string;
@@ -265,6 +266,7 @@ watch(selectedChain, () => {
   startAutoRefresh()
 })
 onMounted(() => {
+  showActiveEndpointsNotification()
   document.addEventListener("visibilitychange", handleVisibilityChange)
 })
 onBeforeUnmount(() => {
@@ -279,6 +281,29 @@ onUnmounted(() => {
     clearInterval(refreshInterval.value)
   }
 })
+
+const showActiveEndpointsNotification = () => {
+  const ipfsUrl = apiStore.getIPFSurl // Assuming getIPFSurl is a getter for IPFS URL
+  const trpcUrl = apiStore.getTRPCurl // Assuming getTRPCurl is a getter for TRPC URL
+  const chainUrls = store.chainUrl // Assuming chainUrl is a property in your store
+
+  const message = `
+    <div><strong>Active Endpoints:</strong></div>
+    <div>IPFS: ${ipfsUrl}</div>
+    <div>TRPC: ${trpcUrl}</div>
+    <div>Chain: ${chainUrls}</div>
+  `
+
+  Notify.create({
+    message,
+    html: true, // Enable HTML content
+    color: "grey-8",
+    icon: "mdi-information",
+    position: "bottom",
+    timeout: 10000
+  })
+}
+
 
 const username = computed(() => store.username)
 console.log("username", username)
