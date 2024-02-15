@@ -200,7 +200,7 @@
                 v-ripple
               >
                 <q-item-section avatar>
-                  <img src="src/assets/TokenLogo-light.png" alt="Reward" style="width: 100%; height: 40px;">
+                  <img src="/TokenLogo-light.png" alt="Reward" style="width: 100%; height: 40px;">
                 </q-item-section>
                 <q-item-section>
                   <strong>Estimated Account Reward: {{ calcData.accumulated.account_earned.toLocaleString('en-US').replace(/,/g, "'") }} BOID</strong>
