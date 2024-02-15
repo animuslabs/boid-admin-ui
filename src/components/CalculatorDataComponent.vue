@@ -239,7 +239,7 @@
                 <b>{{ calcData.accumulated.powered_stake_mint.toLocaleString("en-US").replace(/,/g, "'") }}</b>
               </q-item-section>
             </q-item>
-            <q-separator />
+
             <q-item>
               <q-item-section avatar>
                 <q-icon name="group" color="primary" />
@@ -256,10 +256,12 @@
                 <b>{{ calcData.accumulated.team_cut.toLocaleString("en-US").replace(/,/g, "'") }}</b>
               </q-item-section>
             </q-item>
+            <q-separator size="0.2em" />
             <q-item>
               <q-item-section avatar>
                 <q-icon name="diversity_1" color="primary" />
               </q-item-section>
+
               <q-item-section>
                 <div>
                   Overstake Mint<q-icon class="q-ml-xs" color="primary" name="info">
@@ -267,22 +269,6 @@
                   </q-icon>
                 </div>
                 <b>{{ calcData.accumulated.overstake_mint.toLocaleString("en-US").replace(/,/g, "'") }}</b>
-              </q-item-section>
-            </q-item>
-            <q-separator size="0.2em" />
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="toll" color="primary" />
-              </q-item-section>
-              <q-item-section>
-                <strong>Total BOID Mint
-                  <q-icon class="q-ml-xs" color="primary" name="info">
-                    <q-tooltip>
-                      Sum of all minted BOID connected to the account. During this simulation.
-                    </q-tooltip>
-                  </q-icon>
-                </strong>
-                <span style="color: rgb(18, 116, 18);">{{ calcData.accumulated.total.toLocaleString("en-US").replace(/,/g, "'") }}</span>
               </q-item-section>
             </q-item>
           </q-expansion-item>
