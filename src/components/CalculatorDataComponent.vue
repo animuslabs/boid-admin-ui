@@ -200,10 +200,10 @@
                 v-ripple
               >
                 <q-item-section avatar>
-                  <q-icon name="monetization_on" />
+                  <img src="src/assets/TokenLogo-light.png" alt="Reward" style="width: 100%; height: 40px;">
                 </q-item-section>
                 <q-item-section>
-                  <strong>Estimate Account Reward: {{ calcData.accumulated.account_earned.toLocaleString('en-US').replace(/,/g, "'") }} BOID</strong>
+                  <strong>Estimated Account Reward: {{ calcData.accumulated.account_earned.toLocaleString('en-US').replace(/,/g, "'") }} BOID</strong>
                 </q-item-section>
                 <q-item-section side>
                   <q-icon :name="showDetails ? 'expand_less' : 'expand_more'" />
