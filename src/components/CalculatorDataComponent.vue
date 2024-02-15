@@ -246,30 +246,16 @@
               </q-item-section>
               <q-item-section>
                 <div>
-                  Team Contribution
+                  Team Contribution TAX
                   <q-icon class="q-ml-xs" color="primary" name="info">
                     <q-tooltip>
                       Share of account's contribution to the team.
                     </q-tooltip>
                   </q-icon>
                 </div>
-                <b>{{ calcData.acc.team.team_cumulative_contribution.toLocaleString("en-US").replace(/,/g, "'") }}</b>
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="content_cut" color="primary" />
-              </q-item-section>
-              <q-item-section>
-                <div>
-                  Team TAX Cut<q-icon class="q-ml-xs" color="primary" name="info">
-                    <q-tooltip>BOID minted and allocated to the user's respective Boid Team. Each team define's their own tax level.</q-tooltip>
-                  </q-icon>
-                </div>
                 <b>{{ calcData.accumulated.team_cut.toLocaleString("en-US").replace(/,/g, "'") }}</b>
               </q-item-section>
             </q-item>
-
             <q-item>
               <q-item-section avatar>
                 <q-icon name="diversity_1" color="primary" />
