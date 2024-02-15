@@ -103,7 +103,7 @@
         <div>
           <a href="https://twitter.com/boidcom">
             <img
-              src="../assets/Twitter.svg"
+              src="../assets/x-logo-white.png"
               alt=""
             >
           </a>

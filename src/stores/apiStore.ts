@@ -35,7 +35,7 @@ export const useApiStore = defineStore("apiStore", {
     boidContract: new BoidContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     eosioMsigContract: new EosioMsigContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     ipfsURL: ipfsEndpoints[0]?.[1] || "",
-    trpcURL: trpcEndpoints[2]?.[1] || "",
+    trpcURL: trpcEndpoints[0]?.[1] || "",
     trpcClient: null as any
   }),
   getters: {
