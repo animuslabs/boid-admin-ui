@@ -139,8 +139,7 @@ export const useTeamStore = defineStore({
           managers,
           min_pwr_tax_mult,
           owner_cut_mult,
-          url_safe_name,
-          meta
+          url_safe_name
         }
         console.log("Action data prepared:", action_data)
 

@@ -1,4 +1,4 @@
-import { DoubleYChartOptions } from "./interfaces"
+import { DoubleYChartOptions, BoidData, BoidAccData } from "./interfaces"
 import { useApiStore } from "src/stores/apiStore"
 import { computed } from "vue"
 
@@ -350,3 +350,25 @@ export const mintedBoidIDOptions:DoubleYChartOptions = {
     opacity: 1
   }
 }
+
+export const fetchCalculatorData = (
+  rounds:number,
+  basePowerPerRound:number,
+  stake:number,
+  userConfig:{
+    power:{
+      sponsor_tax_mult:number,
+      powered_stake_mult:number
+    },
+    mint:{
+      round_powered_stake_mult:number,
+      round_power_mult:number
+    }},
+  liveSim:boolean,
+  activeSponsor:boolean,
+  configAccount:{
+    min_pwr_tax_mult:number
+  }
+):Promise<BoidAccData> => trpcClient.value.GetCalculatedData.query({ rounds, basePowerPerRound, stake, userConfig, liveSim, activeSponsor, configAccount }).then((data:BoidAccData) => { return data })
+
+export const fetchBOIDtokenData = ():Promise<BoidData> => trpcClient.value.GetBOIDtokenInfo.query().then((data:BoidData) => { return data })

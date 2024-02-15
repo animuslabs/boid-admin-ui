@@ -47,10 +47,23 @@
           <q-btn
             flat
             dense
-            @click="$router.push('/tools')"
           >
             Tools
+            <q-icon name="arrow_drop_down" />
+
+            <q-menu>
+              <q-list>
+                <q-item clickable v-close-popup @click="$router.push('/calculator')">
+                  <q-item-section>Calculator</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="$router.push('/keys-gen')">
+                  <q-item-section>Keys Generator</q-item-section>
+                </q-item>
+                <!-- More tools as needed -->
+              </q-list>
+            </q-menu>
           </q-btn>
+
           <q-btn
             flat
             dense

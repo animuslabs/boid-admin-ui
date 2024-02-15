@@ -1,3 +1,5 @@
+import { Types } from "src/lib/boid-contract-structure.js"
+
 export interface AveragePowerData {
   date:string;
   boid_id:string;
@@ -141,4 +143,43 @@ export interface CombinedDataItem {
   power:number;
   balance:number;
   score:string;
+}
+
+export interface BoidData {
+  locked_BOID_EOS_IBC:string;
+  staked_BOID_Telos:string;
+  liquid_BOID_AlcorTelos:string;
+  liquid_BOID_DefiboxEOS:string;
+  boid_EOS_supply:string;
+  boid_TLOS_supply:string;
+  boid_max_total_supply:string;
+}
+
+export interface BoidAccData {
+  acc:Types.Account;
+  accumulated:MintObject;
+}
+
+export interface MintObject {
+  power_mint:number;
+  powered_stake_mint:number;
+  account_earned:number;
+  team_cut:number;
+  team_owner_earned:number;
+  overstake_mint:number;
+  total:number;
+}
+export interface CalcDataStructure {
+  acc:{
+    stake:{
+      self_staked:number;
+    };
+    power:{
+      rating:number;
+    };
+    team:{
+      team_cumulative_contribution:number;
+    };
+  };
+  accumulated:MintObject;
 }

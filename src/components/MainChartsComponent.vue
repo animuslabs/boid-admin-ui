@@ -279,7 +279,7 @@ const fetchlogpowerclaimData = async() => {
       props.fromDate,
       props.toDate
     )
-    const logpowerclaimdata:PwrClaimData[] = fetchedData.map((item) => ({
+    const logpowerclaimdata:PwrClaimData[] = fetchedData.map((item:any) => ({
       ...item,
       timeStamp: new Date(item.timeStamp)
     }))

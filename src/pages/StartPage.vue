@@ -42,20 +42,10 @@
 <script lang="ts" setup>
 import { computed } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
-import { useRouter } from "vue-router"
 
 const store = useSessionStore()
 const username = computed(() => store.username)
 console.log("username", username)
-const router = useRouter()
-const goToEditSettings = async() => {
-  try {
-    await router.push("settings")
-  } catch (err) {
-    // Handle the navigation error
-    console.error("Navigation failed:", err)
-  }
-}
 
 </script>
 
