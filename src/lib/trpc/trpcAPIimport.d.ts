@@ -116,14 +116,9 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         _meta:object;
         _ctx_out:object;
         _input_in:{
-            stake:number;
             rounds:number;
             basePowerPerRound:number;
-            liveSim:boolean;
-            activeSponsor:boolean;
-            configAccount:{
-                min_pwr_tax_mult:number;
-            };
+            stake:number;
             userConfig:{
                 power:{
                     sponsor_tax_mult:number;
@@ -133,17 +128,17 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
                     round_powered_stake_mult:number;
                     round_power_mult:number;
                 };
+            };
+            liveSim:boolean;
+            activeSponsor:boolean;
+            configAccount:{
+                min_pwr_tax_mult:number;
             };
         };
         _input_out:{
-            stake:number;
             rounds:number;
             basePowerPerRound:number;
-            liveSim:boolean;
-            activeSponsor:boolean;
-            configAccount:{
-                min_pwr_tax_mult:number;
-            };
+            stake:number;
             userConfig:{
                 power:{
                     sponsor_tax_mult:number;
@@ -153,14 +148,16 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
                     round_powered_stake_mult:number;
                     round_power_mult:number;
                 };
+            };
+            liveSim:boolean;
+            activeSponsor:boolean;
+            configAccount:{
+                min_pwr_tax_mult:number;
             };
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, {
-        acc:import("../../lib/types/boid-contract-structure.js").Types.Account;
-        accumulated:import("../../lib/calculator/calculator.js").MintObject;
-    }>;
+    }, any>;
     GetBOIDtokenInfo:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -174,7 +171,14 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
         _meta:object;
-    }, import("../../lib/types/calc-types.js").BoidData>;
+    }, {
+        tokenInfo:import("../../lib/types/calc-types.js").BoidData;
+        avTotals:{
+            averageStaked:number;
+            averagePower:number;
+            totalUsers:number;
+        };
+    }>;
 }>
 export type AppRouter = typeof appRouter;
 export {}

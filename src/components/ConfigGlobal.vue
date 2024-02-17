@@ -387,6 +387,9 @@
       </div>
     </q-card-section>
   </q-card>
+  <q-card class="q-mt-sm">
+    <InflationDataComponent :config="config" />
+  </q-card>
 </template>
 
 <script lang="ts" setup>
@@ -396,7 +399,7 @@ import { Types } from "lib/boid-contract-structure"
 import { configHints } from "lib/hints"
 import { toObject } from "src/lib/util"
 import { Name } from "@wharfkit/antelope"
-import { fetchBOIDtokenData } from "src/lib/trpc/data"
+import InflationDataComponent from "src/components/InflationDataComponent.vue"
 
 const store = useConfigStore()
 const config = reactive({
@@ -498,11 +501,6 @@ onMounted(async() => {
   const fetchedConfig = await store.fetchConfig()
   if (!fetchedConfig || !fetchedConfig[0]) return
   if (fetchedConfig[0]) Object.assign(config, toObject(fetchedConfig[0]))
-})
-
-// to be changed
-onMounted(async() => {
-  console.log("BOID token data fetched", await fetchBOIDtokenData())
 })
 
 const handleSave = async() => {

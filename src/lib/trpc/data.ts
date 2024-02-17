@@ -371,4 +371,4 @@ export const fetchCalculatorData = (
   }
 ):Promise<BoidAccData> => trpcClient.value.GetCalculatedData.query({ rounds, basePowerPerRound, stake, userConfig, liveSim, activeSponsor, configAccount }).then((data:BoidAccData) => { return data })
 
-export const fetchBOIDtokenData = ():Promise<BoidData> => trpcClient.value.GetBOIDtokenInfo.query().then((data:BoidData) => { return data })
+export const fetchBOIDtokenData = ():Promise<{tokenInfo:BoidData, avTotals:{ averageStaked:number; averagePower:number; totalUsers:number }}> => trpcClient.value.GetBOIDtokenInfo.query()

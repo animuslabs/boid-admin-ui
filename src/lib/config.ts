@@ -45,7 +45,8 @@ export const TelosTestnetEndpoints:string[][] = [
 
 export const trpcEndpoints:string[][] = [
   ["Boid Mainnet", "https://powerapi.animus.is/api"],
-  ["Boid Testnet", "https://powerapi-testnet.animus.is/api"]
+  ["Boid Testnet", "https://powerapi-testnet.animus.is/api"],
+  ["Boid Local", "http://localhost:3000/api"]
 ]
 
 export const ipfsEndpoints:string[][] = [
