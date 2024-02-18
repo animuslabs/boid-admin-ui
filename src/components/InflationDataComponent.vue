@@ -4,8 +4,11 @@
       Inflation Simulator
       <q-icon color="primary" name="info">
         <q-tooltip>
-          This calculator estimates your BOID rewards based on stake and power, allowing you to simulate different parameters' impact.
-          Calculations are performed using a virtual blockchain machine that emulates the Boid core smart contract.
+          <p class="text-subtitle2" style="max-width: 400px;">
+            This simulator calculates the whole Boid network's inflation based on the number of users, their power, and stake.
+            Calculations are performed using a virtual blockchain machine that emulates the Boid core smart contract. It also uses live blockchain data.
+            Calculator loads the actual stake of chain when the page is loaded.
+          </p>
         </q-tooltip>
       </q-icon>
     </div>
@@ -14,9 +17,11 @@
         <div class="q-pa-md">
           <div class="q-ma-xs">
             <b>Number of Users</b>
-            <q-icon class="q-ml-xs" color="primary" name="group">
+            <q-icon class="q-ml-xs" color="primary" name="info">
               <q-tooltip>
-                Enter the number of users to calculate the total power and rewards distribution.
+                <p class="text-subtitle2" style="max-width: 400px;">
+                  Enter the number of users on the Boid network.
+                </p>
               </q-tooltip>
             </q-icon>
             <q-item>
@@ -32,7 +37,9 @@
             <b>Average User's Power Per Round (13h)</b>
             <q-icon class="q-ml-xs" color="primary" name="info">
               <q-tooltip>
-                The power per round is the amount of power you contribute to the Boid network every 13 hours. The more power you contribute, the more rewards you can earn.
+                <p class="text-subtitle2" style="max-width: 400px;">
+                  Average amount of power that each user contributes to the Boid network every 13 hours.
+                </p>
               </q-tooltip>
             </q-icon>
             <q-item>
@@ -65,8 +72,9 @@
             <b>Average BOID Stake</b>
             <q-icon class="q-ml-xs" color="primary" name="info">
               <q-tooltip>
-                The BOID stake is the amount of BOID tokens you have staked.
-                The more you stake, the more rewards you can earn. The maximum powered stake is calculated based on the power per round.
+                <p class="text-subtitle2" style="max-width: 400px;">
+                  Average BOID staked by Boid users.
+                </p>
               </q-tooltip>
             </q-icon>
             <q-item>
@@ -109,11 +117,38 @@
             <li><strong>Supply:</strong></li>
             <ul><strong>Total: </strong>{{ displayTokenData.totalBOIDsupply.toLocaleString("en-US").replace(/,/g, "'") }}</ul>
             <ul><strong>MAX:</strong> {{ displayTokenData.boid_max_total_supply.toLocaleString("en-US").replace(/,/g, "'") }}</ul>
-            <li><strong>Staked:</strong> {{ displayTokenData.staked_BOID_Telos.toLocaleString("en-US").replace(/,/g, "'") }} ({{ displayTokenData.stakedPercentageOfTotal.toFixed(2) }}%)</li>
+            <li>
+              <strong>Staked:</strong> {{ displayTokenData.staked_BOID_Telos.toLocaleString("en-US").replace(/,/g, "'") }} ({{ displayTokenData.stakedPercentageOfTotal.toFixed(2) }}%)
+              <q-icon class="q-ml-xs" color="primary" name="info">
+                <q-tooltip>
+                  <p class="text-subtitle2" style="max-width: 400px;">
+                    All staked BOID located on the Telos Native blockchain in stake.boid account.
+                  </p>
+                </q-tooltip>
+              </q-icon>
+            </li>
             <li><strong>DEX Liquid:</strong> {{ displayTokenData.boid_liquid_onDEXes.toLocaleString("en-US").replace(/,/g, "'") }} ({{ displayTokenData.boid_liquid_onDEXes_percentage.toFixed(2) }}%)</li>
-            <li><strong>Burned:</strong> {{ displayTokenData.burned.toLocaleString("en-US").replace(/,/g, "'") }}</li>
+            <li>
+              <strong>Burned:</strong> {{ displayTokenData.burned.toLocaleString("en-US").replace(/,/g, "'") }}
+              <q-icon class="q-ml-xs" color="primary" name="info">
+                <q-tooltip>
+                  <p class="text-subtitle2" style="max-width: 400px;">
+                    Burned BOID tokens located on the Telos Native blockchain in the burn.boid account.
+                  </p>
+                </q-tooltip>
+              </q-icon>
+            </li>
             <li><strong>Mint Account Status:</strong></li>
-            <ul><b>BOID:</b> {{ displayTokenData.toBeMinted.toLocaleString("en-US").replace(/,/g, "'") }}</ul>
+            <ul>
+              <b>BOID:</b> {{ displayTokenData.toBeMinted.toLocaleString("en-US").replace(/,/g, "'") }}
+              <q-icon class="q-ml-xs" color="primary" name="info">
+                <q-tooltip>
+                  <p class="text-subtitle2" style="max-width: 400px;">
+                    tknmint.boid on the Telos Native blockchain is the account that distributes new BOID tokens.
+                  </p>
+                </q-tooltip>
+              </q-icon>
+            </ul>
             <ul><strong>Projected to cover {{ daysUntilReplenishment.toFixed(0) }} days</strong></ul>
             <q-separator />
           </div>
@@ -163,10 +198,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed, onMounted, reactive, defineProps } from "vue"
+import { ref, Ref, computed, onMounted, defineProps } from "vue"
 import { fetchCalculatorData, fetchBOIDtokenData } from "src/lib/trpc/data"
 import { useConfigStore } from "stores/configStore"
-import { toObject } from "src/lib/util"
 import { CalcDataStructure, BoidData } from "src/lib/trpc/interfaces"
 
 const store = useConfigStore()
