@@ -1,13 +1,3 @@
-<style lang="sass">
-.q-expansion-item
-  padding: 8px
-  margin:4px
-  width:300px
-  background: $grey-1
-.q-input
-  padding-bottom:10px
-</style>
-
 <template>
   <q-card class="my-card">
     <q-card-section>
@@ -27,6 +17,15 @@
         href="https://new.docs.boid.com/boidcore/telos/tables/config.html"
         target="_blank"
       />
+      <q-btn v-if="configHasChanged" flat color="primary" icon="refresh" @click="refreshConfig">
+        <q-badge color="red" floating />
+        <q-tooltip>Get config from chain.</q-tooltip>
+      </q-btn>
+      <q-btn v-else flat color="primary" icon="refresh" :disable="true">
+        <q-tooltip>Only active when config changes are different than chain ones.</q-tooltip>
+      </q-btn>
+
+
       <div class="fit row wrap justify-center">
         <!-- Foldable Section -->
         <q-expansion-item
@@ -387,21 +386,25 @@
       </div>
     </q-card-section>
   </q-card>
-  <q-card class="q-mt-sm">
+  <q-card class="my-card q-mt-md">
     <InflationDataComponent :config="config" />
   </q-card>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, computed } from "vue"
+import { onMounted, reactive, computed, ref } from "vue"
 import { useConfigStore } from "stores/configStore"
 import { Types } from "lib/boid-contract-structure"
 import { configHints } from "lib/hints"
 import { toObject } from "src/lib/util"
 import { Name } from "@wharfkit/antelope"
 import InflationDataComponent from "src/components/InflationDataComponent.vue"
+import { isEqual } from "lodash"
 
 const store = useConfigStore()
+const initialConfig = ref(null) // To store the initial configuration
+const configHasChanged = computed(() => !isEqual(initialConfig.value, config))
+
 const config = reactive({
   account: {
     invite_price: 0,
@@ -496,11 +499,14 @@ const whitelistCollectionsComputed = computed({
     config.nft.whitelist_collections = newValue.split(",").map(str => str.trim())
   }
 })
-
-onMounted(async() => {
+const refreshConfig = async() => {
   const fetchedConfig = await store.fetchConfig()
   if (!fetchedConfig || !fetchedConfig[0]) return
   if (fetchedConfig[0]) Object.assign(config, toObject(fetchedConfig[0]))
+}
+onMounted(async() => {
+  await refreshConfig()
+  initialConfig.value = JSON.parse(JSON.stringify(config))
 })
 
 const handleSave = async() => {
@@ -517,9 +523,17 @@ const handleSave = async() => {
 
 
 </script>
-<style>
-.my-card {
-  min-width: 400px;
-  max-width: 800px;
-}
+<style lang="sass">
+.q-expansion-item
+  padding: 8px
+  margin:4px
+  width:300px
+  background: $grey-1
+.q-input
+  padding-bottom:10px
+
+.my-card
+  min-width: 400px
+  height: 100%
+  max-width: 100%
 </style>

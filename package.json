@@ -13,6 +13,8 @@
   "dependencies": {
     "@quasar/extras": "^1.16.8",
     "@trpc/client": "^10.44.1",
+    "@types/lodash": "^4.14.202",
+    "@types/lodash.isequal": "^4.5.8",
     "@wharfkit/contract": "^1.1.4",
     "@wharfkit/session": "^1.2.6",
     "@wharfkit/signing-request": "^3.1.0",
@@ -20,6 +22,7 @@
     "@wharfkit/web-renderer": "^1.2.2",
     "apexcharts": "^3.45.0",
     "buffer": "^6.0.3",
+    "lodash": "^4.17.21",
     "pinia": "^2.0.11",
     "quasar": "^2.14.1",
     "tslib": "^2.1.0",
