@@ -198,12 +198,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed, onMounted, defineProps } from "vue"
+import { ref, Ref, computed, onMounted } from "vue"
 import { fetchCalculatorData, fetchBOIDtokenData } from "src/lib/trpc/data"
-import { useConfigStore } from "stores/configStore"
 import { CalcDataStructure, BoidData } from "src/lib/trpc/interfaces"
 
-const store = useConfigStore()
 const props = defineProps({
   config: Object
 })

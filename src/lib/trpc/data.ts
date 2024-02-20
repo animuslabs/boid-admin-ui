@@ -1,16 +1,54 @@
-import { DoubleYChartOptions, BoidData, BoidAccData } from "./interfaces"
+import { DoubleYChartOptions, BoidData, BoidAccData, DeltasDataItem, CombinedDataItem } from "./interfaces"
+import { PwrClaimData } from "./api4DeltasTypes"
 import { useApiStore } from "src/stores/apiStore"
 import { computed } from "vue"
 
 const apiStore = useApiStore()
 const trpcClient = computed(() => apiStore.trpcClient)
 
-
 export const fetchGetDeltasBoidIDData = (
   boid_id:string,
   from:string,
   to:string
-) => trpcClient.value.GetDeltasBoidID.query({ boid_id, from, to })
+):Promise<DeltasDataItem[]> => trpcClient.value.GetDeltasBoidID.query({ boid_id, from, to })
+
+export const fetchGetCombinedData = (
+  boid_id:string,
+  from:string,
+  to:string
+):Promise<CombinedDataItem[]> => trpcClient.value.GetCombinedData.query({ boid_id, from, to })
+
+export const fetchGetLogPwrClaimData = (
+  boid_id:string,
+  from:string,
+  to:string
+):Promise<PwrClaimData[]> => trpcClient.value.GetLogPwrClaim.query({ boid_id, from, to })
+
+export const fetchCalculatorData = (
+  rounds:number,
+  basePowerPerRound:number,
+  stake:number,
+  userConfig:{
+    power:{
+      sponsor_tax_mult:number,
+      powered_stake_mult:number
+    },
+    mint:{
+      round_powered_stake_mult:number,
+      round_power_mult:number
+    }},
+  liveSim:boolean,
+  activeSponsor:boolean,
+  configAccount:{
+    min_pwr_tax_mult:number
+  }
+):Promise<BoidAccData> => trpcClient.value.GetCalculatedData.query({ rounds, basePowerPerRound, stake, userConfig, liveSim, activeSponsor, configAccount }).then((data:BoidAccData) => { return data })
+
+export const fetchBOIDtokenData = ():Promise<
+  {tokenInfo:BoidData, avTotals:{ averageStaked:number; averagePower:number; totalUsers:number }}
+> => trpcClient.value.GetBOIDtokenInfo.query()
+
+
 export const boidIDstakePowerOptions:DoubleYChartOptions = {
   colors: ["#004573", "#47EEB2", "#33B3E6", "#F04A68"], // darker blue, green
   chart: {
@@ -88,12 +126,6 @@ export const boidIDstakePowerOptions:DoubleYChartOptions = {
     opacity: 1
   }
 }
-
-export const fetchGetCombinedData = (
-  boid_id:string,
-  from:string,
-  to:string
-) => trpcClient.value.GetCombinedData.query({ boid_id, from, to })
 export const combinedDataOptions:DoubleYChartOptions = {
   colors: ["#004573", "#47EEB2", "#33B3E6", "#F04A68"], // darker blue, orange, yellow, green
   chart: {
@@ -209,11 +241,7 @@ export const combinedDataOptions:DoubleYChartOptions = {
   }
 }
 
-export const fetchGetLogPwrClaimData = (
-  boid_id:string,
-  from:string,
-  to:string
-) => trpcClient.value.GetLogPwrClaim.query({ boid_id, from, to })
+
 export const logPwrClaimOptions:DoubleYChartOptions = {
   colors: ["#004573", "#47EEB2", "#33B3E6", "#F04A68", "#0000FF", "#FF4500", "#32CD32", "#8A2BE2", "#A52A2A", "#DEB887"],
   chart: {
@@ -351,24 +379,4 @@ export const mintedBoidIDOptions:DoubleYChartOptions = {
   }
 }
 
-export const fetchCalculatorData = (
-  rounds:number,
-  basePowerPerRound:number,
-  stake:number,
-  userConfig:{
-    power:{
-      sponsor_tax_mult:number,
-      powered_stake_mult:number
-    },
-    mint:{
-      round_powered_stake_mult:number,
-      round_power_mult:number
-    }},
-  liveSim:boolean,
-  activeSponsor:boolean,
-  configAccount:{
-    min_pwr_tax_mult:number
-  }
-):Promise<BoidAccData> => trpcClient.value.GetCalculatedData.query({ rounds, basePowerPerRound, stake, userConfig, liveSim, activeSponsor, configAccount }).then((data:BoidAccData) => { return data })
 
-export const fetchBOIDtokenData = ():Promise<{tokenInfo:BoidData, avTotals:{ averageStaked:number; averagePower:number; totalUsers:number }}> => trpcClient.value.GetBOIDtokenInfo.query()

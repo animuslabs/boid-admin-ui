@@ -133,8 +133,16 @@ export interface DeltasDataItem {
   selfStaked:number;
   power:number;
   receivedDelegatedStake:number;
-  [key:string]:string | number;
 }
+export interface DeltasDataItemWithDateObject extends Omit<DeltasDataItem, "timeStamp"> {
+  timeStamp:Date;
+}
+
+export interface StakingData extends DeltasDataItemWithDateObject {
+  powered_stake:number;
+  max_powered_stake:number;
+}
+
 
 export interface CombinedDataItem {
   date:string;
@@ -144,6 +152,7 @@ export interface CombinedDataItem {
   balance:number;
   score:string;
 }
+
 
 export interface BoidData {
   locked_BOID_EOS_IBC:string;

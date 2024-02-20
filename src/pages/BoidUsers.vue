@@ -1,5 +1,5 @@
 <template>
-  <q-page class="row items-center justify-evenly">
+  <q-page class="row items-center justify-evenly height:100%">
     <div v-if="isLoading">
       Loading...
     </div>
@@ -16,8 +16,8 @@
         <label for="to-date">To: </label>
         <input type="date" id="to-date" v-model="toDate">
 
-        <q-btn @click="manualFetchData">
-          Show graph data
+        <q-btn @click="manualFetchData" color="primary">
+          Load Charts
         </q-btn>
       </div>
       <q-bar :style="{ backgroundColor: 'var(--ltbeige)' }">
@@ -39,16 +39,16 @@
               {{ props.row.boid_id }}
             </q-td>
             <q-td
-              key="eosAccount"
-              :props="props"
-            >
-              {{ props.row.meta.text.eosAccount }}
-            </q-td>
-            <q-td
               key="telosAccount"
               :props="props"
             >
               {{ props.row.meta.text.telosAccount }}
+            </q-td>
+            <q-td
+              key="owners"
+              :props="props"
+            >
+              {{ props.row.owners }}
             </q-td>
             <q-td
               key="powered_stake"
@@ -67,9 +67,25 @@
       </q-table>
     </div>
     <q-card v-show="showCharts" class="q-mt-md">
-      <!-- <q-card class="q-mt-md"> -->
-      <ChartsComponent
-        ref="chartsComponentRef"
+      <StakingChartComponent
+        class="q-ma-sm"
+        ref="stakingChartsComponentRef"
+        :boid-id="selectedBoidId"
+        :from-date="fromDate"
+        :to-date="toDate"
+      />
+      <q-separator />
+      <TokensMintedChartComponent
+        class="q-ma-sm"
+        ref="mintChartsComponentRef"
+        :boid-id="selectedBoidId"
+        :from-date="fromDate"
+        :to-date="toDate"
+      />
+      <q-separator />
+      <PowerChartComponent
+        class="q-ma-sm"
+        ref="powerChartsComponentRef"
         :boid-id="selectedBoidId"
         :from-date="fromDate"
         :to-date="toDate"
@@ -83,11 +99,11 @@ import { onMounted, ref, computed, Ref, watch } from "vue"
 import { userStore } from "src/stores/usersStore"
 import { AccountRowData } from "src/lib/types"
 import { storeToRefs } from "pinia"
-import ChartsComponent from "src/components/MainChartsComponent.vue"
-import { useApiStore } from "src/stores/apiStore"
+import StakingChartComponent from "src/components/StakingChartComponent.vue"
+import TokensMintedChartComponent from "src/components/TokensMintedChartComponent.vue"
+import PowerChartComponent from "src/components/PowerChartComponent.vue"
 
 const store = userStore()
-const apiStore = useApiStore()
 const { isLoading, organizedData: organizedDataRaw } = storeToRefs(store)
 const organizedData = organizedDataRaw as Ref<AccountRowData[]>
 const search = ref("")
@@ -103,15 +119,21 @@ const fromDate = ref(store.fromDate)
 const toDate = ref(store.toDate)
 
 // for the button to manually fetch data
-const chartsComponentRef = ref()
+const mintChartsComponentRef = ref()
+const powerChartsComponentRef = ref()
+const stakingChartsComponentRef = ref()
 const showCharts = ref(false)
 const manualFetchData = async() => {
-  if (chartsComponentRef.value) {
-    await chartsComponentRef.value.manualFetch()
+  if (powerChartsComponentRef.value && mintChartsComponentRef.value && stakingChartsComponentRef.value) {
+    await mintChartsComponentRef.value.manualMintDataFetch()
+    await powerChartsComponentRef.value.manualPowerDataFetch()
+    await stakingChartsComponentRef.value.manualStakingDataFetch()
     showCharts.value = true
     console.log("Show Charts:", showCharts.value)
   }
 }
+
+
 watch(fromDate, (newDate) => {
   console.log("From date changed to:", newDate)
   store.setFromDate(newDate)
@@ -151,8 +173,8 @@ const filteredData = computed(() => {
     const searchLower = search.value.toLowerCase()
     return data.filter(row =>
       row.boid_id.toLowerCase().includes(searchLower) ||
-      row.meta.text.eosAccount.toLowerCase().includes(searchLower) ||
-      row.meta.text.telosAccount.toLowerCase().includes(searchLower)
+      row.meta.text.telosAccount.toLowerCase().includes(searchLower) ||
+      row.owners.toLowerCase().includes(searchLower)
     )
   }
 })
@@ -165,15 +187,15 @@ const columns = ref([
     sortable: true
   },
   {
-    name: "eosAccount",
-    label: "EOS Account",
-    field: (row:AccountRowData) => row.meta.text.eosAccount,
-    sortable: true
-  },
-  {
     name: "telosAccount",
     label: "Telos Account",
     field: (row:AccountRowData) => row.meta.text.telosAccount,
+    sortable: true
+  },
+  {
+    name: "owners",
+    label: "Owners",
+    field: (row:AccountRowData) => row.owners,
     sortable: true
   },
   {
@@ -192,13 +214,8 @@ const columns = ref([
 
 onMounted(async() => {
   await store.fetchAccTableData()
-  console.log("Store State:", store.$state.organizedDataRaw)
+  // console.log("Store State:", store.$state.organizedDataRaw)
   console.log("Data fetched:", store.organizedData)
-  console.log("Type of organizedData:", typeof store.organizedData)
-  console.log("Is organizedData an array?:", Array.isArray(store.organizedData))
-  console.log("Telos API: ", apiStore.getUrlForChain("Telos"))
-  console.log("EOS API: ", apiStore.getUrlForChain("EOS"))
-  console.log("Telos Testnet API: ", apiStore.getUrlForChain("Telos Testnet"))
 })
 
 
@@ -212,4 +229,5 @@ onMounted(async() => {
 .selected-row {
   background-color: $ltpurple;
 }
+
 </style>
