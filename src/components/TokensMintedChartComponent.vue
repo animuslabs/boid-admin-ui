@@ -7,7 +7,7 @@ import { ref, nextTick } from "vue"
 import { storeToRefs } from "pinia"
 import { userStore } from "src/stores/usersStore"
 import { fetchGetLogPwrClaimData } from "src/lib/trpc/data"
-import { PwrClaimData } from "src/lib/trpc/api4DeltasTypes"
+import { PwrClaimData } from "src/types/types"
 import * as echarts from "echarts"
 import { customTheme } from "src/lib/echarts-theme"
 

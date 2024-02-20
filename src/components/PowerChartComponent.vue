@@ -7,8 +7,7 @@ import { ref, nextTick } from "vue"
 import { storeToRefs } from "pinia"
 import { userStore } from "src/stores/usersStore"
 import { fetchGetLogPwrClaimData, fetchGetCombinedData } from "src/lib/trpc/data"
-import { CombinedDataItem } from "src/lib/trpc/interfaces"
-import { PwrClaimData } from "src/lib/trpc/api4DeltasTypes"
+import { CombinedDataItem, PwrClaimData } from "src/types/types"
 import * as echarts from "echarts"
 import { customTheme } from "src/lib/echarts-theme"
 
@@ -124,7 +123,7 @@ async function manualPowerDataFetch() {
 .echart-container {
   min-height: 400px;
   min-width: 400px;
-  height: 600px;
+  height: 800px;
   width: 800px;
 }
 </style>

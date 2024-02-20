@@ -1,6 +1,6 @@
 import { sha256 } from "hash.js"
 import { PrivateKey, Bytes, KeyType } from "@wharfkit/antelope"
-import { KeyPair } from "src/lib/types"
+import { KeyPair } from "src/types/types-stores"
 
 export function generateKey(boidIdInput:string, emailInput:string, boidIdPw:string):KeyPair {
   // Combine inputs and convert them to lowercase

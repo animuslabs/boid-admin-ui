@@ -3,7 +3,7 @@ import { TelosEndpoints, EOSendpoints, TelosTestnetEndpoints, ipfsEndpoints, trp
 import { APIClient } from "@wharfkit/antelope"
 import { Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract } from "src/lib/eosio-msig-contract-telos-mainnet"
-import { ContractFactory } from "src/lib/types"
+import { ContractFactory } from "src/types/types-stores"
 import { createTRPCProxyClient, httpLink } from "@trpc/client"
 import HRouter from "src/lib/trpc/trpcAPIimport"
 

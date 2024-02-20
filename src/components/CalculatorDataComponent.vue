@@ -283,7 +283,7 @@ import { ref, computed, onMounted, reactive } from "vue"
 import { fetchCalculatorData } from "src/lib/trpc/data"
 import { useConfigStore } from "stores/configStore"
 import { toObject } from "src/lib/util"
-import { CalcDataStructure } from "src/lib/trpc/interfaces"
+import { CalcDataStructure } from "src/types/types"
 
 const store = useConfigStore()
 const config = reactive({

@@ -39,7 +39,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("./api4DeltasTypes.js").AccountsDeltaData[]>;
+    }, import("../../types/api4DeltasTypes.js").AccountsDeltaData[]>;
     GetLogPwrClaim:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -61,7 +61,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("./api4DeltasTypes.js").PwrClaimData[]>;
+    }, import("../../types/api4DeltasTypes.js").PwrClaimData[]>;
     GetCombinedData:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -83,7 +83,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("./api4DeltasTypes.js").CombinedResponse[]>;
+    }, import("../../types/api4DeltasTypes.js").CombinedResponse[]>;
     GetGlobalDeltas:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -105,7 +105,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("./api4DeltasTypes.js").GlobalDeltaResponse[]>;
+    }, import("../../types/api4DeltasTypes.js").GlobalDeltaResponse[]>;
     GetCalculatedData:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;

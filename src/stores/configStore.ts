@@ -4,7 +4,7 @@ import { createAction, fetchDataFromTable } from "src/lib/contracts"
 import { ActionParams, Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { TransactResult } from "@wharfkit/session"
-import { DeserializedTeam } from "src/lib/types"
+import { DeserializedTeam } from "src/types/types-stores"
 import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
 

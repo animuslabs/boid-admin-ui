@@ -7,7 +7,7 @@ import { ref, nextTick } from "vue"
 import { storeToRefs } from "pinia"
 import { userStore } from "src/stores/usersStore"
 import { fetchGetDeltasBoidIDData } from "src/lib/trpc/data"
-import { DeltasDataItem, StakingData } from "src/lib/trpc/interfaces"
+import { DeltasDataItem, StakingData } from "src/types/types"
 import * as echarts from "echarts"
 import { customTheme } from "src/lib/echarts-theme"
 import { useConfigStore } from "src/stores/configStore"
@@ -127,7 +127,7 @@ async function manualStakingDataFetch() {
 .echart-container {
   min-height: 400px;
   min-width: 400px;
-  height: 600px;
+  height: 800px;
   width: 800px;
 }
 </style>

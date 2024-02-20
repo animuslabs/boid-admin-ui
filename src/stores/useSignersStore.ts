@@ -1,6 +1,6 @@
 
 import { defineStore } from "pinia"
-import { Signer } from "src/lib/types"
+import { Signer } from "src/types/types-stores"
 export const useSignersStore = defineStore("signers", {
   state: () => ({
     signers: [

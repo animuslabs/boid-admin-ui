@@ -1,72 +1,75 @@
 <template>
-  <q-page class="row items-center justify-evenly height:100%">
-    <div v-if="isLoading">
-      Loading...
-    </div>
-    <div v-else>
-      <div class="date-selection q-pa-md">
-        <q-input
-          filled
-          v-model="search"
-          placeholder="Search by BOID ID"
-          debounce="300"
-        />
-        <label for="from-date">From: </label>
-        <input type="date" id="from-date" v-model="fromDate">
-        <label for="to-date">To: </label>
-        <input type="date" id="to-date" v-model="toDate">
-
-        <q-btn @click="manualFetchData" color="primary">
-          Load Charts
-        </q-btn>
+  <q-page class="row height:100%">
+    <q-card class="q-ma-md">
+      <div v-if="isLoading">
+        Loading...
       </div>
-      <q-bar :style="{ backgroundColor: 'var(--ltbeige)' }">
-        <span v-if="!selectedBoidId">Choose your boid_id in the table and set the date range.</span>
-        <span v-if="selectedBoidId">{{ selectedInfo }}</span>
-      </q-bar>
-      <q-table
-        :rows="filteredData"
-        :columns="columns"
-        :pagination="pagination"
-        row-key="boid_id"
-      >
-        <template #body="props">
-          <q-tr :props="props" :class="{ 'selected-row': props.row.boid_id === selectedBoidId }" @click="selectRow(props.row.boid_id)">
-            <q-td
-              key="boid_id"
-              :props="props"
-            >
-              {{ props.row.boid_id }}
-            </q-td>
-            <q-td
-              key="telosAccount"
-              :props="props"
-            >
-              {{ props.row.meta.text.telosAccount }}
-            </q-td>
-            <q-td
-              key="owners"
-              :props="props"
-            >
-              {{ props.row.owners }}
-            </q-td>
-            <q-td
-              key="powered_stake"
-              :props="props"
-            >
-              {{ props.row.powered_stake }}
-            </q-td>
-            <q-td
-              key="max_powered_stake"
-              :props="props"
-            >
-              {{ props.row.max_powered_stake }}
-            </q-td>
-          </q-tr>
-        </template>
-      </q-table>
-    </div>
-    <q-card v-show="showCharts" class="q-mt-md">
+      <div v-else>
+        <div class="date-selection q-pa-md">
+          <q-input
+            filled
+            v-model="search"
+            placeholder="Search by BOID ID"
+            debounce="300"
+          />
+          <label for="from-date">From: </label>
+          <input type="date" id="from-date" v-model="fromDate">
+          <label for="to-date">To: </label>
+          <input type="date" id="to-date" v-model="toDate">
+
+          <q-btn @click="manualFetchData" color="primary">
+            Charts
+          </q-btn>
+        </div>
+        <q-bar :style="{ backgroundColor: 'var(--ltbeige)' }">
+          <span v-if="!selectedBoidId">Choose your boid_id in the table and set the date range.</span>
+          <span v-if="selectedBoidId">{{ selectedInfo }}</span>
+        </q-bar>
+        <q-table
+          :rows="filteredData"
+          :columns="columns"
+          :pagination="pagination"
+          dense
+          row-key="boid_id"
+        >
+          <template #body="props">
+            <q-tr :props="props" :class="{ 'selected-row': props.row.boid_id === selectedBoidId }" @click="selectRow(props.row.boid_id)">
+              <q-td
+                key="boid_id"
+                :props="props"
+              >
+                {{ props.row.boid_id }}
+              </q-td>
+              <q-td
+                key="telosAccount"
+                :props="props"
+              >
+                {{ props.row.meta.text.telosAccount }}
+              </q-td>
+              <q-td
+                key="owners"
+                :props="props"
+              >
+                {{ props.row.owners }}
+              </q-td>
+              <q-td
+                key="powered_stake"
+                :props="props"
+              >
+                {{ props.row.powered_stake }}
+              </q-td>
+              <q-td
+                key="max_powered_stake"
+                :props="props"
+              >
+                {{ props.row.max_powered_stake }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
+    </q-card>
+    <q-card v-show="showCharts" class="q-ma-md">
       <StakingChartComponent
         class="q-ma-sm"
         ref="stakingChartsComponentRef"
@@ -74,7 +77,9 @@
         :from-date="fromDate"
         :to-date="toDate"
       />
-      <q-separator />
+    </q-card>
+    <q-separator />
+    <q-card v-show="showCharts" class="q-ma-md">
       <TokensMintedChartComponent
         class="q-ma-sm"
         ref="mintChartsComponentRef"
@@ -82,7 +87,8 @@
         :from-date="fromDate"
         :to-date="toDate"
       />
-      <q-separator />
+    </q-card>
+    <q-card v-show="showCharts" class="q-ma-md">
       <PowerChartComponent
         class="q-ma-sm"
         ref="powerChartsComponentRef"
@@ -97,7 +103,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, Ref, watch } from "vue"
 import { userStore } from "src/stores/usersStore"
-import { AccountRowData } from "src/lib/types"
+import { AccountRowData } from "src/types/types-stores"
 import { storeToRefs } from "pinia"
 import StakingChartComponent from "src/components/StakingChartComponent.vue"
 import TokensMintedChartComponent from "src/components/TokensMintedChartComponent.vue"

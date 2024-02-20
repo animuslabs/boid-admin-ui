@@ -3,7 +3,7 @@ import { fetchDataFromTable } from "src/lib/contracts"
 import { Types, Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Bytes } from "@wharfkit/antelope"
-import { ParsedAccountMeta, AccountRowData, AccountMeta } from "src/lib/types"
+import { ParsedAccountMeta, AccountRowData, AccountMeta } from "src/types/types-stores"
 import { useConfigStore } from "src/stores/configStore"
 import { useApiStore } from "src/stores/apiStore"
 

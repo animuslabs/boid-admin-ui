@@ -66,7 +66,7 @@
 <script lang="ts" setup>
 import { ref } from "vue"
 import { generateKey } from "src/lib/keyGenerator"
-import { KeyPair } from "src/lib/types"
+import { KeyPair } from "src/types/types-stores"
 
 const boidIdInput = ref("")
 const emailInput = ref("")
@@ -112,3 +112,4 @@ const openInExplorer = () => {
   height: 100%;
 }
 </style>
+src/lib/types-stores

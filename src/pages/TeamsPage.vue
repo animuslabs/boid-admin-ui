@@ -399,7 +399,7 @@ import { onMounted, computed, ref, reactive } from "vue"
 import { useTeamStore } from "../stores/teamsStore"
 import { stringToBytes } from "../lib/reuseFunctions"
 import { QTableColumn } from "quasar"
-import { DeserializedTeam, TeamMeta } from "../lib/types"
+import { DeserializedTeam, TeamMeta } from "src/types/types-stores"
 import { useApiStore } from "../stores/apiStore"
 import { teamHints } from "lib/hints"
 
@@ -632,3 +632,4 @@ const saveEdit = async() => {
   overflow-wrap: break-word; /* Break lines within words if necessary */
 }
 </style>
+../lib/types-stores

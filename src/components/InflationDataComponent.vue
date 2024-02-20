@@ -200,7 +200,7 @@
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted } from "vue"
 import { fetchCalculatorData, fetchBOIDtokenData } from "src/lib/trpc/data"
-import { CalcDataStructure, BoidData } from "src/lib/trpc/interfaces"
+import { CalcDataStructure, BoidData } from "src/types/types"
 
 const props = defineProps({
   config: Object
