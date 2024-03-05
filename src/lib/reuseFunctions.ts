@@ -72,3 +72,18 @@ export function serializeActionData(action:any, abi:ABI) {
     throw error
   }
 }
+
+export function getFormattedDatePlus7DaysAtMidnightPlusOne() {
+  const datePlus7Days = new Date()
+  datePlus7Days.setDate(datePlus7Days.getDate() + 7) // Add 7 days to the current date
+
+  // Set time to 00:01
+  datePlus7Days.setHours(0, 1, 0, 0) // Sets hours and minutes to "00" and "01" respectively, and seconds and milliseconds to "0"
+
+  const year = datePlus7Days.getFullYear()
+  const month = String(datePlus7Days.getMonth() + 1).padStart(2, "0") // getMonth() is zero-based
+  const day = String(datePlus7Days.getDate()).padStart(2, "0")
+
+  // Since the time is fixed at 00:01, it's not necessary to dynamically generate the time part
+  return `${year}-${month}-${day} 00:01`
+}

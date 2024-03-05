@@ -47,6 +47,13 @@
           <q-btn
             flat
             dense
+            @click="$router.push('/payroll')"
+          >
+            Payroll
+          </q-btn>
+          <q-btn
+            flat
+            dense
           >
             Tools
             <q-icon name="arrow_drop_down" />

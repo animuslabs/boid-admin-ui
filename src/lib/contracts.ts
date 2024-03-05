@@ -1,6 +1,13 @@
 import { Name } from "@wharfkit/antelope"
 import { useSessionStore } from "src/stores/sessionStore"
 import { ActionNameParams, Contract as BoidContract, TableNames, RowType, ActionNames, abi as boidABI } from "src/lib/boid-contract-structure"
+import {
+  Contract as PayrollContract,
+  RowType as RowTypePayroll,
+  TableNames as TableNamesPayroll,
+  ActionNameParams as ActionNamePayrollParams,
+  ActionNames as ActionPayrollNames
+} from "src/lib/payroll.boid"
 import { Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
 import { TransactResult, ABI, TimePointSec } from "@wharfkit/session"
 import { useSignersStore } from "src/stores/useSignersStore"
@@ -70,6 +77,18 @@ export async function fetchDataFromTable<T extends TableNames>(contract:BoidCont
   }
 }
 
+
+export async function fetchDataFromPayrollTable<T extends TableNamesPayroll>(contract:PayrollContract, tableName:T):Promise<RowTypePayroll<T>[] | undefined> {
+  try {
+    const tableData:RowTypePayroll<T>[] = await contract.table(tableName).query().all()
+    console.log(`Data fetched from ${tableName}:`, tableData)
+    return tableData
+  } catch (error:any) {
+    console.error(`Error fetching data from ${tableName}:`, error)
+    throw error
+  }
+}
+
 export async function createAction<A extends ActionNames>(
   actionName:A,
   action_data:ActionNameParams[A]
@@ -117,6 +136,61 @@ export async function createAction<A extends ActionNames>(
     throw error
   }
 }
+
+// Define a type for action descriptors
+export type ActionDescriptor = {
+  actionName:ActionPayrollNames;
+  action_data:ActionNamePayrollParams[ActionPayrollNames];
+};
+
+export async function createPayrollActions(
+  actionDescriptors:ActionDescriptor[]
+):Promise<TransactResult | undefined> {
+  console.log("createActions called with", actionDescriptors)
+  let isItMultiSignMode = sessionStore.multiSignState
+
+  try {
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+
+    // Construct actions for session.transact or multi-sign
+    const actions = actionDescriptors.map(descriptor => {
+      return apiStore.payrollContract.action(descriptor.actionName, descriptor.action_data)
+    })
+
+    let result
+    if (isItMultiSignMode) {
+      // Prepare actions for multi-signature transaction
+      const multiSignActions = actionDescriptors.map(descriptor => {
+        // eslint-disable-next-line new-cap
+        return new TypesMultiSign.action({
+          account: "payroll.boid",
+          name: descriptor.actionName,
+          authorization: [{
+            actor: Name.from("payroll.boid"),
+            permission: Name.from("owner")
+          }],
+          data: descriptor.action_data
+        })
+      })
+
+      console.log("Executing actions in multi-sign mode...")
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted, multiSignActions)
+    } else {
+      // Execute a regular transaction with the prepared actions
+      console.log("Transacting actions...")
+      result = await session.transact({ actions })
+    }
+
+    console.log("Transaction result:", result)
+    notifyEvent.emit("TrxResult", result)
+    return result
+  } catch (error) {
+    console.error("Error in createActions:", error)
+    throw error
+  }
+}
+
 
 export async function createAndExecuteMultiSignProposal(
   reqSignAccs:TypesMultiSign.permission_level[],

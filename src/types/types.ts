@@ -1,4 +1,7 @@
 import { Types } from "src/lib/boid-contract-structure.js"
+import { stringToBytes, bytesToJson } from "../lib/reuseFunctions"
+import { Bytes } from "@wharfkit/antelope"
+
 export interface AccountsDeltaData {
   timeStamp:Date;
   boid_id:string;
@@ -95,101 +98,6 @@ export interface AccountsDeltasInterface {
   }[];
 }
 
-export interface ChartOptions {
-  chart:{
-    id:string;
-  };
-  title:{
-    text:string;
-    align:string;
-  };
-  xaxis:{
-    categories:string[];
-    title:{
-      text:string;
-      style:{
-        fontSize:string;
-        fontWeight:string;
-      };
-    };
-  };
-  yaxis:{
-    labels:{
-      formatter:(value:number) =>number;
-    };
-    title:{
-      text:string;
-      style:{
-        fontSize:string;
-        fontWeight:string;
-      };
-    };
-  };
-  stroke:{
-    width:number;
-    curve:string;
-  };
-  fill:{
-    type:string;
-    opacity:number;
-  };
-}
-
-export interface DoubleYChartOptions {
-  colors:string[];
-  chart:{
-    id:string;
-    stacked:boolean;
-    toolbar:{
-      show:boolean;
-    };
-  };
-  title:{
-    text:string;
-    align:string;
-  };
-  xaxis:{
-    categories:string[];
-    labels:{
-      rotate:number;
-      trim:boolean;
-    };
-    tickAmount:number;
-    title:{
-      text:string;
-      style:{
-        fontSize:string;
-        fontWeight:string;
-        color:string;
-      };
-    };
-  };
-  yaxis:Array<{
-    labels:{
-      formatter:(value:number) =>number;
-      style:{
-        colors:string;
-      };
-    };
-    title:{
-      text:string;
-      style:{
-        fontSize:string;
-        fontWeight:string;
-        color:string;
-      };
-    };
-    opposite?:boolean;
-  }>;
-  stroke:{
-    width:number;
-    curve:string;
-  };
-  fill:{
-    type:string;
-    opacity:number;
-  };
-}
 
 export interface MintDataReply {
   boid_id?:string;
@@ -267,4 +175,124 @@ export interface CalcDataStructure {
     };
   };
   accumulated:MintObject;
+}
+
+export class PayrollMeta {
+  socialMediaLinks:Record<string, string>
+  websiteLink:string
+  mediaImages:{
+      banner:string;
+      avatar:string;
+  }
+
+  text:string
+  title:string
+  docIPFSCIDs:string[]
+
+  constructor({
+    socialMediaLinks = {},
+    websiteLink = "",
+    mediaImages = { banner: "", avatar: "" },
+    text = "",
+    title = "",
+    docIPFSCIDs = [""]
+  } = {}) {
+    this.socialMediaLinks = socialMediaLinks
+    this.websiteLink = websiteLink
+    this.mediaImages = mediaImages
+    this.text = text
+    this.title = title
+    this.docIPFSCIDs = docIPFSCIDs
+  }
+
+  // Social Media Links
+  addSocialMediaLink(platform:string, link:string) {
+    this.socialMediaLinks[platform] = link
+  }
+
+  editSocialMediaLink(platform:string, newLink:string) {
+    if (this.socialMediaLinks[platform]) {
+      this.socialMediaLinks[platform] = newLink
+    }
+  }
+
+  removeSocialMediaLink(platform:string) {
+    delete this.socialMediaLinks[platform]
+  }
+
+  // Website Link
+  setWebsiteLink(link:string) {
+    this.websiteLink = link
+  }
+
+  // Media Images
+  setMediaImage(type:"banner" | "avatar", link:string) {
+    this.mediaImages[type] = link
+  }
+
+  // Text
+  setText(text:string) {
+    this.text = text
+  }
+
+  // Title
+  setTitle(title:string) {
+    this.title = title
+  }
+
+  // Document IPFS CIDs
+  addDocumentIPFSCID(cid:string) {
+    if (!this.docIPFSCIDs.includes(cid)) {
+      this.docIPFSCIDs.push(cid)
+    }
+  }
+
+  removeDocumentIPFSCID(cid:string) {
+    this.docIPFSCIDs = this.docIPFSCIDs.filter(item => item !== cid)
+  }
+
+  toJSONstring() {
+    return JSON.stringify({
+      socialMediaLinks: this.socialMediaLinks,
+      websiteLink: this.websiteLink,
+      mediaImages: this.mediaImages,
+      text: this.text,
+      title: this.title,
+      docIPFSCIDs: this.docIPFSCIDs
+    })
+  }
+
+  // Convert meta data to BytesType
+  toBytes() {
+    const metaString = this.toJSONstring()
+    return stringToBytes(metaString)
+  }
+
+  static async fromBytes(bytes:Bytes):Promise<PayrollMeta> {
+    const data = await bytesToJson<Partial<PayrollMeta>>(bytes)
+    return new PayrollMeta(data)
+  }
+}
+
+export interface PayrollConfigStructure {
+  total:string;
+  startTime:string;
+  finishTime:string;
+  receiverAccount:string;
+  treasuryAccount:string;
+  paused:boolean;
+}
+
+
+export interface PayrollDataItem extends PayrollConfigStructure {
+  id:number;
+  paid:string;
+  lastPayout:string;
+  minClaimFrequencySec:string;
+  meta:PayrollMeta;
+}
+
+export interface TokensWhitelistItem {
+  sym:string
+  contract:string
 }

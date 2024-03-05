@@ -3,6 +3,7 @@ import { TelosEndpoints, EOSendpoints, TelosTestnetEndpoints, ipfsEndpoints, trp
 import { APIClient } from "@wharfkit/antelope"
 import { Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { Contract as PayrollContract } from "src/lib/payroll.boid"
 import { ContractFactory } from "src/types/types-stores"
 import { createTRPCProxyClient, httpLink } from "@trpc/client"
 import HRouter from "src/lib/trpc/trpcAPIimport"
@@ -34,6 +35,7 @@ export const useApiStore = defineStore("apiStore", {
     clientAPI: new APIClient({ url: TelosEndpoints[0]?.[1] }),
     boidContract: new BoidContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     eosioMsigContract: new EosioMsigContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
+    payrollContract: new PayrollContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     ipfsURL: ipfsEndpoints[0]?.[1] || "",
     trpcURL: trpcEndpoints[0]?.[1] || "",
     trpcClient: null as any
