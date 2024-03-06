@@ -1,5 +1,5 @@
 <template>
-  <q-dialog>
+  <q-dialog v-model="dialogVisible">
     <q-card class="payrollForm">
       <q-card-section>
         <div class="text-h5">
@@ -11,16 +11,22 @@
           <div class="text-h6">
             Main details
           </div>
-          <q-input v-model="meta.title" label="Payroll Title" :rules="payrollTitleRule" />
-          <div class="row">
-            <q-input v-model="payrollConfig.total" label="Total Amount" type="text" :rules="totalAmountRule" />
-            <q-select v-model="selectedToken" :options="symOptions" label="Token" />
+          <q-input v-model="meta.title" label="Payroll Title" :rules="payrollTitleRule" dense />
+          <div class="q-gutter-md row justify-between">
+            <div class="row q-mr-sm">
+              <q-input v-model="payrollConfig.total" label="Total Amount" type="text" :rules="totalAmountRule" dense />
+              <q-select v-model="selectedToken" :options="symOptions" label="Token" dense />
+            </div>
+            <div class="row">
+              <q-input v-model="minClaimFrequency.value" label="Min Claim Frequency" type="number" dense />
+              <q-select v-model="minClaimFrequency.unit" :options="timeUnits" label="Unit" dense />
+            </div>
           </div>
 
           <div class="row">
             <div class="q-pa-md" style="max-width: 250px">
               <div>Start Time</div>
-              <q-input filled v-model="payrollConfig.startTime">
+              <q-input filled v-model="payrollConfig.startTime" dense>
                 <template #prepend>
                   <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -49,7 +55,7 @@
 
             <div class="q-pa-md row" style="max-width: 250px">
               <div>Finish Time</div>
-              <q-input filled v-model="payrollConfig.finishTime">
+              <q-input filled v-model="payrollConfig.finishTime" dense>
                 <template #prepend>
                   <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -76,37 +82,42 @@
               </q-input>
             </div>
           </div>
-          <div class="row">
-            <q-input v-model="minClaimFrequency.value" label="Min Claim Frequency" type="number" />
-            <q-select v-model="minClaimFrequency.unit" :options="timeUnits" label="Unit" />
+          <q-separator />
+          <div class="q-gutter-md q-mt-xs row justify-between">
+            <q-input v-model="payrollConfig.receiverAccount" label="Receiver Account" :rules="accountRule" dense />
+            <q-input v-model="payrollConfig.treasuryAccount" label="Treasury Account" :rules="accountRule" dense />
           </div>
-          <q-input v-model="payrollConfig.receiverAccount" label="Receiver Account" :rules="accountRule" />
-          <q-input v-model="payrollConfig.treasuryAccount" label="Treasury Account" :rules="accountRule" />
-          <q-checkbox v-model="payrollConfig.paused" label="Paused" />
-          <div class="q-mt-lg">
+          <q-checkbox v-model="payrollConfig.paused" label="Paused" class="q-mt-sm" />
+          <div class="q-mt-lg q-mb-md">
             <!-- Meta data inputs -->
             <div class="text-h6">
               Additional details
             </div>
 
-            <q-input v-model="meta.text" label="Meta Text" />
-            <div v-for="(link, platform) in meta.socialMediaLinks" :key="platform" class="q-mb-md">
-              <q-input v-model="meta.socialMediaLinks[platform]" :label="`Link for ${platform}`" />
-              <q-btn icon="delete" @click="() => removeSocialMediaLink(platform)" />
+            <q-input v-model="meta.text" label="Description" dense />
+            <div>
+              <div v-for="(link, platform) in meta.socialMediaLinks" :key="platform" class="q-mb-md">
+                <q-input v-model="meta.socialMediaLinks[platform]" :label="`Link for ${platform}`" />
+                <q-btn icon="delete" @click="() => removeSocialMediaLink(platform)" />
+              </div>
+              <q-input v-model="newPlatform" label="New Platform" dense />
+              <q-input v-model="newUrl" label="New Link URL" dense />
+
+              <q-btn label="Add Social Media Link" @click="addSocialMediaLink" flat class="q-my-sm bg-primary text-white" dense />
             </div>
-            <q-input v-model="newPlatform" label="New Platform" />
-            <q-input v-model="newUrl" label="New Link URL" />
-            <q-btn label="Add Social Media Link" @click="addSocialMediaLink" flat class="q-mb-md" />
-            <q-input v-model="meta.websiteLink" label="Website Link" />
-            <q-input v-model="meta.mediaImages.banner" label="Banner Image CID" />
-            <q-input v-model="meta.mediaImages.avatar" label="Avatar Image CID" />
+            <q-separator class="q-my-md" />
+            <q-input v-model="meta.websiteLink" label="Website Link" dense />
+            <q-input v-model="meta.mediaImages.banner" label="Banner Image CID" dense />
+            <q-input v-model="meta.mediaImages.avatar" label="Avatar Image CID" dense />
             <div v-for="(cid, index) in meta.docIPFSCIDs" :key="index" class="q-mb-md">
-              <q-input v-model="meta.docIPFSCIDs[index]" label="Document IPFS CID" />
-              <q-btn icon="delete" @click="removeCID(index)" />
+              <q-input v-model="meta.docIPFSCIDs[index]" label="Document IPFS CID" dense />
+              <q-btn icon="delete" label="remove IPFS CID" color="primary" @click="removeCID(index)" dense />
             </div>
-            <q-btn label="Add CID" @click="addCID" />
+            <q-btn label="Add another doc IPFS CID" color="primary" @click="addCID" class="q-mt-xs" dense />
           </div>
-          <q-btn label="Submit" type="submit" color="primary" />
+          <q-separator class="q-my-md" />
+          <q-btn icon="add" label="Add to bucket" type="submit" color="primary" class="q-mt-md" />
+          <q-btn label="Close" @click="dialogVisible = false" color="grey" class="q-mt-md q-ml-sm" />
         </q-form>
       </q-card-section>
     </q-card>
@@ -114,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, Ref, computed, defineProps, defineEmits, watch } from "vue"
+import { ref, onMounted, Ref, computed, defineProps, defineEmits } from "vue"
 import { Types as TypesPayroll, ActionParams } from "src/lib/payroll.boid"
 import { PayrollMeta, PayrollConfigStructure } from "src/types/types"
 import { usePayrollStore } from "src/stores/payrollStore"
@@ -122,6 +133,10 @@ import { TimePointSec } from "@wharfkit/session"
 import { Asset, Bytes } from "@wharfkit/antelope"
 import { getFormattedDatePlus7DaysAtMidnightPlusOne, bytesToJson } from "src/lib/reuseFunctions"
 import { ActionDescriptor } from "src/lib/contracts"
+import { useQuasar } from "quasar"
+
+const $q = useQuasar()
+const dialogVisible = ref(false)
 
 // rules
 const totalAmountRule = [
@@ -298,6 +313,11 @@ const submitAddPayrollForm = async() => {
   payrollStore.addDescriptor(actionDescriptor)
   console.log("Added new payroll:", actionDescriptor)
 
+  $q.notify({
+    type: "positive", // or 'info', 'warning' etc. based on context
+    message: "Payroll added to bucket successfully.",
+    icon: "check" // Optional: you can choose an icon
+  })
   // Emit an event to notify the parent component that a new payroll has been added
   emit("addedPayroll", actionDescriptor)
 }

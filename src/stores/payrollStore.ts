@@ -163,6 +163,9 @@ export const usePayrollStore = defineStore({
       }
       this.actionDescriptors.push(descriptor)
     },
+    clearAllDescriptors() {
+      this.actionDescriptors = []
+    },
     async executeAllActions():Promise<TransactResult | undefined> {
       if (!sessionStore || !sessionStore.username) {
         console.error("Session or session actor is not defined")

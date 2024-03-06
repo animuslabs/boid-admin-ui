@@ -10,9 +10,10 @@
             <div class="text-h6">
               Action Bucket
             </div>
-            <q-btn @click="fetchAndShowDescriptors" label="VIEW" color="primary" />
-            <q-btn @click="createMsign" label="CREATE M-SIGN" color="primary" />
-            <!-- New table for displaying action descriptors -->
+            <div class="q-mb-sm">
+              <q-btn @click="executeActions" label="EXECUTE ACTIONS" color="primary" class="q-mr-sm" />
+              <q-btn @click="clearActions" label="CLEAR ALL" color="primary" />
+            </div>
             <q-table
               flat bordered
               :rows="actionDescriptors"
@@ -33,8 +34,10 @@
             <div class="text-h6">
               Payrolls
             </div>
-            <q-btn @click="addPayrollAction" label="Add Payroll" color="primary" />
-            <q-btn @click="toggleWhitelistDialog" label="Whitelist" color="primary" />
+            <div class="q-mb-sm">
+              <q-btn @click="addPayrollAction" label="Add Payroll" color="primary" class="q-mr-sm" />
+              <q-btn @click="toggleWhitelistDialog" label="Whitelist" color="primary" />
+            </div>
             <q-table
               flat bordered
               :rows="payrolls"
@@ -45,8 +48,8 @@
                 <q-tr :props="props">
                   <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <template v-if="col.name === 'actions'">
-                      <q-btn flat icon="delete" color="negative" @click.stop="togglePayrollActionDialog(props.row.id)" />
-                      <q-btn flat icon="savings" color="green" @click.stop="togglePayrollActionDialog(props.row.id)" />
+                      <q-btn flat icon="delete" color="negative" @click.stop="deleteSelectedPayroll(props.row.id)" />
+                      <q-btn flat icon="savings" color="green" @click.stop="claimSelectedPayroll(props.row.id)" />
                       <q-btn size="sm" color="accent" round dense @click.stop="toggleExpansion(props.row)" :icon="expandedRows.includes(props.row.id) ? 'remove' : 'add'" />
                     </template>
                     <template v-else>
@@ -85,43 +88,32 @@
             </q-card>
           </q-dialog>
         </q-card>
-        <q-dialog v-model="showPayrollActionDialog">
-          <q-card>
-            <q-card-section class="row justify-center q-pa-md">
-              Are you sure you want to delete this payroll?
-            </q-card-section>
-            <q-card-actions align="around">
-              <q-btn flat label="Cancel" color="primary" @click="() => togglePayrollActionDialog()" />
-              <q-btn flat label="Delete Payroll" color="negative" @click="deleteSelectedPayroll" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
       </div>
     </q-page>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue"
+import { onMounted, onUnmounted, ref, watchEffect } from "vue"
 import { usePayrollStore } from "src/stores/payrollStore"
 import PayrollConfigForm from "src/components/payroll/PayrollConfigForm.vue"
 import { ActionDescriptor } from "src/lib/contracts"
 import { ActionParams } from "src/lib/payroll.boid"
 import { PayrollMeta, PayrollDataItem, TokensWhitelistItem } from "src/types/types"
-import { Asset, Name, UInt64Type, UInt64, TimePointSec } from "@wharfkit/session"
+import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
 
 const payrollStore = usePayrollStore()
-const loading = computed(() => payrollStore.isLoading)
+const loading = ref(true)
 
 const payrolls = ref<PayrollDataItem[]>([])
 const tokensWhitelist = ref<TokensWhitelistItem[]>([])
 const showWhitelistDialog = ref(false)
-const expandedRows = ref([])
+const expandedRows = ref<number[]>([])
 const toggleWhitelistDialog = () => {
   showWhitelistDialog.value = !showWhitelistDialog.value
 }
-function toggleExpansion(row) {
+function toggleExpansion(row:PayrollDataItem) {
   const index = expandedRows.value.indexOf(row.id)
   if (index > -1) {
     expandedRows.value.splice(index, 1) // Collapse row if it's already expanded
@@ -130,23 +122,14 @@ function toggleExpansion(row) {
   }
 }
 
-// payroll action dialog
-const showPayrollActionDialog = ref(false)
-let selectedPayrollId = ref<number | null>(null)
-const togglePayrollActionDialog = (payrollId:number | null = null) => {
-  selectedPayrollId.value = payrollId
-  showPayrollActionDialog.value = !showPayrollActionDialog.value
+const deleteSelectedPayroll = (payrollId:number | null = null) => {
+  payrollStore.removePayrollAction((payrollId))
+  console.log(`Deleting payroll with ID: ${payrollId}`)
 }
-
-const deleteSelectedPayroll = () => {
-  if (selectedPayrollId.value !== null) {
-    payrollStore.removePayrollAction((selectedPayrollId.value))
-    console.log(`Deleting payroll with ID: ${selectedPayrollId.value}`)
-    // After deletion logic, close the dialog
-    togglePayrollActionDialog()
-  }
+const claimSelectedPayroll = (payrollId:number | null = null) => {
+  payrollStore.payPayrollAction((payrollId))
+  console.log(`Claiming payroll with ID: ${payrollId}`)
 }
-
 
 // Formatter functions
 const formatAsset = (asset:Asset) => `${Asset.from(asset)}`
@@ -181,38 +164,116 @@ const actionDescriptorsColumns = [
   { name: "actions", label: "Actions", align: "center", sortable: false }
 ]as QTableProps["columns"]
 
-async function createMsign() {
+async function executeActions() {
   await payrollStore.executeAllActions()
-  console.log("Creating M-Sign")
+  console.log("Creating Transaction...")
 }
-
-function fetchAndShowDescriptors() {
+async function clearActions() {
+  payrollStore.clearAllDescriptors()
+}
+async function fetchAndShowDescriptors() {
   // Assume getDescriptors is a method that returns an array of action descriptors
   const descriptors = payrollStore.getDescriptors
-  actionDescriptors.value = descriptors.map((descriptor, index) => {
+  console.log("descriptors: ", descriptors)
+
+  // Use Promise.all to wait for all descriptors to be processed
+  const processedDescriptors = await Promise.all(descriptors.map(async(descriptor, index) => {
     if (descriptor.actionName === "payroll.add") {
       // Formatting action_data for payroll.add action
       const data = (descriptor.action_data as { payrollConfig:ActionParams.Type.PayrollConfig }).payrollConfig
       console.log("data total: ", data.total)
+      try {
+        const meta = await PayrollMeta.fromBytes(data.meta as Bytes)
+        const title = meta.title // Now you have access to meta.title
+        console.log("Meta title: ", title)
+
+        // Use the title in your code
+        return {
+          ...descriptor,
+          id: index,
+          actionDescriptor: `
+          Name: ${title} |
+          From: ${formatTimePointSec(data.startTime)} |
+          To: ${formatTimePointSec(data.finishTime)} |
+          Receiver: ${formatName(data.receiverAccount as Name)} || Total: ${formatAsset(data.total as Asset)}`
+        }
+      } catch (error) {
+        console.error("Error fetching meta title", error)
+        // Handle any errors that might occur during the fetching of meta.title
+        return descriptor // Return the original descriptor in case of an error
+      }
+    }
+    if (descriptor.actionName === "payroll.rm") {
+      // Formatting action_data for payroll.remove action
+      const data = (descriptor.action_data as { payrollId:number }).payrollId
       return {
         ...descriptor,
         id: index,
-        actionDescriptor: `
-        Start: ${formatTimePointSec(data.startTime)} |
-        Finish: ${formatTimePointSec(data.finishTime)} |
-        Receiver: ${formatName(data.receiverAccount as Name)} | Treasury: ${formatName(data.treasuryAccount as Name)} || Total: ${formatAsset(data.total as Asset)}`
+        actionDescriptor: `Payroll ID: ${data}`
       }
     }
+    if (descriptor.actionName === "payroll.edit") {
+      // Formatting action_data for payroll.edit action ||| this is not implemented yet properly!!!
+      const data = (descriptor.action_data as { payrollId:number }).payrollId
+      return {
+        ...descriptor,
+        id: index,
+        actionDescriptor: `Payroll ID: ${data}`
+      }
+    }
+    if (descriptor.actionName === "payroll.pay") {
+      // Formatting action_data for payroll.pay action
+      const data = (descriptor.action_data as { payrollId:number }).payrollId
+      return {
+        ...descriptor,
+        id: index,
+        actionDescriptor: `Payroll ID: ${data}`
+      }
+    }
+    // not implemented yet
+    if (descriptor.actionName === "tokenwl.add") {
+      const data = (descriptor.action_data as ActionParams.tokenwladd)
+      const sym = data.sym.toString()
+      const code = data.contract as Name
+      return {
+        ...descriptor,
+        id: index,
+        actionDescriptor: `Symbol: ${sym} | Contract: ${formatName(code)}`
+      }
+    }
+    if (descriptor.actionName === "tokenwl.rm") {
+      const data = (descriptor.action_data as ActionParams.tokenwlrm)
+      const sym = data.sym.toString()
+      return {
+        ...descriptor,
+        id: index,
+        actionDescriptor: `Symbol: ${sym}`
+      }
+    }
+    console.log("actionDescriptor: ", descriptor)
     return descriptor // Return unmodified for other action types
-  })
+  }))
+
+  actionDescriptors.value = processedDescriptors
 }
 
+onMounted(async() => {
+  await fetchAndShowDescriptors() // Initial fetch
+  loading.value = false
+})
+
+// Automatically fetch and show descriptors when the store's descriptors change
+watchEffect(async() => {
+  await fetchAndShowDescriptors()
+})
+
+
 // Function to handle deleting an action descriptor
-const deleteAction = (descriptorIndex:number) => {
+const deleteAction = async(descriptorIndex:number) => {
   if (confirm("Are you sure you want to delete this action?")) {
     payrollStore.removeDescriptor(descriptorIndex)
     console.log("Deleted action:", descriptorIndex)
-    fetchAndShowDescriptors() // Refresh the list
+    await fetchAndShowDescriptors() // Refresh the list
   }
 }
 
@@ -247,7 +308,7 @@ const editPayrollAction = (descriptorIndex:number) => {
   }
 }
 
-onMounted(async() => {
+const fetchPayrollData = async() => {
   const payrollsData = await payrollStore.fetchPayrollsTableData()
   if (payrollsData) {
     // Directly assign the mapped array to payrolls.value
@@ -275,6 +336,17 @@ onMounted(async() => {
     }))
     console.log("tokensData: ", tokensWhitelist.value)
   }
+}
+
+let fetchInterval:number | undefined
+
+onMounted(async() => {
+  await fetchPayrollData() // Initial fetch
+  fetchInterval = setInterval(fetchPayrollData, 30000) as unknown as number // Fetch every 30 seconds
+})
+
+onUnmounted(() => {
+  clearInterval(fetchInterval) // Clear interval on component unmount
 })
 
 </script>
