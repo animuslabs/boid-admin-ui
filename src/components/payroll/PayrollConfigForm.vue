@@ -82,6 +82,9 @@
               </q-input>
             </div>
           </div>
+          <div class="text-subtitle2 q-pa-md">
+            Days: {{ daysBetween }} | Daily: {{ amountCalculations.perDay }} | Weekly: {{ amountCalculations.perWeek }} | Monthly: {{ amountCalculations.perMonth }}
+          </div>
           <q-separator />
           <div class="q-gutter-md q-mt-xs row justify-between">
             <q-input v-model="payrollConfig.receiverAccount" label="Receiver Account" :rules="accountRule" dense />
@@ -192,6 +195,41 @@ const calculateMinClaimFrequencySec = () => {
   }
   return minClaimFrequency.value.value * multiplier
 }
+
+const daysBetween = computed(() => {
+  if (!payrollConfig.value.startTime || !payrollConfig.value.finishTime) {
+    return 0
+  }
+
+  const startTime = new Date(payrollConfig.value.startTime).getTime()
+  const finishTime = new Date(payrollConfig.value.finishTime).getTime()
+
+  const millisecondsPerDay = 24 * 60 * 60 * 1000 // Number of milliseconds in one day
+  const differenceInDays = Math.round((finishTime - startTime) / millisecondsPerDay)
+
+  return differenceInDays
+})
+const amountCalculations = computed(() => {
+  const total = parseFloat(payrollConfig.value.total)
+  const days = daysBetween.value
+
+  // Initialize default calculations
+  let perDay = 0, perWeek = 0, perMonth = 0
+
+  if (days > 0 && total > 0) {
+    perDay = total / days
+    perWeek = perDay * 7
+    // Assuming an average month length of 30.44 days for calculation
+    perMonth = perDay * 30.44
+  }
+
+  return {
+    perDay: perDay.toFixed(0), // Format to 2 decimal places
+    perWeek: perWeek.toFixed(0),
+    perMonth: perMonth.toFixed(0)
+  }
+})
+
 
 const symOptions = computed(() => payrollStore.getTokenSymbolList)
 const selectedToken:Ref<string> = ref("")

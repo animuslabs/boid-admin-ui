@@ -1,8 +1,5 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="text-h4 q-mb-md">
-      Payroll Management
-    </div>
     <PayrollTables />
   </q-page>
 </template>
