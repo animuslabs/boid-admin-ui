@@ -48,9 +48,9 @@
                 <q-tr :props="props">
                   <q-td v-for="col in props.cols" :key="col.name" :props="props">
                     <template v-if="col.name === 'actions'">
-                      <q-btn flat icon="delete" color="negative" @click.stop="deleteSelectedPayroll(props.row.id)" />
-                      <q-btn flat icon="savings" color="green" @click.stop="claimSelectedPayroll(props.row.id)" />
-                      <q-btn size="sm" color="accent" round dense @click.stop="toggleExpansion(props.row)" :icon="expandedRows.includes(props.row.id) ? 'remove' : 'add'" />
+                      <q-btn size="sm" flat icon="delete" color="negative" @click.stop="deleteSelectedPayroll(props.row.id)" />
+                      <q-btn size="sm" flat icon="savings" color="green" @click.stop="claimSelectedPayroll(props.row.id)" />
+                      <q-btn size="xs" color="accent" round dense @click.stop="toggleExpansion(props.row)" :icon="expandedRows.includes(props.row.id) ? 'remove' : 'add'" />
                     </template>
                     <template v-else>
                       {{ col.value }}
