@@ -52,6 +52,9 @@
                   />
                 </template>
               </q-input>
+              <div class="q-ml-md text-subtitle2">
+                {{ totalsBySymbol }}
+              </div>
             </div>
             <q-table
               flat bordered
@@ -114,7 +117,7 @@ import { usePayrollStore } from "src/stores/payrollStore"
 import PayrollConfigForm from "src/components/payroll/PayrollConfigForm.vue"
 import { ActionDescriptor } from "src/lib/contracts"
 import { ActionParams } from "src/lib/payroll.boid"
-import { PayrollMeta, PayrollDataItem, TokensWhitelistItem } from "src/types/types"
+import { PayrollMeta, PayrollDataItem, TokensWhitelistItem, PayrollItem, AggregatedTotals } from "src/types/types"
 import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
 
@@ -157,6 +160,40 @@ const filteredPayrolls = computed(() => {
            payroll.treasuryAccount.toLowerCase().includes(searchQuery.value.toLowerCase())
   })
 })
+// Helper function to aggregate amounts by symbol
+function aggregateAmountsBySymbol(payrolls:PayrollItem[]):AggregatedTotals {
+  const totals:AggregatedTotals = {}
+  payrolls.forEach(payroll => {
+    const totalParts = payroll.total ? payroll.total.split(" ") : ["0", "Unknown"]
+    const paidParts = payroll.paid ? payroll.paid.split(" ") : ["0", "Unknown"]
+
+    const totalAmount = parseFloat(totalParts[0] as string)
+    const paidAmount = parseFloat(paidParts[0] as string)
+    // Ensuring symbol is treated as a string; use a fallback symbol if undefined
+    const symbol = totalParts[1] || "Unknown"
+
+    if (!totals[symbol]) {
+      totals[symbol] = { total: 0, paid: 0 }
+    }
+
+    totals[symbol]!.total += totalAmount
+    totals[symbol]!.paid += paidAmount
+  })
+
+  return totals
+}
+
+
+// Computed property for aggregated total and paid amounts by symbol
+const totalsBySymbol = computed(() => {
+  const aggregatedTotals = aggregateAmountsBySymbol(payrolls.value) // Make sure payrolls.value is of type PayrollItem[]
+  // Format the aggregated totals for display
+  return Object.entries(aggregatedTotals).map(([symbol, amounts]) => {
+    return `Total: ${amounts.total.toFixed(4)} ${symbol}, Paid ${amounts.paid.toFixed(4)}`
+  }).join(" || ")
+})
+
+
 
 // Formatter functions
 const formatAsset = (asset:Asset) => `${Asset.from(asset)}`

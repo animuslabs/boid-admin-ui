@@ -296,3 +296,18 @@ export interface TokensWhitelistItem {
   sym:string
   contract:string
 }
+
+
+export interface PayrollItem {
+  total:string;
+  paid:string;
+}
+
+interface Amounts {
+  total:number;
+  paid:number;
+}
+
+export interface AggregatedTotals {
+  [symbol:string]:Amounts;
+}
