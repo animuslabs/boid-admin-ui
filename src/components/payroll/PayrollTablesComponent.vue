@@ -34,13 +34,28 @@
             <div class="text-h6">
               Payrolls
             </div>
-            <div class="q-mb-sm">
+            <div class="row q-mb-sm">
               <q-btn @click="addPayrollAction" label="Add Payroll" color="primary" class="q-mr-sm" />
               <q-btn @click="toggleWhitelistDialog" label="Whitelist" color="primary" />
+              <q-input
+                dense
+                filled
+                v-model="searchQuery"
+                placeholder="Search payrolls..."
+                class="q-ml-md"
+              >
+                <template #append>
+                  <q-icon
+                    name="close"
+                    class="cursor-pointer"
+                    @click="searchQuery = ''"
+                  />
+                </template>
+              </q-input>
             </div>
             <q-table
               flat bordered
-              :rows="payrolls"
+              :rows="filteredPayrolls"
               :columns="payrollsColumns"
               row-key="id"
             >
@@ -94,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watchEffect } from "vue"
+import { onMounted, onUnmounted, ref, watchEffect, computed } from "vue"
 import { usePayrollStore } from "src/stores/payrollStore"
 import PayrollConfigForm from "src/components/payroll/PayrollConfigForm.vue"
 import { ActionDescriptor } from "src/lib/contracts"
@@ -105,6 +120,7 @@ import { Dialog, QBtn, QTableProps } from "quasar"
 
 const payrollStore = usePayrollStore()
 const loading = ref(true)
+const searchQuery = ref("")
 
 const payrolls = ref<PayrollDataItem[]>([])
 const tokensWhitelist = ref<TokensWhitelistItem[]>([])
@@ -130,6 +146,17 @@ const claimSelectedPayroll = (payrollId:number | null = null) => {
   payrollStore.payPayrollAction((payrollId))
   console.log(`Claiming payroll with ID: ${payrollId}`)
 }
+const filteredPayrolls = computed(() => {
+  if (!searchQuery.value) {
+    return payrolls.value
+  }
+  return payrolls.value.filter(payroll => {
+    // Adjust the criteria based on which fields you want to search in
+    return payroll.meta.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+           payroll.receiverAccount.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+           payroll.treasuryAccount.toLowerCase().includes(searchQuery.value.toLowerCase())
+  })
+})
 
 // Formatter functions
 const formatAsset = (asset:Asset) => `${Asset.from(asset)}`
