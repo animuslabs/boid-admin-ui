@@ -112,7 +112,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watchEffect, computed } from "vue"
+import { onMounted, onUnmounted, ref, watchEffect, computed, watch } from "vue"
+import { useRoute, useRouter } from "vue-router"
 import { usePayrollStore } from "src/stores/payrollStore"
 import PayrollConfigForm from "src/components/payroll/PayrollConfigForm.vue"
 import { ActionDescriptor } from "src/lib/contracts"
@@ -121,6 +122,8 @@ import { PayrollMeta, PayrollDataItem, TokensWhitelistItem, PayrollItem, Aggrega
 import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
 
+const route = useRoute()
+const router = useRouter()
 const payrollStore = usePayrollStore()
 const loading = ref(true)
 const searchQuery = ref("")
@@ -159,6 +162,9 @@ const filteredPayrolls = computed(() => {
            payroll.receiverAccount.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
            payroll.treasuryAccount.toLowerCase().includes(searchQuery.value.toLowerCase())
   })
+})
+watch(searchQuery, () => {
+  void router.replace({ params: { name: searchQuery.value } })
 })
 // Helper function to aggregate amounts by symbol
 function aggregateAmountsBySymbol(payrolls:PayrollItem[]):AggregatedTotals {
@@ -407,6 +413,7 @@ let fetchInterval:number | undefined
 onMounted(async() => {
   await fetchPayrollData() // Initial fetch
   fetchInterval = setInterval(fetchPayrollData, 30000) as unknown as number // Fetch every 30 seconds
+  searchQuery.value = route.params.name as string || ""
 })
 
 onUnmounted(() => {

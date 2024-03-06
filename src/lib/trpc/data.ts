@@ -1,4 +1,4 @@
-import { DoubleYChartOptions, BoidData, BoidAccData, DeltasDataItem, CombinedDataItem, PwrClaimData } from "src/types/types"
+import { BoidData, BoidAccData, DeltasDataItem, CombinedDataItem, PwrClaimData } from "src/types/types"
 import { useApiStore } from "src/stores/apiStore"
 import { computed } from "vue"
 

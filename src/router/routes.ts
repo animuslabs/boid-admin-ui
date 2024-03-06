@@ -13,7 +13,7 @@ const routes:RouteRecordRaw[] = [
       { path: "config", component: () => import("pages/ConfigPage.vue") },
       { path: "config/add-offer", component: () => import("components/ConfigAddOffer.vue") },
       { path: "settings", component: () => import("pages/SettingsPage.vue") },
-      { path: "payroll", component: () => import("pages/PayrollPage.vue") }
+      { path: "payroll/:name?", component: () => import("pages/PayrollPage.vue") }
     ]
   },
   {
