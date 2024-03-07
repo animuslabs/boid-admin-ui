@@ -77,9 +77,12 @@
                 </q-tr>
                 <q-tr v-show="expandedRows.includes(props.row.id)" :props="props">
                   <q-td colspan="100%">
+                    <div>
+                      <strong>First Claim Date:</strong>{{ calculateFirstClaimDate(props.row.startTime, props.row.minClaimFrequencySec) }} ||
+                      <strong>Claim Frequency in days:</strong> {{ props.row.minClaimFrequencySec / 86400 }}
+                    </div>
                     <div><strong>Text:</strong> {{ props.row.meta.text }}</div>
                     <div><strong>Treasury Account:</strong> {{ props.row.treasuryAccount }}</div>
-                    <div><strong>Min Claim Freq(Sec)</strong> {{ props.row.minClaimFrequencySec }}</div>
                     <div><strong>WebsiteLink:</strong> {{ props.row.meta.websiteLink }}</div>
                     <div><strong>SocialMediaLinks:</strong> {{ props.row.meta.socialMediaLinks }}</div>
                     <div><strong>MediaImages:</strong> {{ props.row.meta.mediaImages }}</div>
@@ -166,6 +169,48 @@ const filteredPayrolls = computed(() => {
 watch(searchQuery, () => {
   void router.replace({ params: { name: searchQuery.value } })
 })
+
+const calculateFirstClaimDate = (startTimeStr:string, minClaimFrequencySec:number):string => {
+  const parts = startTimeStr.split(", ")
+  if (parts.length < 2) {
+    console.error("Invalid startTimeStr format")
+    return "Invalid Date"
+  }
+
+  // Directly destructuring, as we now have ensured that `parts` will have at least two elements
+  const [datePart = "", timePart = ""] = parts
+
+  // Further processing assuming 'datePart' and 'timePart' are defined
+  const [day, month, year] = datePart.split("/").map(part => part.padStart(2, "0")) // Ensures proper ISO string format
+
+  // Construct ISO string with padding to ensure correct formatting
+  const isoDateString = `${year}-${month}-${day}T${timePart}`
+
+  // Conversion to Date object
+  const startTime = new Date(isoDateString)
+  const firstClaimTime = new Date(startTime.getTime() + minClaimFrequencySec * 1000) // Convert seconds to milliseconds
+
+  // Return formatted date, handling potential invalid date
+  if (isNaN(firstClaimTime.getTime())) {
+    console.error("Failed to calculate first claim date from:", isoDateString)
+    return "Invalid Date"
+  }
+
+  return firstClaimTime.toLocaleString("en-GB", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  })
+}
+
+
+
+
+
 // Helper function to aggregate amounts by symbol
 function aggregateAmountsBySymbol(payrolls:PayrollItem[]):AggregatedTotals {
   const totals:AggregatedTotals = {}
