@@ -123,7 +123,7 @@
 import { computed, ref, ComputedRef, watch, onUnmounted, onMounted, onBeforeUnmount } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
-import { EOSendpoints, TelosEndpoints, TelosTestnetEndpoints, ipfsEndpoints, trpcEndpoints } from "src/lib/config"
+import { TelosEndpoints, ipfsEndpoints, trpcEndpoints } from "src/lib/config"
 import { fetchDataFromEndpoints } from "src/lib/apiFetchData"
 import EditSignersComponent from "src/components/EditSignersComponent.vue"
 import { Notify } from "quasar"
@@ -194,15 +194,6 @@ const chains = ref<Chain[]>([
     })
 
   }
-  // {
-  //   name: "EOS",
-  //   fetchData: () => fetchDataFromEndpoints(EOSendpoints, "EOS"),
-  //   data: computed(() => {
-  //     const liveResponses = apiStore.getResponsesByChain("EOS")
-  //     const initialNodes = initialDataFromEndpoints(EOSendpoints)
-  //     return mergeDataWithInitial(initialNodes, liveResponses as unknown as Record<string, ApiResponse>)
-  //   })
-
   // },
   // {
   //   name: "Telos Testnet",

@@ -1,8 +1,11 @@
 <template>
   <q-card>
     <q-card-section>
-      <div class="text-h6">
-        Edit trx signers
+      <div class="row text-h6">
+        <div>Edit TRX signers</div>
+        <div class="q-ml-md">
+          <q-btn label="Fill from dac.boid" color="positive" @click="fillSigners" />
+        </div>
       </div>
       <div v-for="(signer, index) in signersStore.signers" :key="index" class="q-ma-sm">
         <q-input v-model="signer.actor" label="Actor" @input="updateSigner(index, 'actor', $event)" />
@@ -13,22 +16,19 @@
     </q-card-section>
     <q-card-actions align="right">
       <q-btn flat label="Cancel" color="primary" @click="cancel" />
-      <q-btn flat label="Initiate" color="green" @click="initiate" />
+      <q-btn flat label="Save" color="green" @click="initiate" />
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup lang="ts">
-import { defineEmits } from "vue"
+import { defineEmits, ref } from "vue"
 import { useSignersStore } from "src/stores/useSignersStore"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
 const signersStore = useSignersStore()
 const emit = defineEmits(["cancel", "initiate"])
-
-// Access the store's state directly in the template
-// No need to reassign it to a local variable
 
 const addSigner = () => {
   signersStore.addSigner("", "")
@@ -57,11 +57,15 @@ const cancel = () => {
 
 const initiate = () => {
   emit("initiate", signersStore.signers)
+  console.log("Signers:", signersStore.signers)
   router.push("/").catch(err => {
     console.error("Failed to navigate:", err)
   })
 }
 
+const fillSigners = async() => {
+  await signersStore.fetchAccountInfo("dac.boid")
+}
 
 </script>
 

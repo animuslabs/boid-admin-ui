@@ -16,20 +16,22 @@ import { useApiStore } from "src/stores/apiStore"
 import { EventEmitter } from "events"
 import { Notify } from "quasar"
 import { endpoints } from "src/lib/config"
+import { computed } from "vue"
 
 export const notifyEvent = new EventEmitter()
 
 const sessionStore = useSessionStore()
 const apiStore = useApiStore()
 const signersStore = useSignersStore()
-const reqSignAccsConverted = signersStore.signers.map((signer) =>
-// eslint-disable-next-line new-cap
-  new TypesMultiSign.permission_level({
-    actor: Name.from(signer.actor),
-    permission: Name.from(signer.permission)
-  })
-)
 
+const reqSignAccsConverted = computed(() => signersStore.signers.map(
+  (signer) =>
+  // eslint-disable-next-line new-cap
+    new TypesMultiSign.permission_level({
+      actor: Name.from(signer.actor),
+      permission: Name.from(signer.permission)
+    })
+))
 // gets the ABI for a given account
 const getABI = async(accountName:string) => {
   if (!apiStore.clientAPI) {
@@ -77,6 +79,15 @@ export async function fetchDataFromTable<T extends TableNames>(contract:BoidCont
   }
 }
 
+export const getAccInfo = async(accountName:string) => {
+  if (!apiStore.clientAPI) {
+    throw new Error("API client is not initialized")
+  }
+
+  const accInfo = await apiStore.clientAPI.v1.chain.get_account(accountName)
+  console.log("Account info:", accInfo)
+  return accInfo
+}
 
 export async function fetchDataFromPayrollTable<T extends TableNamesPayroll>(contract:PayrollContract, tableName:T):Promise<RowTypePayroll<T>[] | undefined> {
   try {
@@ -122,7 +133,7 @@ export async function createAction<A extends ActionNames>(
       })
       // If multi-sign mode is enabled, create and execute a multi-sign proposal
       console.log("Executing action in multi-sign mode...")
-      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted, [action])
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, [action])
     } else {
       // Otherwise, execute a regular transaction
       console.log("Transacting action...")
@@ -175,7 +186,7 @@ export async function createPayrollActions(
       })
 
       console.log("Executing actions in multi-sign mode...")
-      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted, multiSignActions)
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
     } else {
       // Execute a regular transaction with the prepared actions
       console.log("Transacting actions...")

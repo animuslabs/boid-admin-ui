@@ -173,9 +173,11 @@ import { onMounted, ref, computed } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import LoginMenu from "src/components/LoginMenu.vue"
 import { notifyEvent, showNotification } from "src/lib/contracts"
+import { useSignersStore } from "src/stores/useSignersStore"
 
 const sessionStore = useSessionStore()
 const isBannerVisible = ref(true) // Reactive property for banner visibility
+const signersStore = useSignersStore()
 
 notifyEvent.on("TrxResult", (result) => {
   showNotification(result)
@@ -186,6 +188,7 @@ const dismissBanner = () => {
 }
 onMounted(async() => {
   await sessionStore.renew()
+  await signersStore.initializeSigners()
 })
 const badgeColor = computed(() => sessionStore.multiSignToggleState ? "green" : "red")
 </script>
