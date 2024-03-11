@@ -41,12 +41,6 @@
                 {{ props.row.boid_id }}
               </q-td>
               <q-td
-                key="telosAccount"
-                :props="props"
-              >
-                {{ props.row.meta.text.telosAccount }}
-              </q-td>
-              <q-td
                 key="owners"
                 :props="props"
               >
@@ -179,7 +173,6 @@ const filteredData = computed(() => {
     const searchLower = search.value.toLowerCase()
     return data.filter(row =>
       row.boid_id.toLowerCase().includes(searchLower) ||
-      row.meta.text.telosAccount.toLowerCase().includes(searchLower) ||
       row.owners.toLowerCase().includes(searchLower)
     )
   }
@@ -190,12 +183,6 @@ const columns = ref([
     name: "boid_id",
     label: "BOID ID",
     field: "boid_id",
-    sortable: true
-  },
-  {
-    name: "telosAccount",
-    label: "Telos Account",
-    field: (row:AccountRowData) => row.meta.text.telosAccount,
     sortable: true
   },
   {
