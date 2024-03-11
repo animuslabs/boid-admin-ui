@@ -91,33 +91,49 @@
             <q-input v-model="payrollConfig.treasuryAccount" label="Treasury Account" :rules="accountRule" dense />
           </div>
           <q-checkbox v-model="payrollConfig.paused" label="Paused" class="q-mt-sm" />
-          <div class="q-mt-lg q-mb-md">
-            <!-- Meta data inputs -->
-            <div class="text-h6">
-              Additional details
-            </div>
-
-            <q-input v-model="meta.text" label="Description" dense />
-            <div>
-              <div v-for="(link, platform) in meta.socialMediaLinks" :key="platform" class="q-mb-md">
-                <q-input v-model="meta.socialMediaLinks[platform]" :label="`Link for ${platform}`" />
-                <q-btn icon="delete" @click="() => removeSocialMediaLink(platform)" />
+          <q-expansion-item
+            label="Optional details"
+            icon="add"
+            dense
+            class="q-mt-md"
+          >
+            <div class="q-mt-lg q-mb-md">
+              <!-- Meta data inputs -->
+              <q-input class="q-mb-md" v-model="meta.text" label="Description" dense />
+              <q-input class="q-mb-md" v-model="meta.websiteLink" label="Website Link" dense />
+              <div>
+                <div class="text-subtitle2">
+                  Social Media Links
+                </div>
+                <div v-for="(link, platform) in meta.socialMediaLinks" :key="platform" class="q-mb-md">
+                  <q-input v-model="meta.socialMediaLinks[platform]" :label="`Link for ${platform}`" />
+                  <q-btn icon="delete" @click="() => removeSocialMediaLink(platform)" />
+                </div>
+                <q-input v-model="newPlatform" label="New Platform" dense />
+                <q-input v-model="newUrl" label="New Link URL" dense />
+                <q-btn label="Add Social Media Link" @click="addSocialMediaLink" flat class="q-my-sm bg-primary text-white" dense />
               </div>
-              <q-input v-model="newPlatform" label="New Platform" dense />
-              <q-input v-model="newUrl" label="New Link URL" dense />
+              <q-separator class="q-my-md" />
 
-              <q-btn label="Add Social Media Link" @click="addSocialMediaLink" flat class="q-my-sm bg-primary text-white" dense />
+              <div>
+                <div class="text-subtitle2 q-mt-md">
+                  Media Images IPFS CIDs
+                </div>
+                <q-input v-model="meta.mediaImages.banner" label="Banner Image CID" dense />
+                <q-input v-model="meta.mediaImages.avatar" label="Avatar Image CID" dense />
+              </div>
+              <div>
+                <div class="text-subtitle2 q-mt-md">
+                  Documents IPFS CIDs
+                </div>
+                <div v-for="(cid, index) in meta.docIPFSCIDs" :key="index" class="q-mb-md">
+                  <q-input v-model="meta.docIPFSCIDs[index]" label="Document IPFS CID" dense />
+                  <q-btn icon="delete" label="remove IPFS CID" color="primary" @click="removeCID(index)" dense />
+                </div>
+                <q-btn label="Add another doc IPFS CID" color="primary" @click="addCID" class="q-mt-xs" dense />
+              </div>
             </div>
-            <q-separator class="q-my-md" />
-            <q-input v-model="meta.websiteLink" label="Website Link" dense />
-            <q-input v-model="meta.mediaImages.banner" label="Banner Image CID" dense />
-            <q-input v-model="meta.mediaImages.avatar" label="Avatar Image CID" dense />
-            <div v-for="(cid, index) in meta.docIPFSCIDs" :key="index" class="q-mb-md">
-              <q-input v-model="meta.docIPFSCIDs[index]" label="Document IPFS CID" dense />
-              <q-btn icon="delete" label="remove IPFS CID" color="primary" @click="removeCID(index)" dense />
-            </div>
-            <q-btn label="Add another doc IPFS CID" color="primary" @click="addCID" class="q-mt-xs" dense />
-          </div>
+          </q-expansion-item>
           <q-separator class="q-my-md" />
           <q-btn icon="add" label="Add to bucket" type="submit" color="primary" class="q-mt-md" />
           <q-btn label="Close" @click="dialogVisible = false" color="grey" class="q-mt-md q-ml-sm" />
@@ -408,7 +424,7 @@ const submitForm = async() => {
 </script>
 <style scoped>
 .payrollForm {
-  height: 600px;
+  height: 670px;
   width: 100%;
 }
 </style>
