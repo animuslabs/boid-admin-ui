@@ -1,7 +1,7 @@
 import { useApiStore } from "src/stores/apiStore"
+const store = useApiStore()
 
 export async function fetchDataFromEndpoints(endpointsArray:string[][], chainName:string):Promise<void> {
-  const store = useApiStore()
   const apiPath = "/v1/chain/get_info"
   const timeoutDuration = 3000 //  3 seconds
 
@@ -46,4 +46,24 @@ export async function fetchDataFromEndpoints(endpointsArray:string[][], chainNam
       })
     } console.log(`Completed fetching from: ${baseUrl}`)
   }
+}
+
+export const getAccInfo = async(accountName:string) => {
+  if (!store.clientAPI) {
+    throw new Error("API client is not initialized")
+  }
+
+  const accInfo = await store.clientAPI.v1.chain.get_account(accountName)
+  console.log("Account info:", accInfo)
+  return accInfo
+}
+
+export const getTokenBalance = async(accountName:string, tokenContractName:string, tokenSymbol:string) => {
+  if (!store.clientAPI) {
+    throw new Error("API client is not initialized")
+  }
+
+  const balance = await store.clientAPI.v1.chain.get_currency_balance(tokenContractName, accountName, tokenSymbol)
+  console.log(`Account ${accountName} balance: ${balance} ${tokenSymbol}`)
+  return balance
 }

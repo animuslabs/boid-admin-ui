@@ -79,16 +79,6 @@ export async function fetchDataFromTable<T extends TableNames>(contract:BoidCont
   }
 }
 
-export const getAccInfo = async(accountName:string) => {
-  if (!apiStore.clientAPI) {
-    throw new Error("API client is not initialized")
-  }
-
-  const accInfo = await apiStore.clientAPI.v1.chain.get_account(accountName)
-  console.log("Account info:", accInfo)
-  return accInfo
-}
-
 export async function fetchDataFromPayrollTable<T extends TableNamesPayroll>(contract:PayrollContract, tableName:T):Promise<RowTypePayroll<T>[] | undefined> {
   try {
     const tableData:RowTypePayroll<T>[] = await contract.table(tableName).query().all()

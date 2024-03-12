@@ -54,6 +54,17 @@
               </q-input>
               <div class="q-ml-md text-subtitle2">
                 {{ totalsBySymbol }}
+                <template v-if="!searchQuery">
+                  <div>
+                    Vault Status: {{ vaultStatus.tlos }} | {{ vaultStatus.boid }}
+                    <q-badge class="q-ml-sm" v-if="vaultStatus.sufficientFunds" color="green" text-color="white">
+                      Sufficient Funds
+                    </q-badge>
+                    <q-badge v-else color="red" text-color="white">
+                      Insufficient Funds
+                    </q-badge>
+                  </div>
+                </template>
               </div>
             </div>
             <q-table
@@ -125,6 +136,7 @@ import { PayrollMeta, PayrollDataItem, TokensWhitelistItem, PayrollItem, Aggrega
 import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
 import { convertTo24HourISO } from "src/lib/reuseFunctions"
+import { getTokenBalance } from "src/lib/apiFetchData"
 
 const route = useRoute()
 const router = useRouter()
@@ -222,12 +234,13 @@ function aggregateAmountsBySymbol(payrolls:PayrollItem[]):AggregatedTotals {
 
 // Computed property for aggregated total and paid amounts by symbol
 const totalsBySymbol = computed(() => {
-  const aggregatedTotals = aggregateAmountsBySymbol(payrolls.value) // Make sure payrolls.value is of type PayrollItem[]
-  // Format the aggregated totals for display
+  // Use `filteredPayrolls` for calculating totals
+  const aggregatedTotals = aggregateAmountsBySymbol(filteredPayrolls.value)
   return Object.entries(aggregatedTotals).map(([symbol, amounts]) => {
-    return `Total: ${amounts.total.toFixed(4)} ${symbol}, Paid ${amounts.paid.toFixed(4)}`
+    return `Total: ${amounts.total.toFixed(4)} ${symbol}, Paid: ${amounts.paid.toFixed(4)}`
   }).join(" || ")
 })
+
 
 
 
@@ -383,8 +396,31 @@ async function fetchAndShowDescriptors() {
   actionDescriptors.value = processedDescriptors
 }
 
+const vaultStatus = ref({ boid: "0 BOID", tlos: "0 TLOS", sufficientFunds: true })
+async function getVaultStatus() {
+  const requiredTotals = aggregateAmountsBySymbol(payrolls.value)
+  const vaultBOIDstatus = (await getTokenBalance("vault.boid", "token.boid", "BOID")).toString()
+  const vaultTLOSstatus = (await getTokenBalance("vault.boid", "eosio.token", "TLOS")).toString()
+  const boidBalance = parseFloat(vaultBOIDstatus.split(" ")[0] as string)
+  const tlosBalance = parseFloat(vaultTLOSstatus.split(" ")[0] as string)
+
+  const sufficientBOID = ((requiredTotals.BOID?.total || 0) - (requiredTotals.BOID?.paid || 0)) <= boidBalance
+  const sufficientTLOS = ((requiredTotals.TLOS?.total || 0) - (requiredTotals.TLOS?.paid || 0)) <= tlosBalance
+  const sufficientFunds = sufficientBOID && sufficientTLOS
+
+  const vaultStatusData = {
+    boid: vaultBOIDstatus,
+    tlos: vaultTLOSstatus,
+    sufficientFunds
+  }
+
+  console.log("vaultStatusData: ", vaultStatusData)
+  vaultStatus.value = vaultStatusData
+}
+
 onMounted(async() => {
   await fetchAndShowDescriptors() // Initial fetch
+  await getVaultStatus()
   loading.value = false
 })
 

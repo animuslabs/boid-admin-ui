@@ -1,7 +1,7 @@
 
 import { defineStore } from "pinia"
 import { Signer } from "src/types/types-stores"
-import { getAccInfo } from "src/lib/contracts"
+import { getAccInfo } from "src/lib/apiFetchData"
 
 export const useSignersStore = defineStore("signers", {
   state: () => ({
