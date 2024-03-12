@@ -87,3 +87,40 @@ export function getFormattedDatePlus7DaysAtMidnightPlusOne() {
   // Since the time is fixed at 00:01, it's not necessary to dynamically generate the time part
   return `${year}-${month}-${day} 00:01`
 }
+
+export function convertTo24HourISO(dateTimeStr:any) {
+  // Split the date and time parts
+  let [datePart, timePart] = dateTimeStr.split(", ")
+
+  // Convert datePart from "MM/DD/YYYY" to "YYYY-MM-DD"
+  let [month, day, year] = datePart.split("/")
+  month = month.padStart(2, "0") // Ensure two digits
+  day = day.padStart(2, "0") // Ensure two digits
+  const isoDate = `${year}-${month}-${day}`
+
+  // Determine if it's AM or PM and remove AM/PM
+  const isPM = timePart.includes("PM")
+  const isAM = timePart.includes("AM")
+  timePart = timePart.replace("AM", "").replace("PM", "").trim()
+
+  // Split hours and minutes
+  let [hours, minutes, seconds] = timePart.split(":")
+
+  // Convert hours to 24-hour format if necessary
+  hours = parseInt(hours, 10)
+  if (isPM && hours < 12) {
+    hours += 12
+  } else if (isAM && hours === 12) {
+    hours = 0
+  }
+
+  // Ensure two digits for hours
+  hours = hours.toString().padStart(2, "0")
+
+  // Reconstruct the time part with proper formatting
+  const isoTime = `${hours}:${minutes}:${seconds}`
+
+  // Construct and return the ISO 8601 string
+  return `${isoDate}T${isoTime}`
+}
+

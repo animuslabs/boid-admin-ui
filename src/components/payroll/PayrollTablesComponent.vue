@@ -78,8 +78,8 @@
                 <q-tr v-show="expandedRows.includes(props.row.id)" :props="props">
                   <q-td colspan="100%">
                     <div>
-                      <strong>First Claim Date:</strong>{{ calculateFirstClaimDate(props.row.startTime, props.row.minClaimFrequencySec) }} ||
-                      <strong>Claim Frequency in days:</strong> {{ props.row.minClaimFrequencySec / 86400 }}
+                      <strong>First Claim Date:</strong>{{ calculateFirstClaimDate(props.row.startTime, parseInt(props.row.minClaimFrequencySec)) }} ||
+                      <strong>Claim Frequency in days:</strong> {{ parseInt(props.row.minClaimFrequencySec) / 86400 }}
                     </div>
                     <div><strong>Text:</strong> {{ props.row.meta.text }}</div>
                     <div><strong>Treasury Account:</strong> {{ props.row.treasuryAccount }}</div>
@@ -124,6 +124,7 @@ import { ActionParams } from "src/lib/payroll.boid"
 import { PayrollMeta, PayrollDataItem, TokensWhitelistItem, PayrollItem, AggregatedTotals } from "src/types/types"
 import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
+import { convertTo24HourISO } from "src/lib/reuseFunctions"
 
 const route = useRoute()
 const router = useRouter()
@@ -176,23 +177,11 @@ const calculateFirstClaimDate = (startTimeStr:string, minClaimFrequencySec:numbe
     console.error("Invalid startTimeStr format")
     return "Invalid Date"
   }
-
-  // Directly destructuring, as we now have ensured that `parts` will have at least two elements
-  const [datePart = "", timePart = ""] = parts
-
-  // Further processing assuming 'datePart' and 'timePart' are defined
-  const [day, month, year] = datePart.split("/").map(part => part.padStart(2, "0")) // Ensures proper ISO string format
-
-  // Construct ISO string with padding to ensure correct formatting
-  const isoDateString = `${year}-${month}-${day}T${timePart}`
-
-  // Conversion to Date object
-  const startTime = new Date(isoDateString)
+  const dateData = convertTo24HourISO(startTimeStr).toString()
+  const startTime = new Date(dateData)
   const firstClaimTime = new Date(startTime.getTime() + minClaimFrequencySec * 1000) // Convert seconds to milliseconds
-
-  // Return formatted date, handling potential invalid date
   if (isNaN(firstClaimTime.getTime())) {
-    console.error("Failed to calculate first claim date from:", isoDateString)
+    console.error("Failed to calculate first claim date from:", dateData)
     return "Invalid Date"
   }
 
@@ -206,10 +195,6 @@ const calculateFirstClaimDate = (startTimeStr:string, minClaimFrequencySec:numbe
     hour12: false
   })
 }
-
-
-
-
 
 // Helper function to aggregate amounts by symbol
 function aggregateAmountsBySymbol(payrolls:PayrollItem[]):AggregatedTotals {
@@ -260,8 +245,34 @@ const payrollsColumns = [
   { name: "meta.title", required: true, label: "Title", align: "left", field: row => row.meta?.title, sortable: true },
   { name: "total", label: "Total", field: "total", sortable: true },
   { name: "paid", label: "Paid", field: "paid", sortable: true },
-  { name: "startTime", label: "Start", field: "startTime", sortable: true },
-  { name: "finishTime", label: "Finish", field: "finishTime", sortable: true },
+  {
+    name: "startTime",
+    label: "Start",
+    field: row => new Date(row.startTime).toLocaleString("en-GB", {
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }),
+    sortable: true
+  },
+  {
+    name: "finishTime",
+    label: "Finish",
+    field: row => new Date(row.finishTime).toLocaleString("en-GB", {
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }),
+    sortable: true
+  },
   { name: "receiverAccount", label: "Receiver", field: "receiverAccount", sortable: true },
   { name: "actions", label: "Actions", align: "center", sortable: false, field: "id" }
 ]as QTableProps["columns"]
