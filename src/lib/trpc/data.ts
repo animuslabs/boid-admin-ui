@@ -1,4 +1,5 @@
 import { BoidData, BoidAccData, DeltasDataItem, CombinedDataItem, PwrClaimData } from "src/types/types"
+import { SentReportsResponse, OraclePayResponse, PowerReportResponse } from "src/lib/trpc/api4DeltasTypes"
 import { useApiStore } from "src/stores/apiStore"
 import { computed } from "vue"
 
@@ -46,3 +47,27 @@ export const fetchCalculatorData = (
 export const fetchBOIDtokenData = ():Promise<
   {tokenInfo:BoidData, avTotals:{ averageStaked:number; averagePower:number; totalUsers:number }}
 > => trpcClient.value.GetBOIDtokenInfo.query()
+
+export const fetchPowerReports = (
+  from:string,
+  to:string,
+  protocol_id?:number,
+  round?:number,
+  boid_id?:string
+):Promise<SentReportsResponse[]> => trpcClient.value.GetPowerReports.query({ from, to, protocol_id, round, boid_id })
+
+export const fetchPayOracle = (
+  from:string,
+  to:string,
+  oracle?:string,
+  round?:number
+):Promise<OraclePayResponse[]> => trpcClient.value.GetPayOracle.query({ from, to, oracle, round })
+
+export const fetchOraclePowerReport = (
+  from:string,
+  to:string,
+  boid_id?:string,
+  oracle?:string,
+  round?:number,
+  protocol_id?:number
+):Promise<PowerReportResponse[]> => trpcClient.value.GetOraclePowerReport.query({ from, to, boid_id, oracle, round, protocol_id })

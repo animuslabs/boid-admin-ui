@@ -6,14 +6,16 @@
 import { ref, nextTick } from "vue"
 import { storeToRefs } from "pinia"
 import { userStore } from "src/stores/usersStore"
-import { fetchGetLogPwrClaimData, fetchGetCombinedData } from "src/lib/trpc/data"
+import { fetchGetLogPwrClaimData, fetchGetCombinedData, fetchPowerReports } from "src/lib/trpc/data"
 import { CombinedDataItem, PwrClaimData } from "src/types/types"
+import { SentReportsResponse } from "src/lib/trpc/api4DeltasTypes"
 import * as echarts from "echarts"
 import { customTheme } from "src/lib/echarts-theme"
 
 defineExpose({ manualPowerDataFetch })
 
 const chartContainer = ref<HTMLElement | null>(null)
+
 const props = defineProps({
   boidId: String,
   fromDate: String,
@@ -25,97 +27,159 @@ const { selectedBoidId } = storeToRefs(store)
 interface ChartData {
   logpowerclaimdata:PwrClaimData[];
   protocolsdata:CombinedDataItem[];
+  protocolsPowerData:SentReportsResponse[];
 }
-
-const labels = {
-  power_after: "Power Rating",
-  power_from_boosters: "Power from Boosters",
-  fah_score: "Folding@Home Score"
+// Protocol ID to Name Mapping
+const protocolNames:Record<number, string> = {
+  0: "F@Home Power",
+  1: "Rosetta Power",
+  2: "Denis Power",
+  3: "SiDock Power",
+  4: "RNAworld Power",
+  5: "WCG Power"
 }
 
 async function fetchData():Promise<ChartData | undefined> {
   if (selectedBoidId.value && props.fromDate && props.toDate) {
-    const [logData, protocolData] = await Promise.all([
+    const [logData, protocolData, protocolsPowerData] = await Promise.all([
       fetchGetLogPwrClaimData(selectedBoidId.value, props.fromDate, props.toDate),
-      fetchGetCombinedData(selectedBoidId.value, props.fromDate, props.toDate)
+      fetchGetCombinedData(selectedBoidId.value, props.fromDate, props.toDate),
+      fetchPowerReports(props.fromDate, props.toDate, undefined, undefined, selectedBoidId.value)
     ])
     return {
       logpowerclaimdata: logData.map(item => ({ ...item, timeStamp: new Date(item.timeStamp) })),
-      protocolsdata: protocolData.map(item => ({ ...item, timeStamp: new Date(item.date) }))
+      protocolsdata: protocolData.map(item => ({ ...item, timeStamp: new Date(item.date) })),
+      protocolsPowerData: protocolsPowerData.map(item => ({ ...item, timeStamp: new Date(item.timeStamp) }))
     }
   }
 }
 
+function aggregateDataByDayAndProtocol(data:SentReportsResponse[]):Record<string, Record<number, number>> {
+  const aggregated = data.reduce((acc, item) => {
+    // Check if timeStamp exists and is a valid Date object
+    if (item.timeStamp) {
+      const dateKey = item.timeStamp.toISOString().split("T")[0] // Convert the Date to YYYY-MM-DD
+
+      const protocolKey = item.protocol_id
+
+      // Ensure that both dateKey and protocolKey are properly defined
+      if (dateKey && typeof protocolKey === "number") {
+        if (!acc[dateKey]) {
+          acc[dateKey] = {}
+        }
+        if (!acc[dateKey][protocolKey]) {
+          acc[dateKey][protocolKey] = 0
+        }
+
+        // Aggregate added_power by date and protocol
+        acc[dateKey][protocolKey] += item.added_power
+      }
+    }
+    return acc
+  }, {} as Record<string, Record<number, number>>)
+
+  return aggregated
+}
+function aggregateData(data:Array<{ timeStamp?:Date; power_after:number }>):Record<string, number> {
+  const results:Record<string, number> = {}
+
+  data.forEach(item => {
+    if (!item.timeStamp) {
+      console.warn("Item has undefined timestamp, skipping...")
+      return // Skip this item or handle it as you see fit
+    }
+
+    const dateKey = item.timeStamp.toISOString().split("T")[0]
+
+    if (dateKey) {
+      if (!results[dateKey]) {
+        results[dateKey] = 0
+      }
+      results[dateKey] += item.power_after
+    }
+  })
+
+  return results
+}
+
+
+
 // Chart setup function
-const setupChart = async(data:ChartData) => {
+const setupChart = async(data:ChartData | undefined) => {
   await nextTick()
-  if (chartContainer.value) {
-    console.log(chartContainer.value?.clientWidth, chartContainer.value?.clientHeight)
+  if (chartContainer.value && data) {
     echarts.registerTheme("shine", customTheme.theme)
     const chartInstance = echarts.init(chartContainer.value, "shine")
 
-    // Prepare the series data based on logpowerclaimdata
-    const series = [
-      { name: labels.power_after, type: "bar", data: data.logpowerclaimdata.map(item => [item.timeStamp, item.power_after]) },
-      { name: labels.power_from_boosters, type: "bar", yAxisIndex: 0, data: data.logpowerclaimdata.map(item => [item.timeStamp, item.power_from_boosters]) },
-      { name: labels.fah_score, type: "line", yAxisIndex: 1, data: data.protocolsdata.map(item => [item.date, item.score]) }
-    ]
-    const yAxis = [
-      {
-        type: "value",
-        name: "Power"
-      },
-      {
-        type: "log",
-        name: labels.fah_score,
-        position: "right",
-        logBase: 10,
-        minorSplitLine: { show: true },
-        axisLabel: {
-          // Format labels to show values in millions with one decimal place
-          formatter: function(value:number) {
-            return (value / 1e6).toFixed(1) + "M"
-          }
-        }
+    const aggregatedData = aggregateDataByDayAndProtocol(data.protocolsPowerData) || {}
+    const averagePowerData = aggregateData(data.logpowerclaimdata)
+    const dates = Object.keys({ ...aggregatedData, ...averagePowerData }).sort() // Combine and sort dates from both datasets
+
+    const protocolSeries = Object.keys(protocolNames).map(protocolIdStr => {
+      const protocolId = Number(protocolIdStr)
+      const protocolData = dates.map(date => aggregatedData[date] ? aggregatedData[date][protocolId] || 0 : 0)
+      return {
+        name: protocolNames[protocolId],
+        type: "bar",
+        data: protocolData,
+        stack: "total"
       }
-    ]
-    const options = {
-      legend: {},
-      tooltip: {
-        trigger: "axis",
-        formatter: function(params:any) {
-          let result = params[0].axisValueLabel + "<br/>"
-          params.forEach(function(item:any) {
-            let value = item.data[1] // Assuming the value is the second item in data array
-            if (item.seriesName === "Folding@Home Score") {
-              // Format as millions or billions based on the value size
-              value = value >= 1e9 ? (value / 1e9).toFixed(2) + "B" : (value / 1e6).toFixed(2) + "M"
-            }
-            result += item.marker + " " + item.seriesName + ": " + value + "<br/>"
-          })
-          return result
-        }
-      },
-      xAxis: { type: "time" },
-      yAxis,
-      series
+    })
+
+    const powerAfterSeries = {
+      name: "Boid Power",
+      type: "line",
+      yAxisIndex: 1,
+      data: dates.map(date => [date, averagePowerData[date] || 0])
     }
 
+    const series = [...protocolSeries, powerAfterSeries]
+
+    const options = {
+      legend: {
+        itemWidth: 20, // Legend symbol width
+        itemHeight: 10, // Legend symbol height
+        textStyle: {
+          fontSize: 10 // Font size of legend text
+        }
+      },
+      tooltip: { trigger: "axis" },
+      xAxis: {
+        type: "category",
+        data: dates
+      },
+      yAxis: [
+        {
+          type: "value",
+          name: "Added Power"
+        },
+        {
+          type: "value",
+          name: "Boid Power",
+          position: "right"
+        }
+      ],
+      series
+    }
     chartInstance.setOption(options)
     chartInstance.resize()
+  } else {
+    console.log("Chart container not ready or visible, or data is undefined.")
   }
 }
+
 
 async function manualPowerDataFetch() {
   console.log("Manual Fetch initiated for Boid ID:", selectedBoidId.value)
   const data = await fetchData()
   if (data) {
+    console.log("ChartContainer PowerComponent", chartContainer.value)
     await setupChart(data)
+    console.log("Power Data:", data.protocolsPowerData)
   } else {
     console.log("Failed to fetch data or conditions not met for fetching.")
   }
 }
-
 
 </script>
 
@@ -125,5 +189,6 @@ async function manualPowerDataFetch() {
   min-width: 400px;
   height: 800px;
   width: 800px;
+  display: block;
 }
 </style>

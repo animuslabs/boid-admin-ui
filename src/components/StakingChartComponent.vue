@@ -64,6 +64,7 @@ async function fetchData():Promise<StakingData[] | undefined> {
 const setupChart = async(data:StakingData[]) => {
   await nextTick()
   if (chartContainer.value) {
+    console.log("Staking Chart Width: ", chartContainer.value?.clientWidth, "Staking Chart Height: ", chartContainer.value?.clientHeight)
     echarts.registerTheme("shine", customTheme.theme)
     const chartInstance = echarts.init(chartContainer.value, "shine")
 

@@ -39,7 +39,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("../../types/api4DeltasTypes.js").AccountsDeltaData[]>;
+    }, import("./api4DeltasTypes.js").AccountsDeltaData[]>;
     GetLogPwrClaim:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -61,7 +61,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("../../types/api4DeltasTypes.js").PwrClaimData[]>;
+    }, import("./api4DeltasTypes.js").PwrClaimData[]>;
     GetCombinedData:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -83,7 +83,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("../../types/api4DeltasTypes.js").CombinedResponse[]>;
+    }, import("./api4DeltasTypes.js").CombinedResponse[]>;
     GetGlobalDeltas:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -105,7 +105,7 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
         };
         _output_in:typeof import("@trpc/server").unsetMarker;
         _output_out:typeof import("@trpc/server").unsetMarker;
-    }, import("../../types/api4DeltasTypes.js").GlobalDeltaResponse[]>;
+    }, import("./api4DeltasTypes.js").GlobalDeltaResponse[]>;
     GetCalculatedData:import("@trpc/server").BuildProcedure<"query", {
         _config:import("@trpc/server").RootConfig<{
             ctx:object;
@@ -179,6 +179,84 @@ declare const appRouter:import("@trpc/server").CreateRouterInner<import("@trpc/s
             totalUsers:number;
         };
     }>;
+    GetPowerReports:import("@trpc/server").BuildProcedure<"query", {
+        _config:import("@trpc/server").RootConfig<{
+            ctx:object;
+            meta:object;
+            errorShape:import("@trpc/server").DefaultErrorShape;
+            transformer:import("@trpc/server").DefaultDataTransformer;
+        }>;
+        _meta:object;
+        _ctx_out:object;
+        _input_in:{
+            from:string;
+            to:string;
+            protocol_id?:number | undefined;
+            round?:number | undefined;
+            boid_id?:string | undefined;
+        };
+        _input_out:{
+            from:string;
+            to:string;
+            protocol_id?:number | undefined;
+            round?:number | undefined;
+            boid_id?:string | undefined;
+        };
+        _output_in:typeof import("@trpc/server").unsetMarker;
+        _output_out:typeof import("@trpc/server").unsetMarker;
+    }, import("./api4DeltasTypes.js").SentReportsResponse[]>;
+    GetPayOracle:import("@trpc/server").BuildProcedure<"query", {
+        _config:import("@trpc/server").RootConfig<{
+            ctx:object;
+            meta:object;
+            errorShape:import("@trpc/server").DefaultErrorShape;
+            transformer:import("@trpc/server").DefaultDataTransformer;
+        }>;
+        _meta:object;
+        _ctx_out:object;
+        _input_in:{
+            from:string;
+            to:string;
+            oracle?:string | undefined;
+            round?:number | undefined;
+        };
+        _input_out:{
+            from:string;
+            to:string;
+            oracle?:string | undefined;
+            round?:number | undefined;
+        };
+        _output_in:typeof import("@trpc/server").unsetMarker;
+        _output_out:typeof import("@trpc/server").unsetMarker;
+    }, import("./api4DeltasTypes.js").OraclePayResponse[]>;
+    GetOraclePowerReport:import("@trpc/server").BuildProcedure<"query", {
+        _config:import("@trpc/server").RootConfig<{
+            ctx:object;
+            meta:object;
+            errorShape:import("@trpc/server").DefaultErrorShape;
+            transformer:import("@trpc/server").DefaultDataTransformer;
+        }>;
+        _meta:object;
+        _ctx_out:object;
+        _input_in:{
+            from:string;
+            to:string;
+            boid_id?:string | undefined;
+            oracle?:string | undefined;
+            round?:number | undefined;
+            protocol_id?:number | undefined;
+        };
+        _input_out:{
+            from:string;
+            to:string;
+            boid_id?:string | undefined;
+            oracle?:string | undefined;
+            round?:number | undefined;
+            protocol_id?:number | undefined;
+        };
+        _output_in:typeof import("@trpc/server").unsetMarker;
+        _output_out:typeof import("@trpc/server").unsetMarker;
+    }, import("./api4DeltasTypes.js").PowerReportResponse[]>;
 }>
 export type AppRouter = typeof appRouter;
 export {}
