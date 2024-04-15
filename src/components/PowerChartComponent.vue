@@ -6,11 +6,12 @@
 import { ref, nextTick } from "vue"
 import { storeToRefs } from "pinia"
 import { userStore } from "src/stores/usersStore"
-import { fetchGetLogPwrClaimData, fetchGetCombinedData, fetchPowerReports } from "src/lib/trpc/data"
+import { fetchGetLogPwrClaimData, fetchGetCombinedData, fetchPowerReports, fetchGetDeltasBoidIDData } from "src/lib/trpc/data"
 import { CombinedDataItem, PwrClaimData } from "src/types/types"
-import { SentReportsResponse } from "src/lib/trpc/api4DeltasTypes"
+import { SentReportsResponse, AccountsDeltaData } from "src/lib/trpc/api4DeltasTypes"
 import * as echarts from "echarts"
 import { customTheme } from "src/lib/echarts-theme"
+import { timeStamp } from "console"
 
 defineExpose({ manualPowerDataFetch })
 
@@ -28,6 +29,12 @@ interface ChartData {
   logpowerclaimdata:PwrClaimData[];
   protocolsdata:CombinedDataItem[];
   protocolsPowerData:SentReportsResponse[];
+  deltasBoidIDdata:AccountsDeltaData[];
+}
+
+interface DailyAveragePower {
+  timeStamp:Date;
+  averagePower:number;
 }
 // Protocol ID to Name Mapping
 const protocolNames:Record<number, string> = {
@@ -41,15 +48,17 @@ const protocolNames:Record<number, string> = {
 
 async function fetchData():Promise<ChartData | undefined> {
   if (selectedBoidId.value && props.fromDate && props.toDate) {
-    const [logData, protocolData, protocolsPowerData] = await Promise.all([
+    const [logData, protocolData, protocolsPowerData, deltasData] = await Promise.all([
       fetchGetLogPwrClaimData(selectedBoidId.value, props.fromDate, props.toDate),
       fetchGetCombinedData(selectedBoidId.value, props.fromDate, props.toDate),
-      fetchPowerReports(props.fromDate, props.toDate, undefined, undefined, selectedBoidId.value)
+      fetchPowerReports(props.fromDate, props.toDate, undefined, undefined, selectedBoidId.value),
+      fetchGetDeltasBoidIDData(selectedBoidId.value, props.fromDate, props.toDate)
     ])
     return {
       logpowerclaimdata: logData.map(item => ({ ...item, timeStamp: new Date(item.timeStamp) })),
       protocolsdata: protocolData.map(item => ({ ...item, timeStamp: new Date(item.date) })),
-      protocolsPowerData: protocolsPowerData.map(item => ({ ...item, timeStamp: new Date(item.timeStamp) }))
+      protocolsPowerData: protocolsPowerData.map(item => ({ ...item, timeStamp: new Date(item.timeStamp) })),
+      deltasBoidIDdata: deltasData.map(item => ({ ...item, timeStamp: new Date(item.timeStamp) }))
     }
   }
 }
@@ -102,6 +111,39 @@ function aggregateData(data:Array<{ timeStamp?:Date; power_after:number }>):Reco
   return results
 }
 
+function calculateDailyAveragePower(data:AccountsDeltaData[]):DailyAveragePower[] {
+  const powerSumByDay:Record<string, { totalPower:number, count:number }> = {}
+
+  data.forEach(item => {
+    // Safely extract dateKey from timeStamp if present and valid
+    const dateKey = item.timeStamp ? item.timeStamp.toISOString().split("T")[0] : undefined
+
+    // Proceed only if dateKey is defined
+    if (!dateKey) {
+      console.warn("Invalid or missing timeStamp, skipping item:", item)
+      return // Skip this item
+    }
+
+    // Initialize or update the totals for the given dateKey
+    if (!powerSumByDay[dateKey]) {
+      powerSumByDay[dateKey] = { totalPower: 0, count: 0 }
+    }
+    powerSumByDay[dateKey].totalPower += item.power
+    powerSumByDay[dateKey].count++
+  })
+
+  // Convert the aggregated data into an array of daily averages
+  return Object.keys(powerSumByDay).map(dateKey => {
+    const { totalPower, count } = powerSumByDay[dateKey] ?? { totalPower: 0, count: 0 }
+    const averagePower = totalPower / count
+    const midDayTimeStamp = new Date(`${dateKey}T12:00:00Z`) // Represents noon of the day
+
+    return {
+      timeStamp: midDayTimeStamp,
+      averagePower: Number(averagePower.toFixed(0))
+    }
+  })
+}
 
 
 // Chart setup function
@@ -113,8 +155,8 @@ const setupChart = async(data:ChartData | undefined) => {
 
     const aggregatedData = aggregateDataByDayAndProtocol(data.protocolsPowerData) || {}
     const averagePowerData = aggregateData(data.logpowerclaimdata)
+    const averageBoidIDpowerData = calculateDailyAveragePower(data.deltasBoidIDdata)
     const dates = Object.keys({ ...aggregatedData, ...averagePowerData }).sort() // Combine and sort dates from both datasets
-
     const protocolSeries = Object.keys(protocolNames).map(protocolIdStr => {
       const protocolId = Number(protocolIdStr)
       const protocolData = dates.map(date => aggregatedData[date] ? aggregatedData[date][protocolId] || 0 : 0)
@@ -127,13 +169,25 @@ const setupChart = async(data:ChartData | undefined) => {
     })
 
     const powerAfterSeries = {
-      name: "Boid Power",
+      name: "Total Daily",
       type: "line",
       yAxisIndex: 1,
-      data: dates.map(date => [date, averagePowerData[date] || 0])
+      data: dates.map(date => [date, averagePowerData[date]] || 0)
     }
 
-    const series = [...protocolSeries, powerAfterSeries]
+    const averagePowerSeries = {
+      name: "BoidID Power",
+      type: "line",
+      yAxisIndex: 1,
+      data: dates.map(date => {
+        // Find the matching entry in averageBoidIDpowerData by date
+        const entry = averageBoidIDpowerData.find(d => d.timeStamp.toISOString().split("T")[0] === date)
+        return [date, entry ? entry.averagePower : 0] // Use entry's averagePower if found, otherwise default to 0
+      })
+    }
+
+
+    const series = [...protocolSeries, averagePowerSeries, powerAfterSeries]
 
     const options = {
       legend: {
@@ -151,11 +205,11 @@ const setupChart = async(data:ChartData | undefined) => {
       yAxis: [
         {
           type: "value",
-          name: "Added Power"
+          name: "Protocols Power"
         },
         {
           type: "value",
-          name: "Boid Power",
+          name: "Total Power",
           position: "right"
         }
       ],

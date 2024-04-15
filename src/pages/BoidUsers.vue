@@ -64,6 +64,9 @@
       </div>
     </q-card>
     <q-card v-show="showCharts" class="q-ma-md">
+      <div class="q-ma-sm">
+        Staking
+      </div>
       <StakingChartComponent
         class="q-ma-sm"
         ref="stakingChartsComponentRef"
@@ -74,6 +77,9 @@
     </q-card>
     <q-separator />
     <q-card v-show="showCharts" class="q-ma-md">
+      <div class="q-ma-sm">
+        Tokens Minted
+      </div>
       <TokensMintedChartComponent
         class="q-ma-sm"
         ref="mintChartsComponentRef"
@@ -83,6 +89,9 @@
       />
     </q-card>
     <q-card v-show="showCharts" class="q-ma-md">
+      <div class="q-ma-sm">
+        Boid Power
+      </div>
       <PowerChartComponent
         class="q-ma-sm"
         ref="powerChartsComponentRef"
