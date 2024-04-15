@@ -33,6 +33,13 @@
           <q-btn
             flat
             dense
+            @click="$router.push('/boid-workers')"
+          >
+            Workers
+          </q-btn>
+          <q-btn
+            flat
+            dense
             @click="$router.push('/teams')"
           >
             Teams

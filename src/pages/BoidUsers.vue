@@ -120,7 +120,7 @@ const pagination = ref({
   sortBy: "powered_stake",
   descending: true,
   page: 1,
-  rowsPerPage: 5
+  rowsPerPage: 20
 })
 const selectedBoidId = ref("") // Reactive property to store the selected boid_id
 // Use store's default values for dates
