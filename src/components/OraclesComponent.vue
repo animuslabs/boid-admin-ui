@@ -56,7 +56,7 @@ const setupChartPayments = async(data:OraclePayResponse[]) => {
     data: data.map((item, index) => [dates[index], item.reports_proposed])
   }
   const unreportedSeries = {
-    name: "Unreported/Merged",
+    name: "Unreported/Unmerged",
     type: "bar",
     yAxisIndex: 1,
     data: data.map((item, index) => [dates[index], item.reports_unreported_unmerged])
@@ -77,7 +77,7 @@ const setupChartPayments = async(data:OraclePayResponse[]) => {
       }
     },
     legend: {
-      data: ["Base Pay", "Bonus Pay", "Reports Proposed", "Unreported/Merged", "Reported/Merged"]
+      data: ["Base Pay", "Bonus Pay", "Reports Proposed", "Unreported/Unmerged", "Reported/Merged"]
     },
     xAxis: {
       type: "category",
