@@ -56,6 +56,14 @@ export type GlobalDeltaResponse = {
   total_power:string;
 };
 
+export interface SeriesOptions {
+  name:string | undefined;
+  type:string;
+  data:number[];
+  stack:string;
+  color?:string; // Optional color property
+}
+
 export interface RequestParams {
   from:Date;
   to:Date;

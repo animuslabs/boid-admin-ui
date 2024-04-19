@@ -7,11 +7,12 @@ import { ref, nextTick } from "vue"
 import { storeToRefs } from "pinia"
 import { userStore } from "src/stores/usersStore"
 import { fetchGetLogPwrClaimData, fetchGetCombinedData, fetchPowerReports, fetchGetDeltasBoidIDData } from "src/lib/trpc/data"
-import { CombinedDataItem, PwrClaimData } from "src/types/types"
+import { CombinedDataItem, PwrClaimData, SeriesOptions } from "src/types/types"
 import { SentReportsResponse, AccountsDeltaData } from "src/lib/trpc/api4DeltasTypes"
 import * as echarts from "echarts"
 import { customTheme } from "src/lib/echarts-theme"
-import { timeStamp } from "console"
+import { format } from "path"
+
 
 defineExpose({ manualPowerDataFetch })
 
@@ -24,6 +25,8 @@ const props = defineProps({
 })
 const store = userStore()
 const { selectedBoidId } = storeToRefs(store)
+
+
 
 interface ChartData {
   logpowerclaimdata:PwrClaimData[];
@@ -38,12 +41,13 @@ interface DailyAveragePower {
 }
 // Protocol ID to Name Mapping
 const protocolNames:Record<number, string> = {
-  0: "F@Home Power",
-  1: "Rosetta Power",
-  2: "Denis Power",
-  3: "SiDock Power",
-  4: "RNAworld Power",
-  5: "WCG Power"
+  0: "F@Home",
+  1: "Rosetta",
+  2: "Denis",
+  3: "SiDock",
+  4: "RNAworld",
+  5: "WCG",
+  6: "Boosters"
 }
 
 async function fetchData():Promise<ChartData | undefined> {
@@ -63,7 +67,7 @@ async function fetchData():Promise<ChartData | undefined> {
   }
 }
 
-function aggregateDataByDayAndProtocol(data:SentReportsResponse[]):Record<string, Record<number, number>> {
+function aggregateDataByDayAndProtocol(data:SentReportsResponse[], boostersData:PwrClaimData[]):Record<string, Record<number, number>> {
   const aggregated = data.reduce((acc, item) => {
     // Check if timeStamp exists and is a valid Date object
     if (item.timeStamp) {
@@ -87,9 +91,21 @@ function aggregateDataByDayAndProtocol(data:SentReportsResponse[]):Record<string
     return acc
   }, {} as Record<string, Record<number, number>>)
 
+  // Aggregate boosters
+  boostersData.forEach(item => {
+    const dateKey = item.timeStamp.toISOString().split("T")[0]
+    // Proceed only if dateKey is defined
+    if (!dateKey) {
+      console.warn("Invalid or missing timeStamp, skipping item:", item)
+      return // Skip this item
+    }
+    if (!aggregated[dateKey]) aggregated[dateKey] = {}
+    aggregated[dateKey][6] = (aggregated[dateKey][6] || 0) + item.power_from_boosters // Use '6' as the ID for boosters
+  })
+
   return aggregated
 }
-function aggregateData(data:Array<{ timeStamp?:Date; power_after:number }>):Record<string, number> {
+function aggregateData(data:Array<{ timeStamp?:Date; power_before:number; power_after:number }>):Record<string, number> {
   const results:Record<string, number> = {}
 
   data.forEach(item => {
@@ -99,17 +115,19 @@ function aggregateData(data:Array<{ timeStamp?:Date; power_after:number }>):Reco
     }
 
     const dateKey = item.timeStamp.toISOString().split("T")[0]
+    const powerDifference = item.power_after - item.power_before
 
     if (dateKey) {
       if (!results[dateKey]) {
         results[dateKey] = 0
       }
-      results[dateKey] += item.power_after
+      results[dateKey] += powerDifference
     }
   })
 
   return results
 }
+
 
 function calculateDailyAveragePower(data:AccountsDeltaData[]):DailyAveragePower[] {
   const powerSumByDay:Record<string, { totalPower:number, count:number }> = {}
@@ -145,38 +163,44 @@ function calculateDailyAveragePower(data:AccountsDeltaData[]):DailyAveragePower[
   })
 }
 
-
 // Chart setup function
 const setupChart = async(data:ChartData | undefined) => {
   await nextTick()
   if (chartContainer.value && data) {
     echarts.registerTheme("shine", customTheme.theme)
     const chartInstance = echarts.init(chartContainer.value, "shine")
-
-    const aggregatedData = aggregateDataByDayAndProtocol(data.protocolsPowerData) || {}
-    const averagePowerData = aggregateData(data.logpowerclaimdata)
+    const aggregatedData = aggregateDataByDayAndProtocol(data.protocolsPowerData, data.logpowerclaimdata) || {}
+    const powerChangeData = aggregateData(data.logpowerclaimdata)
     const averageBoidIDpowerData = calculateDailyAveragePower(data.deltasBoidIDdata)
-    const dates = Object.keys({ ...aggregatedData, ...averagePowerData }).sort() // Combine and sort dates from both datasets
+    const dates = Object.keys({ ...aggregatedData, ...powerChangeData }).sort() // Combine and sort dates from both datasets
     const protocolSeries = Object.keys(protocolNames).map(protocolIdStr => {
       const protocolId = Number(protocolIdStr)
       const protocolData = dates.map(date => aggregatedData[date] ? aggregatedData[date][protocolId] || 0 : 0)
-      return {
+      let seriesOptions:SeriesOptions = {
         name: protocolNames[protocolId],
         type: "bar",
         data: protocolData,
         stack: "total"
       }
+
+      // Apply specific color to the Boosters series
+      if (protocolId === 6) { // Assuming 6 is the ID for Boosters
+        // ts-ignore
+        seriesOptions = { ...seriesOptions, color: "#FF5733" }
+      }
+
+      return seriesOptions
     })
 
     const powerAfterSeries = {
-      name: "Total Daily",
+      name: "Power Change",
       type: "line",
       yAxisIndex: 1,
-      data: dates.map(date => [date, averagePowerData[date]] || 0)
+      data: dates.map(date => [date, powerChangeData[date]] || 0)
     }
 
     const averagePowerSeries = {
-      name: "BoidID Power",
+      name: "BoidID actual power",
       type: "line",
       yAxisIndex: 1,
       data: dates.map(date => {
@@ -187,7 +211,7 @@ const setupChart = async(data:ChartData | undefined) => {
     }
 
 
-    const series = [...protocolSeries, averagePowerSeries, powerAfterSeries]
+    const series = [...protocolSeries, powerAfterSeries, averagePowerSeries]
 
     const options = {
       legend: {
@@ -209,8 +233,15 @@ const setupChart = async(data:ChartData | undefined) => {
         },
         {
           type: "value",
-          name: "Total Power",
-          position: "right"
+          name: "BoidID's Power",
+          alignTicks: true,
+          position: "right",
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: "#5470C6"
+            }
+          }
         }
       ],
       series
