@@ -15,6 +15,7 @@
         <q-btn label="Calculate Rounds" color="primary" @click="calculateRounds" />
         <div class="q-mt-sm" v-if="startRound && endRound">
           Start Round: <b>{{ startRound }}</b>, End Round: <b>{{ endRound }}</b>
+          <p>Total Rounds Locked: <b>{{ endRound - startRound }}</b></p>
         </div>
       </q-card-section>
     </q-card>
