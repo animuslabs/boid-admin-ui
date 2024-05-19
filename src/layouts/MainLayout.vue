@@ -70,6 +70,9 @@
                 <q-item clickable v-close-popup @click="$router.push('/calculator')">
                   <q-item-section>Calculator</q-item-section>
                 </q-item>
+                <q-item clickable v-close-popup @click="$router.push('/round-calculator')">
+                  <q-item-section>Round Calculator</q-item-section>
+                </q-item>
                 <q-item clickable v-close-popup @click="$router.push('/keys-gen')">
                   <q-item-section>Keys Generator</q-item-section>
                 </q-item>
