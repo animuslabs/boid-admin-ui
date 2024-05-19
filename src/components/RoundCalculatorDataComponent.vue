@@ -12,7 +12,7 @@
         <q-date v-model="endDate" mask="YYYY-MM-DD" minimal :min="startDate" :max="today" />
       </q-card-section>
       <q-card-section>
-        <q-btn label="Calculate Rounds" @click="calculateRounds" />
+        <q-btn label="Calculate Rounds" color="primary" @click="calculateRounds" />
         <div class="q-mt-sm" v-if="startRound && endRound">
           Start Round: <b>{{ startRound }}</b>, End Round: <b>{{ endRound }}</b>
         </div>
