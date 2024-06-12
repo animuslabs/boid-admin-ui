@@ -13,6 +13,14 @@
             <div class="q-mb-sm">
               <q-btn @click="executeActions" label="EXECUTE ACTIONS" color="primary" class="q-mr-sm" />
               <q-btn @click="clearActions" label="CLEAR ALL" color="primary" />
+              <q-toggle
+                v-model="multiSignState"
+                color="green"
+                label="M-Sign"
+                @input="multiSignState"
+              >
+                <q-tooltip>Multi Signature switch. If your account doesn't have multi-signature setup - turn this off.</q-tooltip>
+              </q-toggle>
             </div>
             <q-table
               flat bordered
@@ -52,27 +60,49 @@
                   />
                 </template>
               </q-input>
-              <div class="q-ml-md text-subtitle2">
-                {{ totalsBySymbol }}
+              <div class="q-ml-md text-subtitle2 bg-grey-3 ">
+                <span class="q-mt-sm" v-html="totalsBySymbol" />
+                <q-tooltip>Aggregated totals by symbol, changing with applied filters.</q-tooltip>
                 <template v-if="!searchQuery">
                   <div>
-                    Vault Status: {{ vaultStatus.tlos }} | {{ vaultStatus.boid }}
+                    <b>Vault Status:</b> {{ vaultStatus.tlos }} | {{ vaultStatus.boid }}
                     <q-badge class="q-ml-sm" v-if="vaultStatus.sufficientFunds" color="green" text-color="white">
                       Sufficient Funds
                     </q-badge>
                     <q-badge v-else color="red" text-color="white">
                       Insufficient Funds
                     </q-badge>
+                    <q-tooltip>Check if the vault has enough funds to cover all payrolls.</q-tooltip>
                   </div>
                 </template>
               </div>
             </div>
+            <div class="row q-mb-sm">
+              <q-toggle v-model="showActive" label="Ongoing">
+                <q-tooltip>Unfulfilled payrolls.</q-tooltip>
+              </q-toggle>
+            </div>
             <q-table
-              flat bordered
+              flat
+              bordered
+              dense
               :rows="filteredPayrolls"
               :columns="payrollsColumns"
               row-key="id"
+              :pagination="{ rowsPerPage: 10 }"
             >
+              <template #header-cell-startTime="props">
+                <q-th :props="props">
+                  {{ props.col.label }}
+                  <q-tooltip>{{ dateTooltipDescription }}</q-tooltip>
+                </q-th>
+              </template>
+              <template #header-cell-finishTime="props">
+                <q-th :props="props">
+                  {{ props.col.label }}
+                  <q-tooltip>{{ dateTooltipDescription }}</q-tooltip>
+                </q-th>
+              </template>
               <template #body="props">
                 <q-tr :props="props">
                   <q-td v-for="col in props.cols" :key="col.name" :props="props">
@@ -137,12 +167,21 @@ import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
 import { convertTo24HourISO } from "src/lib/reuseFunctions"
 import { getTokenBalance } from "src/lib/apiFetchData"
+import { useSessionStore } from "src/stores/sessionStore"
 
 const route = useRoute()
 const router = useRouter()
 const payrollStore = usePayrollStore()
 const loading = ref(true)
 const searchQuery = ref("")
+const sessionStore = useSessionStore()
+
+// active payrolls toggle start state
+const showActive = ref(true)
+const multiSignState = computed({
+  get: () => sessionStore.multiSignToggleState,
+  set: (value) => sessionStore.setToggleState(value)
+})
 
 const payrolls = ref<PayrollDataItem[]>([])
 const tokensWhitelist = ref<TokensWhitelistItem[]>([])
@@ -169,18 +208,39 @@ const claimSelectedPayroll = (payrollId:number | null = null) => {
   console.log(`Claiming payroll with ID: ${payrollId}`)
 }
 const filteredPayrolls = computed(() => {
-  if (!searchQuery.value) {
-    return payrolls.value
+  let result = payrolls.value
+
+  if (showActive.value) {
+    const now = new Date()
+    result = result.filter(payroll => {
+      const totalParts = payroll.total ? payroll.total.split(" ") : ["0", "Unknown"]
+      const paidParts = payroll.paid ? payroll.paid.split(" ") : ["0", "Unknown"]
+      const totalAmount = parseFloat(totalParts[0] as string)
+      const paidAmount = parseFloat(paidParts[0] as string)
+
+      const isNotPaid = totalAmount !== paidAmount
+      const isNotExpired = new Date(payroll.finishTime) >= now
+
+      return isNotPaid || isNotExpired
+    })
   }
-  return payrolls.value.filter(payroll => {
-    // Adjust the criteria based on which fields you want to search in
-    return payroll.meta.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-           payroll.receiverAccount.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-           payroll.treasuryAccount.toLowerCase().includes(searchQuery.value.toLowerCase())
-  })
+
+  if (searchQuery.value) {
+    result = result.filter(payroll => {
+      return payroll.meta.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+             payroll.receiverAccount.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+             payroll.treasuryAccount.toLowerCase().includes(searchQuery.value.toLowerCase())
+    })
+  }
+
+  return result
 })
+
 watch(searchQuery, () => {
   void router.replace({ params: { name: searchQuery.value } })
+})
+watch(showActive, () => {
+  void router.replace({ params: { showActive: showActive.value.toString() } })
 })
 
 const calculateFirstClaimDate = (startTimeStr:string, minClaimFrequencySec:number):string => {
@@ -237,12 +297,14 @@ const totalsBySymbol = computed(() => {
   // Use `filteredPayrolls` for calculating totals
   const aggregatedTotals = aggregateAmountsBySymbol(filteredPayrolls.value)
   return Object.entries(aggregatedTotals).map(([symbol, amounts]) => {
-    return `Total: ${amounts.total.toFixed(4)} ${symbol}, Paid: ${amounts.paid.toFixed(4)}`
+    const percentage = ((amounts.paid / amounts.total) * 100).toFixed(0)
+    return `<span><b>${symbol}:</b> ${amounts.paid.toFixed(0)}/${amounts.total.toFixed(0)} <b>(${percentage}%)</b></span>`
   }).join(" || ")
 })
 
 
-
+// Tooltip messages for Start and Finish time columns
+const dateTooltipDescription = "Date format: DD/MM/YYYY, HOUR:MINUTE:SECOND"
 
 // Formatter functions
 const formatAsset = (asset:Asset) => `${Asset.from(asset)}`
