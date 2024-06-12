@@ -15,7 +15,6 @@
     "@trpc/client": "^10.44.1",
     "@types/lodash": "^4.14.202",
     "@types/lodash.isequal": "^4.5.8",
-    "@vitejs/plugin-legacy": "^5.4.1",
     "@wharfkit/contract": "^1.1.4",
     "@wharfkit/session": "^1.2.6",
     "@wharfkit/signing-request": "^3.1.0",

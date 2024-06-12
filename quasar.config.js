@@ -73,7 +73,7 @@ module.exports = configure(function(/* ctx */) {
       // env: {},
       // rawDefine: {}
       // ignorePublicFolder: true,
-      minify: true,
+      minify: true
       // polyfillModulePreload: true,
       // distDir
 
@@ -83,11 +83,6 @@ module.exports = configure(function(/* ctx */) {
       // vitePlugins: [
       //   [ 'package-name', { ..options.. } ]
       // ]
-      vitePlugins: [
-        ["@vitejs/plugin-legacy", {
-          targets: ["defaults", "not IE 11"]
-        }]
-      ]
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
