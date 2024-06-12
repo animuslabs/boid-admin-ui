@@ -58,8 +58,8 @@ module.exports = configure(function(/* ctx */) {
         )
       },
       target: {
-        browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
-        node: "node16"
+        browser: ["es2021", "edge100", "firefox100", "chrome100", "safari15"],
+        node: "node20"
       },
       vueRouterMode: "history", // available values: 'hash', 'history'
       // vueRouterBase,
