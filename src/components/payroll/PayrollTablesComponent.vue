@@ -168,9 +168,8 @@ import PayrollConfigForm from "src/components/payroll/PayrollConfigForm.vue"
 import { ActionDescriptor } from "src/lib/contracts"
 import { ActionParams } from "src/lib/payroll.boid"
 import { PayrollMeta, PayrollDataItem, TokensWhitelistItem, PayrollItem, AggregatedTotals } from "src/types/types"
-import { Asset, Bytes, Name, TimePointSec } from "@wharfkit/session"
+import { Asset, Bytes, Name } from "@wharfkit/session"
 import { Dialog, QBtn, QTableProps } from "quasar"
-import { convertTo24HourISO } from "src/lib/reuseFunctions"
 import { getTokenBalance } from "src/lib/apiFetchData"
 import { useSessionStore } from "src/stores/sessionStore"
 
@@ -249,16 +248,15 @@ watch(showActive, () => {
 })
 
 const calculateFirstClaimDate = (startTimeStr:string, minClaimFrequencySec:number):string => {
-  const parts = startTimeStr.split(", ")
-  if (parts.length < 2) {
-    console.error("Invalid startTimeStr format")
+  const startTime = parseDate(startTimeStr)
+  if (!startTime) {
+    console.error("Invalid startTimeStr format for:", startTimeStr)
     return "Invalid Date"
   }
-  const dateData = convertTo24HourISO(startTimeStr).toString()
-  const startTime = new Date(dateData)
+
   const firstClaimTime = new Date(startTime.getTime() + minClaimFrequencySec * 1000) // Convert seconds to milliseconds
   if (isNaN(firstClaimTime.getTime())) {
-    console.error("Failed to calculate first claim date from:", dateData)
+    console.error("Failed to calculate first claim date from:", startTimeStr)
     return "Invalid Date"
   }
 
@@ -314,10 +312,36 @@ const dateTooltipDescription = "Date format: DD/MM/YYYY, HOUR:MINUTE:SECOND"
 // Formatter functions
 const formatAsset = (asset:Asset) => `${Asset.from(asset)}`
 const formatName = (name:Name) => name.toString()
-const formatTimePointSec = (timePointSec:TimePointSec) => {
-  // Ensure timePointSec is an instance of TimePointSec and call toMilliseconds() on it
-  const milliseconds = timePointSec.toMilliseconds()
-  return new Date(milliseconds).toLocaleString()
+const parseDate = (dateStr:string):Date | null => {
+  // Check if the date is in ISO format
+  let date = new Date(dateStr)
+  // console.log("Attempting to parse date:", dateStr, "Parsed:", date)
+  if (!isNaN(date.getTime())) {
+    return date
+  }
+
+  // Handle non-ISO formats like "DD/MM/YYYYTHH:MM:SS"
+  const parts = dateStr.split(/[T,\s]/) // Split by 'T' or space
+  if (parts.length >= 2) {
+    const dateParts = parts[0]?.split("/") || ["0", "0"]
+    const timeParts = parts[1]?.split(":") || []
+
+    if (dateParts.length === 3 && timeParts.length === 3) {
+      const day = parseInt(dateParts[0] || "", 10)
+      const month = parseInt(dateParts[1] || "", 10) - 1 // Months are 0-based in JS Date
+      const year = parseInt(dateParts[2] || "", 10)
+      const hours = parseInt(timeParts[0] || "", 10)
+      const minutes = parseInt(timeParts[1] || "", 10)
+      const seconds = parseInt(timeParts[2] || "", 10)
+
+      date = new Date(year, month, day, hours, minutes, seconds)
+      if (!isNaN(date.getTime())) {
+        return date
+      }
+    }
+  }
+
+  return null // Return null if the date is invalid
 }
 
 const payrollsColumns = [
@@ -399,8 +423,8 @@ async function fetchAndShowDescriptors() {
           id: index,
           actionDescriptor: `
           Name: ${title} |
-          From: ${formatTimePointSec(data.startTime)} |
-          To: ${formatTimePointSec(data.finishTime)} |
+          From: ${parseDate(data.startTime.toString())} |
+          To: ${parseDate(data.finishTime.toString())} |
           Receiver: ${formatName(data.receiverAccount as Name)} || Total: ${formatAsset(data.total as Asset)}`
         }
       } catch (error) {
@@ -545,9 +569,9 @@ const fetchPayrollData = async() => {
       id: Number(payroll.id),
       total: formatAsset(payroll.total),
       paid: formatAsset(payroll.paid),
-      startTime: formatTimePointSec(payroll.startTime),
-      finishTime: formatTimePointSec(payroll.finishTime),
-      lastPayout: formatTimePointSec(payroll.lastPayout),
+      startTime: parseDate(payroll.startTime.toString())?.toISOString() || "Invalid Date",
+      finishTime: parseDate(payroll.finishTime.toString())?.toISOString() || "Invalid Date",
+      lastPayout: parseDate(payroll.lastPayout.toString())?.toISOString() || "Invalid Date",
       minClaimFrequencySec: payroll.minClaimFrequencySec.toString(),
       receiverAccount: formatName(payroll.receiverAccount),
       treasuryAccount: formatName(payroll.treasuryAccount),
@@ -555,7 +579,7 @@ const fetchPayrollData = async() => {
       meta: await PayrollMeta.fromBytes(payroll.meta)
     })))
   }
-
+  console.log("payrollsData: ", payrolls.value)
   const tokensData = await payrollStore.fetchtokenwlTableData()
   if (tokensData) {
     tokensWhitelist.value = tokensData.map(token => ({
