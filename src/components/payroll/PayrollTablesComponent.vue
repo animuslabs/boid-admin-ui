@@ -61,8 +61,13 @@
                 </template>
               </q-input>
               <div class="q-ml-md text-subtitle2 bg-grey-3 ">
-                <span class="q-mt-sm" v-html="totalsBySymbol" />
-                <q-tooltip>Aggregated totals by symbol, changing with applied filters.</q-tooltip>
+                <span class="q-my-md" v-html="totalsBySymbol" />
+                <q-tooltip
+                  anchor="top middle"
+                  self="bottom middle"
+                >
+                  Totals showing the amount: 'paid out / assigned' and the corresponding percentage, for visible payrolls.
+                </q-tooltip>
                 <template v-if="!searchQuery">
                   <div>
                     <b>Vault Status:</b> {{ vaultStatus.tlos }} | {{ vaultStatus.boid }}
