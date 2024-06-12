@@ -179,7 +179,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, computed } from "vue"
+import { onMounted, ref, computed, watch } from "vue"
 import { useSessionStore } from "src/stores/sessionStore"
 import LoginMenu from "src/components/LoginMenu.vue"
 import { notifyEvent, showNotification } from "src/lib/contracts"
@@ -196,9 +196,20 @@ notifyEvent.on("TrxResult", (result) => {
 const dismissBanner = () => {
   isBannerVisible.value = false // Hide the banner
 }
+
+watch(isBannerVisible, (newValue) => {
+  localStorage.setItem("isBannerVisible", JSON.stringify(newValue))
+})
+
 onMounted(async() => {
   await sessionStore.renew()
   await signersStore.initializeSigners()
+
+  // Load the banner visibility state from localStorage
+  const savedIsBannerVisible = localStorage.getItem("isBannerVisible")
+  if (savedIsBannerVisible !== null) {
+    isBannerVisible.value = JSON.parse(savedIsBannerVisible)
+  }
 })
 const badgeColor = computed(() => sessionStore.multiSignToggleState ? "green" : "red")
 </script>

@@ -246,6 +246,10 @@ watch(searchQuery, () => {
 watch(showActive, () => {
   void router.replace({ params: { showActive: showActive.value.toString() } })
 })
+watch(multiSignState, (newValue) => {
+  localStorage.setItem("multiSignState", JSON.stringify(newValue))
+})
+
 
 const calculateFirstClaimDate = (startTimeStr:string, minClaimFrequencySec:number):string => {
   const startTime = parseDate(startTimeStr)
@@ -509,18 +513,6 @@ async function getVaultStatus() {
   vaultStatus.value = vaultStatusData
 }
 
-onMounted(async() => {
-  await fetchAndShowDescriptors() // Initial fetch
-  await getVaultStatus()
-  loading.value = false
-})
-
-// Automatically fetch and show descriptors when the store's descriptors change
-watchEffect(async() => {
-  await fetchAndShowDescriptors()
-})
-
-
 // Function to handle deleting an action descriptor
 const deleteAction = async(descriptorIndex:number) => {
   if (confirm("Are you sure you want to delete this action?")) {
@@ -593,7 +585,22 @@ const fetchPayrollData = async() => {
 
 let fetchInterval:number | undefined
 
+// Automatically fetch and show descriptors when the store's descriptors change
+watchEffect(async() => {
+  await fetchAndShowDescriptors()
+})
+
 onMounted(async() => {
+  await fetchAndShowDescriptors() // Initial fetch
+  await getVaultStatus()
+  loading.value = false
+
+  // Load the saved multi-signature state from localStorage
+  const savedMultiSignState = localStorage.getItem("multiSignState")
+  if (savedMultiSignState !== null) {
+    sessionStore.setToggleState(JSON.parse(savedMultiSignState))
+  }
+
   await fetchPayrollData() // Initial fetch
   fetchInterval = setInterval(fetchPayrollData, 30000) as unknown as number // Fetch every 30 seconds
   searchQuery.value = route.params.name as string || ""
