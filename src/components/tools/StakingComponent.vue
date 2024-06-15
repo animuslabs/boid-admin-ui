@@ -1,158 +1,152 @@
 <template>
   <q-page class="container" padding>
-    <q-card class="card-class">
-      <div class="col-auto q-mr-md">
-        <q-card>
-          <q-card-section class="row">
-            <div class="col">
-              <div class="text-h6">
-                Enter Boid ID
-              </div>
-              <q-input
-                class="inputForm"
-                filled
-                v-model="search"
-                placeholder="Boid ID"
-                debounce="300"
-                @input="onSearch"
-              />
-              <div class="list-container" v-if="filteredBoidIds.length && !boidSelected">
-                <q-list bordered>
-                  <q-item
-                    v-for="boid in filteredBoidIds"
-                    :key="boid"
-                    clickable
-                    dense
-                    @click="selectBoidId(boid)"
-                  >
-                    <q-item-section>{{ boid }}</q-item-section>
-                  </q-item>
-                </q-list>
-              </div>
-              <q-form @submit.prevent="onSubmit" class="q-gutter-md">
-                <q-btn label="Get Data" type="submit" color="primary" />
-              </q-form>
+    <div class="col-6 inline">
+      <q-card bordered wrap class="q-ma-sm row card-class">
+        <q-card-section class="col-6">
+          <div class="col">
+            <div class="text-h6">
+              Enter Boid ID
             </div>
-          </q-card-section>
-          <q-card-section class="row">
-            <div class="col">
-              <div class="font-bold ">
-                Acc status in BOID
-                <q-btn
-                  icon="refresh"
-                  color="primary"
-                  flat
-                  size="sm"
-                  @click="refreshData"
-                  class="q-ml-sm"
+            <q-input
+              class="inputForm"
+              filled
+              v-model="search"
+              placeholder="Boid ID"
+              debounce="300"
+              @input="onSearch"
+            />
+            <div class="list-container" v-if="filteredBoidIds.length && !boidSelected">
+              <q-list bordered>
+                <q-item
+                  v-for="boid in filteredBoidIds"
+                  :key="boid"
+                  clickable
+                  dense
+                  @click="selectBoidId(boid)"
                 >
-                  <q-tooltip>
-                    <span>Refresh Data</span>
-                  </q-tooltip>
-                </q-btn>
-              </div>
-              <div>Liquid: {{ walletData.liquidBalance }}</div>
-              <div>Self Stake: {{ walletData.selfStake }}</div>
-              <div>Delegated Stake: {{ walletData.delegatedStake }}</div>
-              <div>Total Stake: {{ walletData.selfStake + walletData.delegatedStake }}</div>
+                  <q-item-section>{{ boid }}</q-item-section>
+                </q-item>
+              </q-list>
             </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-auto q-mr-md">
-        <q-card>
-          <q-card-section class="row">
-            <div class="col q-mr-sm">
-              <div class="text-h6">
-                Unstake
-              </div>
-              <q-form @submit.prevent="onUnstake">
-                <q-input class="inputForm" filled dense v-model="walletData.selfUnstake" label="Unstake amount" type="number" />
-                <q-btn label="Unstake" type="submit" color="primary" class="q-ma-sm" />
-              </q-form>
+            <q-form @submit.prevent="onSubmit" class="q-gutter-md">
+              <q-btn label="Get Data" type="submit" color="primary" />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-section class="col-6">
+          <div class="col">
+            <div class="font-bold ">
+              Acc status in BOID
+              <q-btn
+                icon="refresh"
+                color="primary"
+                flat
+                size="sm"
+                @click="refreshData"
+                class="q-ml-sm"
+              >
+                <q-tooltip>
+                  <span>Refresh Data</span>
+                </q-tooltip>
+              </q-btn>
             </div>
-            <div class="col">
-              <div class="text-h6">
-                Stake
-              </div>
-              <q-form @submit.prevent="onStake">
-                <q-input class="inputForm" filled dense v-model="walletData.liquidBalance" label="Stake amount" type="number" />
-                <q-btn label="Stake" type="submit" color="primary" class="q-ma-sm" />
-              </q-form>
+            <div>Liquid: {{ walletData.liquidBalance }}</div>
+            <div>Self Stake: {{ walletData.selfStake }}</div>
+            <div>Delegated Stake: {{ walletData.delegatedStake }}</div>
+            <div>Total Stake: {{ walletData.selfStake + walletData.delegatedStake }}</div>
+          </div>
+        </q-card-section>
+      </q-card>
+      <q-card bordered wrap class="q-ma-sm row card-class">
+        <q-card-section class="col-6">
+          <div class="text-h6">
+            Withdraw
+          </div>
+          <div class="">
+            <q-form @submit.prevent="onWithdraw">
+              <q-input class="inputForm q-pb-sm" filled dense v-model="walletData.withDrawQuantity" label="Withdraw amount" type="number" />
+              <q-input class="inputForm" filled dense v-model="walletData.withDrawTo" label="Withdraw to" />
+              <q-btn label="Withdraw" type="submit" color="primary" class="q-ma-sm" />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-section class="col-6">
+          <div class="text-h6">
+            Internal Transfer
+          </div>
+          <div class="">
+            <q-form @submit.prevent="onInternalTransfer">
+              <q-input class="inputForm q-mb-sm" filled dense v-model="walletData.internalTrasferQuantity" label="Transfer amount" type="number" />
+              <q-input class="inputForm" filled dense v-model="walletData.internalTransferTo" label="Transfer to" />
+              <q-btn label="Transfer" type="submit" color="primary" class="q-ma-sm" />
+            </q-form>
+          </div>
+        </q-card-section>
+      </q-card>
+    </div>
+    <div class="col-6 inline">
+      <q-card bordered wrap class="q-ma-sm row card-class">
+        <q-card-section class="row">
+          <div class="col q-mr-sm">
+            <div class="text-h6">
+              Unstake
             </div>
-          </q-card-section>
-
-          <q-card-section class="col">
-            <div>
-              Current Round: <b>{{ currentRound }}</b> | Round Progress: <b>{{ roundProgress }}</b>
+            <q-form @submit.prevent="onUnstake">
+              <q-input class="inputForm" filled dense v-model="walletData.selfUnstake" label="Unstake amount" type="number" />
+              <q-btn label="Unstake" type="submit" color="primary" class="q-ma-sm" />
+            </q-form>
+          </div>
+          <div class="col">
+            <div class="text-h6">
+              Stake
             </div>
-            <div class="font-bold q-mt-sm">
-              Unstaking
-            </div>
-            <q-table
-              :rows="walletData.unstaking"
-              :columns="unstakingColumns"
-              row-key="redeemable_after_round"
-            >
-              <template #body-cell-actions="props">
-                <q-td :props="props">
-                  <q-btn
-                    icon="check"
-                    color="primary"
-                    round
-                    dense
-                    size="sm"
-                    @click="onRedeemUnstake(props.row)"
-                  />
-                  <q-btn
-                    icon="remove"
-                    color="secondary"
-                    round
-                    dense
-                    size="sm"
-                    @click="onCancelUnstake(props.row)"
-                  />
-                </q-td>
-              </template>
-            </q-table>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-auto">
-        <q-card>
-          <q-card-section>
-            <div class="col-12 text-h6">
-              Withdraw
-            </div>
-            <div class="col-12">
-              <q-form @submit.prevent="onWithdraw">
-                <q-input class="inputForm q-pb-sm" filled dense v-model="walletData.withDrawQuantity" label="Withdraw amount" type="number" />
-                <q-input class="inputForm" filled dense v-model="walletData.withDrawTo" label="Withdraw to" />
-                <q-btn label="Withdraw" type="submit" color="primary" class="q-ma-sm" />
-              </q-form>
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <div class="col-12 text-h6">
-              Internal Transfer
-            </div>
-            <div class="col-12">
-              <q-form @submit.prevent="onInternalTransfer">
-                <q-input class="inputForm q-mb-sm" filled dense v-model="walletData.internalTrasferQuantity" label="Transfer amount" type="number" />
-                <q-input class="inputForm" filled dense v-model="walletData.internalTransferTo" label="Transfer to" />
-                <q-btn label="Transfer" type="submit" color="primary" class="q-ma-sm" />
-              </q-form>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-    </q-card>
+            <q-form @submit.prevent="onStake">
+              <q-input class="inputForm" filled dense v-model="walletData.liquidBalance" label="Stake amount" type="number" />
+              <q-btn label="Stake" type="submit" color="primary" class="q-ma-sm" />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-section class="col">
+          <div>
+            Current Round: <b>{{ currentRound }}</b> | Round Progress: <b>{{ roundProgress }}</b>
+          </div>
+          <div class="font-bold q-mt-sm">
+            Unstaking
+          </div>
+          <q-table
+            :rows="walletData.unstaking"
+            :columns="unstakingColumns"
+            row-key="redeemable_after_round"
+            dense
+            flat
+            hide-bottom
+          >
+            <template #body-cell-actions="props">
+              <q-td :props="props">
+                <q-btn
+                  icon="check"
+                  color="primary"
+                  round
+                  dense
+                  size="sm"
+                  @click="onRedeemUnstake()"
+                />
+                <q-btn
+                  icon="remove"
+                  color="secondary"
+                  round
+                  dense
+                  size="sm"
+                  @click="onCancelUnstake()"
+                />
+              </q-td>
+            </template>
+          </q-table>
+        </q-card-section>
+      </q-card>
+    </div>
   </q-page>
 </template>
-
-
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref, Ref, computed, watch, reactive } from "vue"
@@ -240,7 +234,7 @@ const walletData = ref(
 
 const unstakingColumns = [
   { name: "quantity", required: true, label: "BOID", align: "left" as const, field: "quantity" },
-  { name: "redeemable_after_round", required: true, label: "After Round", align: "left" as const, field: "redeemable_after_round" },
+  { name: "redeemable_after_round", required: true, label: "Round", align: "left" as const, field: "redeemable_after_round" },
   { name: "date", required: true, label: "Date", align: "left" as const, field: "date" },
   { name: "actions", required: true, label: "Actions", align: "left" as const, field: "actions" }
 ]
@@ -312,8 +306,8 @@ onMounted(async() => {
 <style>
 .container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row inline;
+  align-items: top;
   justify-content: center;
   height: 100%;
   max-width: 100%;
@@ -331,9 +325,8 @@ onMounted(async() => {
   background: white;
 }
 .card-class {
-  width: 100%;
-  max-width: 600px;
-  margin: 10px;
-  padding: 10px;
+  min-width: 400px;
+  max-width: 400px;
+  height: fit-content;
 }
 </style>
