@@ -36,7 +36,7 @@
         <q-card-section class="col-6">
           <div class="col">
             <div class="font-bold ">
-              Acc status in BOID
+              BOID
               <q-btn
                 icon="refresh"
                 color="primary"
