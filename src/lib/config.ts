@@ -30,7 +30,6 @@ export const TelosEndpoints:string[][] = [
   ["Boid BP", "https://telos.api.boid.animus.is"],
   ["EOSphere", "https://telos.eosphere.io"],
   ["EOS Nation", "https://telos.api.eosnation.io"],
-  ["TelosUSA", "https://telos.eosusa.io"],
   ["Caleos", "https://telos.caleos.io"],
   ["EOS Dublin", "https://telos.eosdublin.io"]
 ]
@@ -39,7 +38,6 @@ export const TelosTestnetEndpoints:string[][] = [
   ["Boid BP", "https://telos.testnet.boid.animus.is"],
   ["EOSphere", "https://telos-testnet.eosphere.io"],
   ["EOS Nation", "https://telostest.api.eosnation.io"],
-  ["TelosUSA", "https://test.telos.eosusa.io"],
   ["Teleology One", "https://testnet.telos.teleology.one"]
 ]
 

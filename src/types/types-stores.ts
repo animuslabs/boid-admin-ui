@@ -33,6 +33,15 @@ export type AccountRowData = {
   powered_stake:number;
 };
 
+export type AccountStakingData = {
+  boid_id:string;
+  balance:number;
+  self_staked:number;
+  received_delegated_stake:number;
+  total_stake:number;
+  unstaking:TeamTokenUnstake[];
+}
+
 export class TeamMeta {
   links:[string, string][] = []
   media:[string, string][] = []
@@ -47,7 +56,7 @@ export class AccountMeta {
   extra?:[string, string][] = []
 }
 
-interface TeamTokenUnstake {
+export interface TeamTokenUnstake {
   redeemable_after_round:number
   quantity:number
 }

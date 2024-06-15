@@ -3,7 +3,7 @@ import { fetchDataFromTable } from "src/lib/contracts"
 import { Types, Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Ref, ref } from "vue"
 import { Bytes } from "@wharfkit/antelope"
-import { ParsedAccountMeta, AccountRowData, AccountMeta } from "src/types/types-stores"
+import { ParsedAccountMeta, AccountRowData, AccountMeta, AccountStakingData } from "src/types/types-stores"
 import { useConfigStore } from "src/stores/configStore"
 import { useApiStore } from "src/stores/apiStore"
 
@@ -64,6 +64,7 @@ export const userStore = defineStore({
 
     return {
       organizedDataRaw: ref([]) as Ref<AccountRowData[]>,
+      organizedAccStakingData: ref([]) as Ref<AccountStakingData[]>,
       selectedBoidId: "",
       fromDate: oneWeekAgo.toISOString().substring(0, 10), // 7 days ago
       toDate: tomorrow.toISOString().substring(0, 10), // tomorrow's date
@@ -76,6 +77,9 @@ export const userStore = defineStore({
   getters: {
     organizedData(state) {
       return state.organizedDataRaw
+    },
+    getOrganizedAccStakingData(state) {
+      return state.organizedAccStakingData
     },
     isLoading(state) {
       return state.loading
@@ -184,6 +188,58 @@ export const userStore = defineStore({
         this.$patch({ error: error.message })
       } finally {
         this.$patch({ loading: false })
+      }
+    },
+    async fetchAccStakingData():Promise<AccountStakingData[] | undefined> {
+      this.$patch({ loading: true, error: null })
+
+      const contract = apiStore.boidContractInitialized
+      if (!contract) {
+        console.error("Boid contract is not initialized")
+        this.$patch({ loading: false, error: "Boid contract is not initialized" })
+        return
+      }
+
+      try {
+        const dataAccResult = await fetchDataFromTable(contract as BoidContract, "accounts")
+        if (!dataAccResult) {
+          console.error("Failed to fetch data")
+          this.$patch({ error: "Failed to fetch data", loading: false })
+          return
+        }
+
+        const dataAcc:Types.Account[] = dataAccResult as unknown as Types.Account[]
+        const dataFinal:AccountStakingData[] = await Promise.all(
+          dataAcc.map(async(account) => {
+            const boid_id = account.boid_id.toString()
+            const balance = Number(account.balance)
+            const self_staked = Number(account.stake.self_staked)
+            const received_delegated_stake = Number(account.stake.received_delegated_stake)
+            const total_stake = self_staked + received_delegated_stake
+            const unstaking = account.stake.unstaking.map((unstake) => ({
+              redeemable_after_round: Number(unstake.redeemable_after_round),
+              quantity: Number(unstake.quantity)
+            }))
+
+            return {
+              boid_id,
+              balance,
+              self_staked,
+              received_delegated_stake,
+              total_stake,
+              unstaking
+            }
+          })
+        )
+
+        console.log("Organized Account Staking Data before patch:", dataFinal)
+        this.$patch({ organizedAccStakingData: dataFinal, loading: false })
+        console.log("Organized Account Staking Data in Store after patch:", this.organizedAccStakingData)
+        return dataFinal
+      } catch (error) {
+        console.error("Error fetching account staking data:", error)
+        this.$patch({ error: "Error fetching account staking data", loading: false })
+        return
       }
     },
     setSelectedBoidId(boidId:string) {

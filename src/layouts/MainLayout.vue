@@ -76,7 +76,9 @@
                 <q-item clickable v-close-popup @click="$router.push('/keys-gen')">
                   <q-item-section>Keys Generator</q-item-section>
                 </q-item>
-                <!-- More tools as needed -->
+                <q-item clickable v-close-popup @click="$router.push('/staking')">
+                  <q-item-section>Staking</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
