@@ -15,11 +15,11 @@
     "@trpc/client": "^10.44.1",
     "@types/lodash": "^4.14.202",
     "@types/lodash.isequal": "^4.5.8",
-    "@wharfkit/contract": "^1.1.4",
-    "@wharfkit/session": "^1.2.6",
-    "@wharfkit/signing-request": "^3.1.0",
-    "@wharfkit/wallet-plugin-anchor": "^1.2.1",
-    "@wharfkit/web-renderer": "^1.2.2",
+    "@wharfkit/contract": "^1.1.5",
+    "@wharfkit/session": "^1.3.1",
+    "@wharfkit/signing-request": "^3.2.0",
+    "@wharfkit/wallet-plugin-anchor": "^1.3.5",
+    "@wharfkit/web-renderer": "^1.2.5",
     "buffer": "^6.0.3",
     "echarts": "^5.5.0",
     "lodash": "^4.17.21",
@@ -31,7 +31,7 @@
     "vue3-apexcharts": "^1.4.4"
   },
   "resolutions": {
-    "@wharfkit/antelope": "^1.0.5"
+    "@wharfkit/antelope": "^1.0.7"
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.7.1",
