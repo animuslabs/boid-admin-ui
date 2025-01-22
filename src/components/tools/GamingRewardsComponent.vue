@@ -10,9 +10,10 @@
       allign="justify"
       narrow-indicator
     >
-      <q-tab name="config" label="Configuration" />
-      <q-tab name="game-records" label="Game Records" />
-      <q-tab name="rewards" label="Rewards" />
+    <q-tab name="rewards" label="Rewards" />
+    <q-tab name="game-records" label="Game Records" />
+    <q-tab name="config" label="Configuration" />
+
     </q-tabs>
 
     <q-separator />
@@ -290,11 +291,114 @@
       <!-- Rewards Panel -->
       <q-tab-panel name="rewards">
         <div class="row q-col-gutter-md">
-          aaaa
+          <div class="col-12">
+            <q-card>
+              <q-card-section>
+                <q-badge class="q-mr-sm">Current Cycle: {{ currentCycle }}</q-badge><q-badge>Time Remaining: {{ timeRemaining }}</q-badge>
+                <q-btn flat round icon="refresh" @click="getRewardsRecorded" />
+                <q-btn round icon="add" color="green" size="sm"  @click="rewardsDialog = true" />
+                <div class="text-h6">
+                  Rewards
+                </div>
+              </q-card-section>
+              <q-card-section>
+                <!-- Add your data table here -->
+                <q-table
+                  :rows="gameRewards"
+                  :columns="gameRewardsColumns"
+                  row-key="id"
+                  :loading="loading"
+                >
+                  <!-- Add table slots here -->
+                </q-table>
+              </q-card-section>
+            </q-card>
+          </div>
         </div>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
+
+  <!-- Add Rewards Distribution Dialog -->
+  <q-dialog v-model="rewardsDialog" persistent>
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">Distribute Rewards</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-form @submit="handleDistributeSubmit" class="q-gutter-sm">
+          <div class="row">
+          <q-input
+            v-model="distributeForm.game_id"
+            type="number"
+            label="Game ID"
+            class="col-6 q-mr-md"
+            style="max-width: 70px"
+            dense
+            outlined
+            :rules="[val => !!val || 'Game ID is required']"
+          />
+
+          <q-input
+            v-model="distributeForm.cycle_number"
+            type="number"
+            label="Cycle"
+            class="col-6"
+            style="max-width: 90px"
+            dense
+            outlined
+            :rules="[val => !!val || 'Cycle number is required']"
+          />
+        </div>
+          <q-input
+            v-model="distributeForm.stat_name"
+            label="Stat Name"
+            style="max-width: 200px"
+            dense
+            outlined
+            :rules="[val => !!val || 'Stat name is required']"
+          />
+
+          <q-input
+            v-model="distributeForm.total_reward"
+            label="Total Reward (format: X.0000 TOKEN)"
+            style="max-width: 250px"
+            dense
+            outlined
+            :rules="[
+              val => !!val || 'Total reward is required',
+              val => /^\d+\.\d{4}\s[A-Z]+$/.test(val) || 'Invalid format. Example: 100.0000 BOID'
+            ]"
+          />
+
+          <q-input
+            v-model="distributeForm.token_contract"
+            label="Token Contract"
+            style="max-width: 100px"
+            dense
+            outlined
+            :rules="[val => !!val || 'Token contract is required']"
+          />
+
+          <q-input
+            v-model="distributeForm.reward_percentages"
+            label="Reward Percentages (comma-separated)"
+            style="max-width: 250px"
+            dense
+            outlined
+            :rules="[val => !!val || 'Reward percentages are required']"
+            hint="Enter comma-separated percentages, e.g: 50,30,20"
+          />
+
+          <div class="row justify-end q-mt-md">
+            <q-btn label="Cancel" color="negative" v-close-popup class="q-ml-sm" />
+            <q-btn label="Distribute" type="submit" color="primary" class="q-ml-sm" />
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -302,23 +406,69 @@ import { ref, onMounted, computed } from 'vue'
 import { useGamingRewardsStore } from 'src/stores/gamingRewardsStore'
 import { storeToRefs } from 'pinia'
 import {
-    ABI,
     Asset,
-    Blob,
-    Bytes,
     Name,
-    Struct,
     TimePointSec,
     UInt32,
     UInt64,
     UInt8,
+    Bytes
 } from '@wharfkit/antelope'
 
 const gamingRewardsStore = useGamingRewardsStore()
 const { config } = storeToRefs(gamingRewardsStore)
 const gameRecords = computed(() => gamingRewardsStore.gameRecords ?? [])
-const activeTab = ref('config')
+const gameRewards = computed(() => gamingRewardsStore.rewardsRecorded ?? [])
+const activeTab = ref('rewards')
 const loading = ref(false)
+const rewardsDialog = ref(false)
+
+interface DistributeForm {
+  game_id: string
+  cycle_number: string
+  stat_name: string
+  total_reward: string
+  token_contract: string
+  reward_percentages: string
+}
+
+const distributeForm = ref<DistributeForm>({
+  game_id: '1',
+  cycle_number: '',
+  stat_name: '',
+  total_reward: '10000.0000 BOID',
+  token_contract: 'token.boid',
+  reward_percentages: '50,30,20'
+})
+
+const handleDistributeSubmit = async () => {
+  try {
+    // Convert form values to appropriate types
+    const data = {
+      game_id: UInt8.from(parseInt(distributeForm.value.game_id)),
+      cycle_number: UInt32.from(parseInt(distributeForm.value.cycle_number)),
+      stat_name: Name.from(distributeForm.value.stat_name),
+      total_reward: Asset.from(distributeForm.value.total_reward),
+      token_contract: Name.from(distributeForm.value.token_contract),
+      reward_percentages: Bytes.from(distributeForm.value.reward_percentages.split(',').map(p => parseInt(p.trim())))
+    }
+
+    await gamingRewardsStore.createDistributeAction(data)
+    rewardsDialog.value = false
+
+    // Reset form
+    distributeForm.value = {
+      game_id: '',
+      cycle_number: '',
+      stat_name: '',
+      total_reward: '',
+      token_contract: '',
+      reward_percentages: ''
+    }
+  } catch (error) {
+    console.error('Error submitting distribute form:', error)
+  }
+}
 
 const refreshConfig = async () => {
   loading.value = true
@@ -446,6 +596,64 @@ const gameRecordsColumns = [
   }
 ]
 
+const gameRewardsColumns = [
+  {
+    name: 'id',
+    label: 'ID',
+    field: 'id',
+    format: (val: number) => val.toString(),
+    sortable: true
+  },
+  {
+    name: 'game_id',
+    label: 'Game',
+    field: 'game_id',
+    format: (val: UInt8) => val.toString(),
+    sortable: true
+  },
+  {
+    name: 'cycle_number',
+    label: 'Cycle',
+    field: 'cycle_number',
+    format: (val: UInt32) => val.toString(),
+    sortable: true
+  },
+  {
+    name: `stat_name`,
+    label: 'Stat Name',
+    field: 'stat_name',
+    format: (val: Name) => val.toString(),
+    sortable: true
+  },
+  {
+    name: `total_reward`,
+    label: 'Total Reward',
+    field: 'total_reward',
+    format: (val: Asset) => val.toString(),
+    sortable: true
+  },
+  {
+    name: `rewarded_players`,
+    label: 'Rewarded Players',
+    field: 'rewarded_players',
+    format: (val: Name[]) => val.map(name => name.toString()).join(', '),
+    sortable: true
+  },
+  {
+    name: `player_rewards`,
+    label: 'Player Rewards',
+    field: 'player_rewards',
+    format: (val: Asset[]) => val.map(asset => asset.toString()).join(', '),
+    sortable: true
+  },
+  {
+    name: `distribution_time`,
+    label: 'Distribution Time',
+    field: 'distribution_time',
+    format: (val: TimePointSec) => val.toString(),
+    sortable: true
+  }
+]
 </script>
 
 <style scoped>
