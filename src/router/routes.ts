@@ -13,6 +13,7 @@ const routes:RouteRecordRaw[] = [
       { path: "round-calculator", component: () => import("components/tools/RoundCalculatorDataComponent.vue") },
       { path: "keys-gen", component: () => import("components/tools/KeyGeneratorComponent.vue") },
       { path: "staking", component: () => import("components/tools/StakingComponent.vue") },
+      { path: "gaming-rewards", component: () => import("components/tools/GamingRewardsComponent.vue") },
       { path: "config", component: () => import("pages/ConfigPage.vue") },
       { path: "config/add-offer", component: () => import("components/ConfigAddOffer.vue") },
       { path: "settings", component: () => import("pages/SettingsPage.vue") },

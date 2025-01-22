@@ -1,6 +1,7 @@
 import { APIClient, APIClientOptions, PublicKey, PrivateKey } from "@wharfkit/antelope"
 import { Contract as BoidContract, abi as boidABI } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract, abi as msigABI } from "src/lib/eosio-msig-contract-telos-mainnet"
+import { Contract as ScoresBoidContract, abi as scoresBoidABI } from "src/lib/gaming/scores.boid"
 
 export class ParsedAccountMeta {
   text:{
@@ -135,6 +136,14 @@ export class ContractFactory {
       client: this.client,
       abi: msigABI,
       account: "eosio.msig"
+    })
+  }
+
+  createScoresBoidContract():ScoresBoidContract {
+    return new ScoresBoidContract({
+      client: this.client,
+      abi: scoresBoidABI,
+      account: "scores.boid"
     })
   }
 }

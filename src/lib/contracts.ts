@@ -8,6 +8,12 @@ import {
   ActionNameParams as ActionNamePayrollParams,
   ActionNames as ActionPayrollNames
 } from "src/lib/payroll.boid"
+import {
+  Contract as ScoresBoidContract,
+  RowType as RowTypeScoresBoid,
+  TableNames as TableNamesScoresBoid,
+  ActionNameParams as ActionNameParamsScoresBoid,
+  ActionNames as ActionNamesScoresBoid } from "src/lib/gaming/scores.boid"
 import { Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
 import { TransactResult, ABI, TimePointSec } from "@wharfkit/session"
 import { useSignersStore } from "src/stores/useSignersStore"
@@ -82,6 +88,17 @@ export async function fetchDataFromTable<T extends TableNames>(contract:BoidCont
 export async function fetchDataFromPayrollTable<T extends TableNamesPayroll>(contract:PayrollContract, tableName:T):Promise<RowTypePayroll<T>[] | undefined> {
   try {
     const tableData:RowTypePayroll<T>[] = await contract.table(tableName).query().all()
+    console.log(`Data fetched from ${tableName}:`, tableData)
+    return tableData
+  } catch (error:any) {
+    console.error(`Error fetching data from ${tableName}:`, error)
+    throw error
+  }
+}
+
+export async function fetchDataFromScoresBoidTable<T extends TableNamesScoresBoid>(contract:ScoresBoidContract, tableName:T):Promise<RowTypeScoresBoid<T>[] | undefined> {
+  try {
+    const tableData:RowTypeScoresBoid<T>[] = await contract.table(tableName).query().all()
     console.log(`Data fetched from ${tableName}:`, tableData)
     return tableData
   } catch (error:any) {
@@ -170,6 +187,61 @@ export async function createPayrollActions(
           authorization: [{
             actor: Name.from("payroll.boid"),
             permission: Name.from("owner")
+          }],
+          data: descriptor.action_data
+        })
+      })
+
+      console.log("Executing actions in multi-sign mode...")
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
+    } else {
+      // Execute a regular transaction with the prepared actions
+      console.log("Transacting actions...")
+      result = await session.transact({ actions })
+    }
+
+    console.log("Transaction result:", result)
+    notifyEvent.emit("TrxResult", result)
+    return result
+  } catch (error) {
+    console.error("Error in createActions:", error)
+    throw error
+  }
+}
+
+
+// Define a type for action descriptors
+export type ActionDescriptorScoresBoid = {
+  actionName:ActionNamesScoresBoid;
+  action_data:ActionNameParamsScoresBoid[ActionNamesScoresBoid];
+};
+
+export async function createScoresBoidActions(
+  actionDescriptors:ActionDescriptorScoresBoid[]
+):Promise<TransactResult | undefined> {
+  console.log("createActions called with", actionDescriptors)
+  let isItMultiSignMode = sessionStore.multiSignState
+
+  try {
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+
+    // Construct actions for session.transact or multi-sign
+    const actions = actionDescriptors.map(descriptor => {
+      return apiStore.scoresBoidContract.action(descriptor.actionName, descriptor.action_data)
+    })
+
+    let result
+    if (isItMultiSignMode) {
+      // Prepare actions for multi-signature transaction
+      const multiSignActions = actionDescriptors.map(descriptor => {
+        // eslint-disable-next-line new-cap
+        return new TypesMultiSign.action({
+          account: "scores.boid",
+          name: descriptor.actionName,
+          authorization: [{
+            actor: Name.from("scores.boid"),
+            permission: Name.from("active")
           }],
           data: descriptor.action_data
         })

@@ -79,6 +79,9 @@
                 <q-item clickable v-close-popup @click="$router.push('/staking')">
                   <q-item-section>Staking</q-item-section>
                 </q-item>
+                <q-item clickable v-close-popup @click="$router.push('/gaming-rewards')">
+                  <q-item-section>Gaming Rewards</q-item-section>
+                </q-item>
               </q-list>
             </q-menu>
           </q-btn>
