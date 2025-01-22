@@ -3,7 +3,6 @@ import { createScoresBoidActions, fetchDataFromScoresBoidTable } from "src/lib/c
 import { Types, ActionParams, Contract as ScoresBoidContract } from "src/lib/gaming/scores.boid"
 import { Ref, ref } from "vue"
 import { TransactResult } from "@wharfkit/session"
-import { DeserializedTeam } from "src/types/types-stores"
 import { useSessionStore } from "src/stores/sessionStore"
 import { useApiStore } from "src/stores/apiStore"
 
@@ -15,9 +14,10 @@ export const useGamingRewardsStore = defineStore({
 
   // Reactive state of the store
   state: () => ({
-    organizedDataRaw: ref([]) as Ref<DeserializedTeam[]>,
     loading: false,
     error: ref<string | null>(null),
+    rewardsRecorded: ref([]) as Ref<Types.rewardsrecorded[] | null>,
+    gameRecords: ref([]) as Ref<Types.gamerecords[] | null>,
     config: ref(null) as Ref<{
       gameConfig: Types.gameconfig[] | null;
       globalConfig: Types.globalconfig[] | null;
@@ -27,11 +27,7 @@ export const useGamingRewardsStore = defineStore({
   }),
 
   // Getters for computed values based on state
-  getters: {
-    organizedData(state) {
-      return state.organizedDataRaw
-    }
-  },
+  getters: {},
 
   actions: {
     async fetchConfig() {
@@ -64,7 +60,7 @@ export const useGamingRewardsStore = defineStore({
         const contract = apiStore.scoresBoidContract
         const gameRecordsData = await fetchDataFromScoresBoidTable(contract as ScoresBoidContract, "gamerecords")
         console.log("Game Records data fetched:", gameRecordsData)
-        return gameRecordsData
+        this.gameRecords = gameRecordsData || null
       } catch (error:any) {
         console.error("Error fetching config data:", error)
         this.$patch({ error: error.message })
@@ -78,7 +74,7 @@ export const useGamingRewardsStore = defineStore({
         const contract = apiStore.scoresBoidContract
         const rewardRecData = await fetchDataFromScoresBoidTable(contract as ScoresBoidContract, "rewardsrec")
         console.log("Rewards Recorded data fetched:", rewardRecData)
-        return rewardRecData
+        this.rewardsRecorded = rewardRecData || null
       } catch (error:any) {
         console.error("Error fetching config data:", error)
         this.$patch({ error: error.message })
