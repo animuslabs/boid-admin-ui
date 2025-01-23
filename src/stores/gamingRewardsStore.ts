@@ -157,6 +157,21 @@ export const useGamingRewardsStore = defineStore({
           return undefined
         }
       },
+      async createRemoveTokenAction(data:ActionParams.removetoken):Promise<TransactResult | undefined> {
+        try {
+          console.log("Session Data Username:", sessionStore.username)
+          if (!sessionStore || !sessionStore.username) {
+            console.error("Session or session actor is not defined")
+            throw new Error("Session or session actor is not defined")
+          }
+          const result = await createScoresBoidActions([{ actionName: "removetoken", action_data: data }])
+          console.log("Action Sent:", result)
+        } catch (error:any) {
+          console.error("createConfigSetAction Error:", error)
+          this.$patch({ error: error.message })
+          return undefined
+        }
+      },
       async createClearRecordAction(data:ActionParams.clearrecord):Promise<TransactResult | undefined> {
         try {
           console.log("Session Data Username:", sessionStore.username)

@@ -31,7 +31,7 @@
                   <div class="text-h6">Global Configuration</div>
                   <q-btn-group flat>
                     <q-btn flat round icon="refresh" @click="refreshConfig" />
-                    <q-btn flat round icon="settings" />
+                    <q-btn flat round icon="build" @click="showConfigDialog = true" />
                   </q-btn-group>
                 </div>
               </q-card-section>
@@ -117,8 +117,8 @@
                 <div class="row items-center justify-between">
                   <div class="text-h6">Token Configuration</div>
                   <q-btn-group flat>
-                    <q-btn flat round icon="add" />
-                    <q-btn flat round icon="settings" />
+                    <q-btn flat round icon="add_circle_outline" @click="showSetTokenDialog = true" />
+                    <q-btn flat round icon="delete" @click="showRemoveTokenDialog = true" />
                   </q-btn-group>
                 </div>
               </q-card-section>
@@ -162,8 +162,8 @@
                 <div class="row items-center justify-between">
                   <div class="text-h6">Game Configuration</div>
                   <q-btn-group flat>
-                    <q-btn flat round icon="add" />
-                    <q-btn flat round icon="settings" />
+                    <q-btn flat round icon="sports_esports" @click="showGameConfigDialog = true" />
+                    <q-btn flat round icon="delete" @click="showGameRemoveDialog = true" />
                   </q-btn-group>
                 </div>
               </q-card-section>
@@ -218,8 +218,8 @@
                 <div class="row items-center justify-between">
                   <div class="text-h6">Reward Distribution</div>
                   <q-btn-group flat>
-                    <q-btn flat round icon="add" />
-                    <q-btn flat round icon="settings" />
+                    <q-btn flat round icon="add" @click="showSetDistConfigDialog = true" />
+                    <q-btn flat round icon="delete" />
                   </q-btn-group>
                 </div>
               </q-card-section>
@@ -267,15 +267,30 @@
           <div class="col-12">
             <q-card>
               <q-card-section>
-                <div class="text-h6">
-                  Game Records
-                  <q-btn flat round icon="refresh" @click="getGameRecords" />
+                <div class="row items-center justify-between q-mb-md">
+                  <div class="text-h6">
+                    Game Records
+                    <q-btn flat round icon="refresh" @click="getGameRecords" />
+                    <q-btn round icon="add" color="green" size="sm" @click="showGameAddRecordDialog = true" />
+                    <q-btn round icon="delete" color="red" size="sm" @click="removeGameRecords" />
+                  </div>
+                  <q-input
+                    v-model="searchQuery"
+                    dense
+                    outlined
+                    placeholder="Search records..."
+                    class="col-4"
+                  >
+                    <template v-slot:append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
                 </div>
               </q-card-section>
               <q-card-section>
                 <!-- Add your data table here -->
                 <q-table
-                  :rows="gameRecords"
+                  :rows="filteredGameRecords"
                   :columns="gameRecordsColumns"
                   row-key="id"
                   :loading="loading"
@@ -320,91 +335,61 @@
   </q-page>
 
   <!-- Add Rewards Distribution Dialog -->
-  <q-dialog v-model="rewardsDialog" persistent>
-    <q-card style="min-width: 350px">
-      <q-card-section>
-        <div class="text-h6">Distribute Rewards</div>
-      </q-card-section>
+  <RewardsDialog
+    v-model="rewardsDialog"
+    @submit="handleDistributeSubmit"
+  />
 
-      <q-card-section class="q-pt-none">
-        <q-form @submit="handleDistributeSubmit" class="q-gutter-sm">
-          <div class="row">
-          <q-input
-            v-model="distributeForm.game_id"
-            type="number"
-            label="Game ID"
-            class="col-6 q-mr-md"
-            style="max-width: 70px"
-            dense
-            outlined
-            :rules="[val => !!val || 'Game ID is required']"
-          />
+  <!-- Add Clear Records Dialog -->
+  <ClearRecordsDialog
+    v-model="clearRecordsDialog"
+    @submit="handleClearRecords"
+  />
 
-          <q-input
-            v-model="distributeForm.cycle_number"
-            type="number"
-            label="Cycle"
-            class="col-6"
-            style="max-width: 90px"
-            dense
-            outlined
-            :rules="[val => !!val || 'Cycle number is required']"
-          />
-        </div>
-          <q-input
-            v-model="distributeForm.stat_name"
-            label="Stat Name"
-            style="max-width: 200px"
-            dense
-            outlined
-            :rules="[val => !!val || 'Stat name is required']"
-          />
+  <ConfigInitDialog v-model="showConfigDialog" />
 
-          <q-input
-            v-model="distributeForm.total_reward"
-            label="Total Reward (format: X.0000 TOKEN)"
-            style="max-width: 250px"
-            dense
-            outlined
-            :rules="[
-              val => !!val || 'Total reward is required',
-              val => /^\d+\.\d{4}\s[A-Z]+$/.test(val) || 'Invalid format. Example: 100.0000 BOID'
-            ]"
-          />
+  <GameConfigDialog v-model="showGameConfigDialog" />
 
-          <q-input
-            v-model="distributeForm.token_contract"
-            label="Token Contract"
-            style="max-width: 100px"
-            dense
-            outlined
-            :rules="[val => !!val || 'Token contract is required']"
-          />
+  <GameRemoveDialog
+    v-model="showGameRemoveDialog"
+    @submit="handleRemoveGame"
+  />
 
-          <q-input
-            v-model="distributeForm.reward_percentages"
-            label="Reward Percentages (comma-separated)"
-            style="max-width: 250px"
-            dense
-            outlined
-            :rules="[val => !!val || 'Reward percentages are required']"
-            hint="Enter comma-separated percentages, e.g: 50,30,20"
-          />
+  <SetDistConfigDialog
+    v-model="showSetDistConfigDialog"
+    @submit="handleSetDistConfig"
+  />
 
-          <div class="row justify-end q-mt-md">
-            <q-btn label="Cancel" color="negative" v-close-popup class="q-ml-sm" />
-            <q-btn label="Distribute" type="submit" color="primary" class="q-ml-sm" />
-          </div>
-        </q-form>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
+  <SetTokenDialog
+    v-model="showSetTokenDialog"
+    @submit="handleSetToken"
+  />
+
+  <RemoveTokenDialog
+    v-model="showRemoveTokenDialog"
+    @submit="handleRemoveToken"
+  />
+
+  <GameAddRecordDialog
+    v-model="showGameAddRecordDialog"
+    @submit="handleAddGameRecord"
+  />
+
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useGamingRewardsStore } from 'src/stores/gamingRewardsStore'
+import ConfigInitDialog from '../dialogs/ConfigInitDialog.vue'
+import GameConfigDialog from '../dialogs/GameConfigDialog.vue'
+import RewardsDialog from '../dialogs/RewardsDialog.vue'
+import ClearRecordsDialog from '../dialogs/ClearRecordsDialog.vue'
+import GameRemoveDialog from '../dialogs/GameRemoveDialog.vue'
+import SetDistConfigDialog from '../dialogs/SetDistConfig.vue'
+import SetTokenDialog from '../dialogs/SetTokenDialog.vue'
+import RemoveTokenDialog from '../dialogs/RemoveTokenDialog.vue'
+import GameAddRecordDialog from '../dialogs/GameAddRecordDialog.vue'
 import { storeToRefs } from 'pinia'
+import { DistributeForm, ConfigForm } from 'src/types/gamingRecordsComponentTypes'
 import {
     Asset,
     Name,
@@ -414,6 +399,7 @@ import {
     UInt8,
     Bytes
 } from '@wharfkit/antelope'
+import { gameRecordsColumns, gameRewardsColumns } from '../columns/GamingRewCompCol'
 
 const gamingRewardsStore = useGamingRewardsStore()
 const { config } = storeToRefs(gamingRewardsStore)
@@ -422,53 +408,73 @@ const gameRewards = computed(() => gamingRewardsStore.rewardsRecorded ?? [])
 const activeTab = ref('rewards')
 const loading = ref(false)
 const rewardsDialog = ref(false)
+const clearRecordsDialog = ref(false)
+const showConfigDialog = ref(false)
+const showGameConfigDialog = ref(false)
+const showGameRemoveDialog = ref(false)
+const showSetDistConfigDialog = ref(false)
+const showSetTokenDialog = ref(false)
+const showRemoveTokenDialog = ref(false)
+const showGameAddRecordDialog = ref(false)
+const searchQuery = ref('')
 
-interface DistributeForm {
-  game_id: string
-  cycle_number: string
-  stat_name: string
-  total_reward: string
-  token_contract: string
-  reward_percentages: string
-}
+const filteredGameRecords = computed(() => {
+  if (!searchQuery.value) return gameRecords.value
 
-const distributeForm = ref<DistributeForm>({
-  game_id: '1',
-  cycle_number: '',
-  stat_name: '',
-  total_reward: '10000.0000 BOID',
-  token_contract: 'token.boid',
-  reward_percentages: '50,30,20'
+  const query = searchQuery.value.toLowerCase()
+  return gameRecords.value.filter(record => {
+    // Convert all fields to string and search
+    return Object.values(record).some(value => {
+      if (Array.isArray(value)) {
+        return value.some(v => String(v).toLowerCase().includes(query))
+      }
+      return String(value).toLowerCase().includes(query)
+    })
+  })
 })
 
-const handleDistributeSubmit = async () => {
+const handleDistributeSubmit = async (formData: DistributeForm) => {
   try {
-    // Convert form values to appropriate types
+    loading.value = true
     const data = {
-      game_id: UInt8.from(parseInt(distributeForm.value.game_id)),
-      cycle_number: UInt32.from(parseInt(distributeForm.value.cycle_number)),
-      stat_name: Name.from(distributeForm.value.stat_name),
-      total_reward: Asset.from(distributeForm.value.total_reward),
-      token_contract: Name.from(distributeForm.value.token_contract),
-      reward_percentages: Bytes.from(distributeForm.value.reward_percentages.split(',').map(p => parseInt(p.trim())))
+      game_id: UInt8.from(parseInt(formData.game_id)),
+      cycle_number: UInt32.from(parseInt(formData.cycle_number)),
+      stat_name: Name.from(formData.stat_name),
+      total_reward: Asset.from(formData.total_reward),
+      token_contract: Name.from(formData.token_contract),
+      reward_percentages: Bytes.from(formData.reward_percentages.split(',').map(p => parseInt(p.trim())))
     }
-
     await gamingRewardsStore.createDistributeAction(data)
     rewardsDialog.value = false
-
-    // Reset form
-    distributeForm.value = {
-      game_id: '',
-      cycle_number: '',
-      stat_name: '',
-      total_reward: '',
-      token_contract: '',
-      reward_percentages: ''
-    }
+    await getRewardsRecorded()
   } catch (error) {
-    console.error('Error submitting distribute form:', error)
+    console.error('Error distributing rewards:', error)
+  } finally {
+    loading.value = false
   }
 }
+
+const configForm = ref<ConfigForm>({
+  start_time: '',
+  cycle_length_sec: '',
+  max_cycle_length_sec: '',
+  max_reward_tiers: '',
+  min_reward_percentage: ''
+})
+
+// Watch for config changes to update form defaults
+watch(() => config.value, (newConfig) => {
+  if (newConfig?.globalConfig?.[0]) {
+    const date = new Date(newConfig.globalConfig[0].cycles_initiation_time.toDate())
+    configForm.value = {
+      start_time: date.toISOString().slice(0, 16), // Format for datetime-local input
+      cycle_length_sec: newConfig.globalConfig[0].cycle_length_sec.toString(),
+      max_cycle_length_sec: newConfig.globalConfig[0].max_cycle_length_sec.toString(),
+      max_reward_tiers: newConfig.globalConfig[0].max_reward_tiers.toString(),
+      min_reward_percentage: newConfig.globalConfig[0].min_reward_percentage.toString()
+    }
+  }
+}, { immediate: true })
 
 const refreshConfig = async () => {
   loading.value = true
@@ -532,133 +538,91 @@ onMounted(async () => {
   timer = setInterval(calculateCycleAndTime, 1000)
 })
 
-const gameRecordsColumns = [
-  {
-    name: 'id',
-    label: 'ID',
-    field: 'id',
-    format: (val: number) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'player',
-    label: 'Player',
-    field: 'player',
-    format: (val: Name) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'game_id',
-    label: 'Game',
-    field: 'game_id',
-    format: (val: UInt8) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'rewards_distributed',
-    label: 'Distributed?',
-    field: 'rewards_distributed',
-    format: (val: boolean) => (val ? 'Yes' : 'No'),
-    sortable: true
-  },
-  {
-    name: 'stats_names',
-    label: 'Stats Names',
-    field: 'stats_names',
-    format: (val: Name[]) => val.map(name => name.toString()).join(', ')
-  },
-  {
-    name: 'stats_values',
-    label: 'Stats Values',
-    field: 'stats_values',
-    format: (val: UInt64[]) => val.map(value => value.toString()).join(', ')
-  },
-  {
-    name: 'cycle_number',
-    label: 'Cycle',
-    field: 'cycle_number',
-    format: (val: UInt32) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'game_completion_time',
-    label: 'Completion Time',
-    field: 'game_completion_time',
-    format: (val: TimePointSec) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'last_updated',
-    label: 'Last Updated',
-    field: 'last_updated',
-    format: (val: TimePointSec) => val.toString(),
-    sortable: true
-  }
-]
+const removeGameRecords = () => {
+  clearRecordsDialog.value = true
+}
 
-const gameRewardsColumns = [
-  {
-    name: 'id',
-    label: 'ID',
-    field: 'id',
-    format: (val: number) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'game_id',
-    label: 'Game',
-    field: 'game_id',
-    format: (val: UInt8) => val.toString(),
-    sortable: true
-  },
-  {
-    name: 'cycle_number',
-    label: 'Cycle',
-    field: 'cycle_number',
-    format: (val: UInt32) => val.toString(),
-    sortable: true
-  },
-  {
-    name: `stat_name`,
-    label: 'Stat Name',
-    field: 'stat_name',
-    format: (val: Name) => val.toString(),
-    sortable: true
-  },
-  {
-    name: `total_reward`,
-    label: 'Total Reward',
-    field: 'total_reward',
-    format: (val: Asset) => val.toString(),
-    sortable: true
-  },
-  {
-    name: `rewarded_players`,
-    label: 'Rewarded Players',
-    field: 'rewarded_players',
-    format: (val: Name[]) => val.map(name => name.toString()).join(', '),
-    sortable: true
-  },
-  {
-    name: `player_rewards`,
-    label: 'Player Rewards',
-    field: 'player_rewards',
-    format: (val: Asset[]) => val.map(asset => asset.toString()).join(', '),
-    sortable: true
-  },
-  {
-    name: `distribution_time`,
-    label: 'Distribution Time',
-    field: 'distribution_time',
-    format: (val: TimePointSec) => val.toString(),
-    sortable: true
+const handleClearRecords = async (recordIdsInput: string) => {
+  try {
+    if (!recordIdsInput) return
+
+    const ids = recordIdsInput.split(',').map(id => id.trim())
+    if (!ids.length) return
+
+    await gamingRewardsStore.createClearRecordAction({
+      record_ids: ids.map(id => UInt64.from(id))
+    })
+
+    clearRecordsDialog.value = false
+    await getGameRecords()
+  } catch (error) {
+    console.error('Error clearing records:', error)
   }
-]
+}
+
+const handleRemoveGame = async (data: { game_id: UInt8 }) => {
+  try {
+    await gamingRewardsStore.createRemoveGameAction(data)
+    await gamingRewardsStore.fetchConfig()
+  } catch (error) {
+    console.error('Error removing game:', error)
+  }
+}
+
+const handleSetDistConfig = async (data: {
+  game_id: UInt8
+  destination_contract: Name
+  memo_template: string
+  use_direct_transfer: boolean
+}) => {
+  try {
+    await gamingRewardsStore.createSetDistConfigAction(data)
+    await gamingRewardsStore.fetchConfig()
+  } catch (error) {
+    console.error('Error setting distribution config:', error)
+  }
+}
+
+const handleSetToken = async (data: {
+  token_contract: Name
+  token_symbol: Asset.Symbol
+  enabled: boolean
+}) => {
+  try {
+    await gamingRewardsStore.createSetTokenAction(data)
+    await gamingRewardsStore.fetchConfig()
+  } catch (error) {
+    console.error('Error setting token config:', error)
+  }
+}
+
+const handleRemoveToken = async (data: { token_symbol: Asset.Symbol }) => {
+  try {
+    await gamingRewardsStore.createRemoveTokenAction(data)
+    await gamingRewardsStore.fetchConfig()
+  } catch (error) {
+    console.error('Error removing token:', error)
+  }
+}
+
+const handleAddGameRecord = async (data: { records: {
+  game_id: UInt8
+  player: Name
+  stats_names: Name[]
+  stats_values: UInt64[]
+  completion_time: TimePointSec
+}[] }) => {
+  try {
+    await gamingRewardsStore.createRecordGameAction(data)
+    await getGameRecords()
+  } catch (error) {
+    console.error('Error adding game record:', error)
+  }
+}
 </script>
 
 <style scoped>
 .card-class {
   min-width: 400px;
-  max-width: 100%;
 }
 </style>
