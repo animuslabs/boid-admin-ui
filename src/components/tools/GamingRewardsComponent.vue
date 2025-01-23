@@ -219,7 +219,7 @@
                   <div class="text-h6">Reward Distribution</div>
                   <q-btn-group flat>
                     <q-btn flat round icon="add" @click="showSetDistConfigDialog = true" />
-                    <q-btn flat round icon="delete" />
+                    <q-btn flat round icon="delete" @click="showRemoveDistConfigDialog = true"/>
                   </q-btn-group>
                 </div>
               </q-card-section>
@@ -370,6 +370,11 @@
     @submit="handleRemoveToken"
   />
 
+  <RemoveDistConfigDialog
+    v-model="showRemoveDistConfigDialog"
+    @submit="handleRemoveDistConfig"
+  />
+
   <GameAddRecordDialog
     v-model="showGameAddRecordDialog"
     @submit="handleAddGameRecord"
@@ -387,6 +392,7 @@ import GameRemoveDialog from '../dialogs/GameRemoveDialog.vue'
 import SetDistConfigDialog from '../dialogs/SetDistConfig.vue'
 import SetTokenDialog from '../dialogs/SetTokenDialog.vue'
 import RemoveTokenDialog from '../dialogs/RemoveTokenDialog.vue'
+import RemoveDistConfigDialog from '../dialogs/RemoveDistConfigDialog.vue'
 import GameAddRecordDialog from '../dialogs/GameAddRecordDialog.vue'
 import { storeToRefs } from 'pinia'
 import { DistributeForm, ConfigForm } from 'src/types/gamingRecordsComponentTypes'
@@ -415,6 +421,7 @@ const showGameRemoveDialog = ref(false)
 const showSetDistConfigDialog = ref(false)
 const showSetTokenDialog = ref(false)
 const showRemoveTokenDialog = ref(false)
+const showRemoveDistConfigDialog = ref(false)
 const showGameAddRecordDialog = ref(false)
 const searchQuery = ref('')
 
@@ -602,6 +609,15 @@ const handleRemoveToken = async (data: { token_symbol: Asset.Symbol }) => {
     await gamingRewardsStore.fetchConfig()
   } catch (error) {
     console.error('Error removing token:', error)
+  }
+}
+
+const handleRemoveDistConfig = async (data: { game_id: UInt8 }) => {
+  try {
+    await gamingRewardsStore.createRemoveDistConfigAction(data)
+    await gamingRewardsStore.fetchConfig()
+  } catch (error) {
+    console.error('Error removing distribution config:', error)
   }
 }
 
