@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hhh lpR fff">
+  <q-layout view="hhh lpR fff" class="gradient-bg">
     <q-header elevated>
       <q-toolbar>
         <q-toolbar-title>
@@ -334,6 +334,28 @@ const badgeColor = computed(() => sessionStore.multiSignToggleState ? "green" : 
 
   .footer-class div:nth-child(n+4) {
     grid-row: 1;
+  }
+}
+
+/* Gradient Background */
+.gradient-bg {
+  background: linear-gradient(-45deg, #756F8E, #954B97, #3E426D, #a18cd1);
+  background-size: 150% 150%;
+  animation: gradientAnimation 15s ease-in-out infinite;
+  min-height: 100vh; /* Ensure background spans the full viewport */
+  width: 100vw;
+}
+
+/* Gradient Animation */
+@keyframes gradientAnimation {
+  0% {
+    background-size: 150% 150%;
+  }
+  50% {
+    background-size: 170% 170%;
+  }
+  100% {
+    background-size: 150% 150%;
   }
 }
 </style>

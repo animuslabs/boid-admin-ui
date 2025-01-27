@@ -1,7 +1,7 @@
 <template>
   <q-page class="container" padding>
     <div>
-      <q-tabs v-model="tab" class="text-grey" active-color="primary">
+      <q-tabs v-model="tab" class="text-weight-bold text-white" active-color="primary">
         <q-tab name="config" label="Config" />
         <q-tab name="boosters" label="Boosters" />
         <q-tab name="offers" label="Offers" />
@@ -24,7 +24,7 @@ import ConfigOffers from "src/components/ConfigOffers.vue"
 import { useRoute } from "vue-router"
 
 
-const tab = ref("config") // Default selected tab
+const tab = ref("config") // Default tab
 const route = useRoute()
 onMounted(() => {
   if (route.query.tab) {
@@ -40,5 +40,15 @@ onMounted(() => {
   align-items: center;
   justify-content: flex-start;
   height: 100%;
+}
+/* Ensures inactive tabs are white */
+.q-tabs__content {
+  color: white;
+}
+
+/* Ensures active tab is bold and white */
+.q-tab--active .q-tab__label {
+  font-weight: bold;
+  /* color: white; */
 }
 </style>
