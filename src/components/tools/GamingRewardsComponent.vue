@@ -568,7 +568,7 @@ const calculateCycleAndTime = () => {
 
     // Calculate current cycle (raw value)
     const rawCycle = Math.floor(timeSinceInit / cycleLength)
-    currentCycle.value = rawCycle
+    currentCycle.value = rawCycle + 1
 
     // Calculate time until next cycle using the raw value
     const nextCycleStart = initTime + ((rawCycle + 1) * cycleLength)

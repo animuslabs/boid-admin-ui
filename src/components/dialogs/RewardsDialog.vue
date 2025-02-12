@@ -102,7 +102,7 @@ const form = ref<DistributeForm>({
   stat_name: "score",
   total_reward: "10000.0000 BOID",
   token_contract: "token.boid",
-  reward_percentages: "40,30,17,10,3"
+  reward_percentages: "40,30,15,10,5"
 })
 
 const handleSubmit = () => {
@@ -123,7 +123,7 @@ const handleSubmit = () => {
     stat_name: "score",
     total_reward: "10000.0000 BOID",
     token_contract: "token.boid",
-    reward_percentages: "40,30,17,10,3"
+    reward_percentages: "40,30,15,10,5"
   }
   emit("update:modelValue", false) // Close dialog
 }
