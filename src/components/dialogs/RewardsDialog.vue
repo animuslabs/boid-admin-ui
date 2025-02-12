@@ -6,7 +6,9 @@
   >
     <q-card style="min-width: 350px">
       <q-card-section>
-        <div class="text-h6">Add Rewards</div>
+        <div class="text-h6">
+          Add Rewards
+        </div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
@@ -85,22 +87,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { DistributeForm } from 'src/types/gamingRecordsComponentTypes'
-import { Name, Asset, Bytes } from '@wharfkit/antelope'
+import { ref } from "vue"
+import { DistributeForm } from "src/types/gamingRecordsComponentTypes"
+import { Name, Asset, Bytes } from "@wharfkit/antelope"
 
-const emit = defineEmits(['update:modelValue', 'submit'])
+const emit = defineEmits(["update:modelValue", "submit"])
 const props = defineProps<{
-  modelValue: boolean
+  modelValue:boolean
 }>()
 
 const form = ref<DistributeForm>({
-  game_id: '1',
-  cycle_number: '',
-  stat_name: '',
-  total_reward: '10000.0000 BOID',
-  token_contract: 'token.boid',
-  reward_percentages: '50,30,20'
+  game_id: "1",
+  cycle_number: "0",
+  stat_name: "score",
+  total_reward: "10000.0000 BOID",
+  token_contract: "token.boid",
+  reward_percentages: "40,30,17,10,3"
 })
 
 const handleSubmit = () => {
@@ -111,18 +113,18 @@ const handleSubmit = () => {
     stat_name: Name.from(form.value.stat_name),
     total_reward: Asset.from(form.value.total_reward),
     token_contract: Name.from(form.value.token_contract),
-    reward_percentages: Bytes.from(form.value.reward_percentages.split(',').map(Number))
+    reward_percentages: form.value.reward_percentages
   }
-  emit('submit', formData)
+  emit("submit", formData)
   // Reset form
   form.value = {
-    game_id: '1',
-    cycle_number: '',
-    stat_name: '',
-    total_reward: '10000.0000 BOID',
-    token_contract: 'token.boid',
-    reward_percentages: '50,30,20'
+    game_id: "1",
+    cycle_number: "0",
+    stat_name: "score",
+    total_reward: "10000.0000 BOID",
+    token_contract: "token.boid",
+    reward_percentages: "40,30,17,10,3"
   }
-  emit('update:modelValue', false) // Close dialog
+  emit("update:modelValue", false) // Close dialog
 }
 </script>
