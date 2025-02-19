@@ -5,6 +5,7 @@ import { Contract as BoidContract } from "src/lib/boid-contract-structure"
 import { Contract as EosioMsigContract } from "src/lib/eosio-msig-contract-telos-mainnet"
 import { Contract as PayrollContract } from "src/lib/payroll.boid"
 import { Contract as ScoresBoidContract } from "src/lib/gaming/scores.boid"
+import { Contract as EvmBoidContract } from "src/lib/evm.boid"
 import { ContractFactory } from "src/types/types-stores"
 import { createTRPCProxyClient, httpLink } from "@trpc/client"
 import HRouter from "src/lib/trpc/trpcAPIimport"
@@ -38,6 +39,7 @@ export const useApiStore = defineStore("apiStore", {
     eosioMsigContract: new EosioMsigContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     payrollContract: new PayrollContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     scoresBoidContract: new ScoresBoidContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
+    evmBoidContract: new EvmBoidContract({ client: new APIClient({ url: TelosEndpoints[0]?.[1] }) }),
     ipfsURL: ipfsEndpoints[0]?.[1] || "",
     trpcURL: trpcEndpoints[0]?.[1] || "",
     trpcClient: null as any

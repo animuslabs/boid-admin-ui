@@ -13,8 +13,14 @@ import {
   RowType as RowTypeScoresBoid,
   TableNames as TableNamesScoresBoid,
   ActionNameParams as ActionNameParamsScoresBoid,
-  ActionNames as ActionNamesScoresBoid } from "src/lib/gaming/scores.boid"
+  ActionNames as ActionNamesScoresBoid
+} from "src/lib/gaming/scores.boid"
 import { Types as TypesMultiSign } from "src/lib/eosio-msig-contract-telos-mainnet"
+import {
+  Types as TypesEvmBoid, ActionNames as ActionNamesEvmBoid, ActionNameParams as ActionNameParamsEvmBoid,
+  Contract as EvmBoidContract,
+  abi as evmBoidABI
+} from "src/lib/evm.boid"
 import { TransactResult, ABI, TimePointSec } from "@wharfkit/session"
 import { useSignersStore } from "src/stores/useSignersStore"
 import { generateRandomName, expDate, serializeActionData } from "src/lib/reuseFunctions"
@@ -155,116 +161,6 @@ export async function createAction<A extends ActionNames>(
   }
 }
 
-// Define a type for action descriptors
-export type ActionDescriptor = {
-  actionName:ActionPayrollNames;
-  action_data:ActionNamePayrollParams[ActionPayrollNames];
-};
-
-export async function createPayrollActions(
-  actionDescriptors:ActionDescriptor[]
-):Promise<TransactResult | undefined> {
-  console.log("createActions called with", actionDescriptors)
-  let isItMultiSignMode = sessionStore.multiSignState
-
-  try {
-    const session = sessionStore.session
-    if (!session) throw new Error("Session not loaded")
-
-    // Construct actions for session.transact or multi-sign
-    const actions = actionDescriptors.map(descriptor => {
-      return apiStore.payrollContract.action(descriptor.actionName, descriptor.action_data)
-    })
-
-    let result
-    if (isItMultiSignMode) {
-      // Prepare actions for multi-signature transaction
-      const multiSignActions = actionDescriptors.map(descriptor => {
-        // eslint-disable-next-line new-cap
-        return new TypesMultiSign.action({
-          account: "payroll.boid",
-          name: descriptor.actionName,
-          authorization: [{
-            actor: Name.from("payroll.boid"),
-            permission: Name.from("owner")
-          }],
-          data: descriptor.action_data
-        })
-      })
-
-      console.log("Executing actions in multi-sign mode...")
-      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
-    } else {
-      // Execute a regular transaction with the prepared actions
-      console.log("Transacting actions...")
-      result = await session.transact({ actions })
-    }
-
-    console.log("Transaction result:", result)
-    notifyEvent.emit("TrxResult", result)
-    return result
-  } catch (error) {
-    console.error("Error in createActions:", error)
-    throw error
-  }
-}
-
-
-// Define a type for action descriptors
-export type ActionDescriptorScoresBoid = {
-  actionName:ActionNamesScoresBoid;
-  action_data:ActionNameParamsScoresBoid[ActionNamesScoresBoid];
-};
-
-export async function createScoresBoidActions(
-  actionDescriptors:ActionDescriptorScoresBoid[]
-):Promise<TransactResult | undefined> {
-  console.log("createActions called with", actionDescriptors)
-  let isItMultiSignMode = sessionStore.multiSignState
-
-  try {
-    const session = sessionStore.session
-    if (!session) throw new Error("Session not loaded")
-
-    // Construct actions for session.transact or multi-sign
-    const actions = actionDescriptors.map(descriptor => {
-      return apiStore.scoresBoidContract.action(descriptor.actionName, descriptor.action_data)
-    })
-
-    let result
-    if (isItMultiSignMode) {
-      // Prepare actions for multi-signature transaction
-      const multiSignActions = actionDescriptors.map(descriptor => {
-        // eslint-disable-next-line new-cap
-        return new TypesMultiSign.action({
-          account: "scores.boid",
-          name: descriptor.actionName,
-          authorization: [{
-            actor: Name.from("scores.boid"),
-            permission: Name.from("active")
-          }],
-          data: descriptor.action_data
-        })
-      })
-
-      console.log("Executing actions in multi-sign mode...")
-      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
-    } else {
-      // Execute a regular transaction with the prepared actions
-      console.log("Transacting actions...")
-      result = await session.transact({ actions })
-    }
-
-    console.log("Transaction result:", result)
-    notifyEvent.emit("TrxResult", result)
-    return result
-  } catch (error) {
-    console.error("Error in createActions:", error)
-    throw error
-  }
-}
-
-
 export async function createAndExecuteMultiSignProposal(
   reqSignAccs:TypesMultiSign.permission_level[],
   actions:TypesMultiSign.action[]
@@ -374,4 +270,162 @@ export function showNotification(result:TransactResult):void {
   }
 }
 
+// Define a type for action descriptors
+export type ActionDescriptor = {
+  actionName:ActionPayrollNames;
+  action_data:ActionNamePayrollParams[ActionPayrollNames];
+};
 
+export async function createPayrollActions(
+  actionDescriptors:ActionDescriptor[]
+):Promise<TransactResult | undefined> {
+  console.log("createActions called with", actionDescriptors)
+  let isItMultiSignMode = sessionStore.multiSignState
+
+  try {
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+
+    // Construct actions for session.transact or multi-sign
+    const actions = actionDescriptors.map(descriptor => {
+      return apiStore.payrollContract.action(descriptor.actionName, descriptor.action_data)
+    })
+
+    let result
+    if (isItMultiSignMode) {
+      // Prepare actions for multi-signature transaction
+      const multiSignActions = actionDescriptors.map(descriptor => {
+        // eslint-disable-next-line new-cap
+        return new TypesMultiSign.action({
+          account: "payroll.boid",
+          name: descriptor.actionName,
+          authorization: [{
+            actor: Name.from("payroll.boid"),
+            permission: Name.from("owner")
+          }],
+          data: descriptor.action_data
+        })
+      })
+
+      console.log("Executing actions in multi-sign mode...")
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
+    } else {
+      // Execute a regular transaction with the prepared actions
+      console.log("Transacting actions...")
+      result = await session.transact({ actions })
+    }
+
+    console.log("Transaction result:", result)
+    notifyEvent.emit("TrxResult", result)
+    return result
+  } catch (error) {
+    console.error("Error in createActions:", error)
+    throw error
+  }
+}
+
+
+// Define a type for action descriptors
+export type ActionDescriptorScoresBoid = {
+  actionName:ActionNamesScoresBoid;
+  action_data:ActionNameParamsScoresBoid[ActionNamesScoresBoid];
+};
+
+export async function createScoresBoidActions(
+  actionDescriptors:ActionDescriptorScoresBoid[]
+):Promise<TransactResult | undefined> {
+  console.log("createActions called with", actionDescriptors)
+  let isItMultiSignMode = sessionStore.multiSignState
+
+  try {
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+
+    // Construct actions for session.transact or multi-sign
+    const actions = actionDescriptors.map(descriptor => {
+      return apiStore.scoresBoidContract.action(descriptor.actionName, descriptor.action_data)
+    })
+
+    let result
+    if (isItMultiSignMode) {
+      // Prepare actions for multi-signature transaction
+      const multiSignActions = actionDescriptors.map(descriptor => {
+        // eslint-disable-next-line new-cap
+        return new TypesMultiSign.action({
+          account: "scores.boid",
+          name: descriptor.actionName,
+          authorization: [{
+            actor: Name.from("scores.boid"),
+            permission: Name.from("active")
+          }],
+          data: descriptor.action_data
+        })
+      })
+
+      console.log("Executing actions in multi-sign mode...")
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
+    } else {
+      // Execute a regular transaction with the prepared actions
+      console.log("Transacting actions...")
+      result = await session.transact({ actions })
+    }
+
+    console.log("Transaction result:", result)
+    notifyEvent.emit("TrxResult", result)
+    return result
+  } catch (error) {
+    console.error("Error in createActions:", error)
+    throw error
+  }
+}
+
+// evm.boid bridge functions
+export type ActionDescriptorEvmBoid = {
+  actionName:ActionNamesEvmBoid;
+  action_data:ActionNameParamsEvmBoid[ActionNamesEvmBoid];
+};
+
+export async function createEvmBoidActions(
+  actionDescriptors:ActionDescriptorEvmBoid[]
+):Promise<TransactResult | undefined> {
+  let isItMultiSignMode = sessionStore.multiSignState
+  console.log("createEvmBoidActions called with", actionDescriptors)
+  try {
+    const session = sessionStore.session
+    if (!session) throw new Error("Session not loaded")
+
+    const actions = actionDescriptors.map(descriptor => {
+      return apiStore.evmBoidContract.action(descriptor.actionName, descriptor.action_data)
+    })
+
+    let result
+    if (isItMultiSignMode) {
+      // Prepare actions for multi-signature transaction
+      const multiSignActions = actionDescriptors.map(descriptor => {
+        // eslint-disable-next-line new-cap
+        return new TypesMultiSign.action({
+          account: "evm.boid",
+          name: descriptor.actionName,
+          authorization: [{
+            actor: Name.from("evm.boid"),
+            permission: Name.from("active")
+          }],
+          data: descriptor.action_data
+        })
+      })
+
+      console.log("Executing actions in multi-sign mode...")
+      result = await createAndExecuteMultiSignProposal(reqSignAccsConverted.value, multiSignActions)
+    } else {
+      // Execute a regular transaction with the prepared actions
+      console.log("Transacting actions...")
+      result = await session.transact({ actions })
+    }
+    console.log("Transaction result:", result)
+    notifyEvent.emit("TrxResult", result)
+    return result
+  } catch (error) {
+    console.error("Error in createEvmBoidActions:", error)
+    throw error
+  }
+}
