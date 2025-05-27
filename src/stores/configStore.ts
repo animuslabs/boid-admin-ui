@@ -12,7 +12,7 @@ const sessionStore = useSessionStore()
 const apiStore = useApiStore()
 // Defining the store
 export const useConfigStore = defineStore({
-  id: "cofigStore",
+  id: "configStore",
 
   // Reactive state of the store
   state: () => ({
@@ -58,6 +58,7 @@ export const useConfigStore = defineStore({
         }
         const result = await createAction("config.set", configData)
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })

@@ -91,6 +91,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "initcontract", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -106,6 +107,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "setgame", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -121,6 +123,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "removegame", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -136,6 +139,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "settoken", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -151,6 +155,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "recordgame", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -166,6 +171,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "removetoken", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -181,6 +187,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "clearrecord", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -196,6 +203,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "setdistconf", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -211,6 +219,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "rmdistconf", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
@@ -226,6 +235,7 @@ export const useGamingRewardsStore = defineStore({
         }
         const result = await createScoresBoidActions([{ actionName: "distribute", action_data: data }])
         console.log("Action Sent:", result)
+        return result
       } catch (error:any) {
         console.error("createConfigSetAction Error:", error)
         this.$patch({ error: error.message })
